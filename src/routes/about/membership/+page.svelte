@@ -28,12 +28,18 @@
                     연회비 10만원 이상
                 </li>
             </ul>
+
+            <div class="donate-wrapper">
+                <a href="https://forms.gle/a2AJGxrey9Sd6FdJ8" class="donate-btn">후원하기</a>
+            </div>
         </div>
     </section>
 </div>
 
 <style lang="scss">
     .description-section {
+        max-width: 2000px;
+        margin: 0 auto;
         display: grid;
         gap: 2rem;
         grid-template-columns: auto 3fr;
@@ -55,6 +61,35 @@
                     font-weight: 300;
                     color: #333;
                     line-height: 1.6;
+                }
+            }
+        }
+
+        .donate-wrapper {
+            display: flex;
+            justify-content: end;
+
+            margin-right: 6rem;
+            @media(--desktop) {
+                margin-right: 4rem;
+            }
+            @media(--tablet) {
+                margin-right: 2rem;
+            }
+            @media(--mobile) {
+                margin-right: 1rem;
+            }
+
+            .donate-btn {
+                color: #333;
+                border: 1px solid #333;
+                padding: 0.5rem 1.5rem;
+                font-weight: 500;
+                transition: background-color 0.3s ease;
+
+                &:hover {
+                    background-color: #333;
+                    color: #fff;
                 }
             }
         }

@@ -61,10 +61,11 @@
     loadArtists();
   });
 
-async function loadConcerts() {
+  async function loadConcerts() {
     loading = true;
     try {
-      const res = await fetch(`${API}/api/concerts?active_only=false`);
+      // 리스트 로딩 속도를 높이기 위해 사진/세부정보를 제외한 요약본만 비동기로 가져옴
+      const res = await fetch(`${API}/api/concerts?active_only=false&summary=true`);
       concerts = await res.json();
     } catch (e) {
       console.error('Failed to load concerts:', e);
@@ -114,7 +115,19 @@ async function loadConcerts() {
     showForm = true;
   }
 
-  function openEdit(concert) {
+  async function openEdit(concertSummary) {
+    loading = true;
+    let concert = concertSummary;
+    try {
+      const res = await fetch(`${API}/api/concerts/${concertSummary.id}`);
+      if (res.ok) {
+        concert = await res.json();
+      }
+    } catch (e) {
+      console.error('상세 정보 로드 실패:', e);
+    }
+    loading = false;
+
     editing = concert;
     // date 분리: "2026-03-15 19:30" → date="2026-03-15", time="19:30"
     let dateStr = '';
@@ -321,19 +334,28 @@ async function loadConcerts() {
   /** 저장 시 호출: pending 서브 이미지를 실제 업로드하고 image_list 갱신 */
   async function flushPendingSubImages() {
     if (pendingSubImageFiles.length === 0) return;
-    for (const file of pendingSubImageFiles) {
+    
+    // 비동기 병렬 업로드 (Promise.all)
+    const uploadPromises = pendingSubImageFiles.map(async (file) => {
       const fd = new FormData();
       fd.append('file', file);
       fd.append('category', 'concert');
       const res = await fetch(`${API}/api/media`, { method: 'POST', body: fd });
       if (!res.ok) throw new Error(await res.text());
       const media = await res.json();
-      // previewUrl → 실제 url + media_id 교체
+      return { file, media };
+    });
+
+    const results = await Promise.all(uploadPromises);
+
+    // previewUrl → 실제 url + media_id 교체
+    for (const { file, media } of results) {
       form.image_list = form.image_list.map(img =>
-        img.url === file._previewUrl ? { media_id: media.id, url: media.url } : img
+        img.url === file._previewUrl ? { media_id: media.id, url: media.url, thumb_url: media.thumb_url } : img
       );
       URL.revokeObjectURL(file._previewUrl);
     }
+    
     pendingSubImageFiles = [];
   }
 
@@ -429,10 +451,12 @@ async function loadConcerts() {
   // ── 저장 ───────────────────────────────────
   async function saveConcert() {
     try {
-      // 1. pending 이미지 먼저 업로드
-      await flushPendingPoster();
-      await flushPendingBanner();
-      await flushPendingSubImages();
+      // 1. pending 이미지 먼저 병렬로 비동기 업로드
+      await Promise.all([
+        flushPendingPoster(),
+        flushPendingBanner(),
+        flushPendingSubImages()
+      ]);
     } catch (e) {
       alert('이미지 업로드 실패: ' + e.message);
       return;
@@ -612,7 +636,7 @@ async function loadConcerts() {
             <tr>
               <td>
                 {#if concert.poster_thumb_url || concert.poster_url}
-                  <img src={concert.poster_thumb_url || concert.poster_url} alt={concert.title} class="thumb" />
+                  <img src={concert.poster_thumb_url || concert.poster_url} alt={concert.title} class="thumb" loading="lazy" />
                 {:else}
                   <div class="thumb-placeholder"></div>
                 {/if}
