@@ -1,4 +1,5 @@
 <script>
+	import { Analytics } from '@vercel/analytics/svelte';
 	import '@/styles/globals.scss';
 	import Header from '@/components/layout/header.svelte';
 	import Footer from '@/components/layout/footer.svelte';
@@ -19,6 +20,8 @@
 	{@render children()}
 </div>
 <Footer />
+
+<Analytics />
 
 <style>
 	.content {
