@@ -27,6 +27,7 @@
 		"vite": "^7.2.6"
 	},
 	"dependencies": {
-		"@auth/sveltekit": "^1.11.1"
+		"@auth/sveltekit": "^1.11.1",
+		"@vercel/analytics": "^2.0.1"
 	}
 }
