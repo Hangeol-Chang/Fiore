@@ -2,7 +2,7 @@
     let { artist } = $props();
 </script>
 
-{#if artist.role_name === "artist"}
+{#if artist.role_name === "artist" || artist.role_name === "group"}
 <a href="/artists/{artist.id}" class="artist-card">
     <div class="card-image-wrapper">
         {#if artist.mid_url || artist.image_url}
@@ -22,8 +22,8 @@
 {:else}
 <div class="artist-card no-link">
     <div class="card-image-wrapper">
-        {#if artist.mid_url}
-            <img src={artist.mid_url} alt={artist.name} class="card-image" />
+        {#if artist.mid_url || artist.thumb_url || artist.image_url}
+            <img src={artist.mid_url || artist.thumb_url || artist.image_url} alt={artist.name} class="card-image" />
         {:else}
             <div class="card-image-placeholder"></div>
         {/if}

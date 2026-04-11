@@ -5,7 +5,14 @@
 
     const API = PIANOLIFE_BACKEND_URL || 'http://localhost:8000';
 
-    let form = { name: '', phone: '', email: '', desired_date: '', usage_time: '' };
+    let form = {
+        name: '',
+        phone: '',
+        email: '',
+        rental_type: '레슨, 연습',
+        desired_date: '',
+        usage_time: ''
+    };
     let submitting = false;
     let resultMessage = '';
     let resultType = ''; // 'success' | 'error'
@@ -35,6 +42,7 @@
                     name: form.name,
                     phone: form.phone,
                     email: form.email,
+                    rental_type: form.rental_type,
                     desired_date: form.desired_date,
                     usage_time: form.usage_time,
                 })
@@ -42,7 +50,14 @@
             const data = await res.json();
             if (res.ok) {
                 showToast(data.message || '신청이 완료되었습니다.', 'success');
-                form = { name: '', phone: '', email: '', desired_date: '', usage_time: '' };
+                form = {
+                    name: '',
+                    phone: '',
+                    email: '',
+                    rental_type: '레슨, 연습',
+                    desired_date: '',
+                    usage_time: ''
+                };
             } else {
                 showToast(data.detail || '오류가 발생했습니다. 다시 시도해주세요.', 'error');
             }
@@ -86,6 +101,14 @@
             <div class="form-row">
                 <label for="email">이메일 <span class="required">*</span></label>
                 <input id="email" type="email" bind:value={form.email} required placeholder="example@email.com" />
+            </div>
+            <div class="form-row">
+                <label for="rental_type">대관 유형 <span class="required">*</span></label>
+                <select id="rental_type" bind:value={form.rental_type} required>
+                    <option value="레슨, 연습">레슨, 연습</option>
+                    <option value="모임 대관">모임 대관</option>
+                    <option value="공연 대관">공연 대관</option>
+                </select>
             </div>
             <div class="form-row">
                 <label for="desired_date">대관 희망일 <span class="required">*</span></label>
@@ -223,7 +246,8 @@
             color: #555;
             font-weight: 500;
         }
-        input {
+        input,
+        select {
             padding: 10px 14px;
             border: 1px solid #d6ccc2;
             border-radius: 2px;
@@ -233,7 +257,8 @@
             transition: border-color 0.2s;
             width: 100%;
         }
-         input:focus {
+         input:focus,
+         select:focus {
             outline: none;
             border-color: #a08878;
             background: #fff;

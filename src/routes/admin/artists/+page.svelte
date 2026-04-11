@@ -6,16 +6,21 @@
   // ── 상태 ──────────────────────────────────
   let artists = $state([]);
   let roles = $state([]);
+  let instruments = $state([]);
   let concerts = $state([]);
   let loading = $state(false);
   let editing = $state(null);       // 편집 중인 아티스트 객체
   let showForm = $state(false);  let roleFilter = $state(null);    // role 필터 (null = 전체)
+  let groupMemberQuery = $state('');
+  let concertQuery = $state('');
   // ── 폼 데이터 ──────────────────────────────
   let form = $state({
     name: '',
     name_en: '',
     headline: '',
     role_id: null,
+    instrument_id: null,
+    group_artist_ids: [],
     description: '',
     career: '',
     videos: [],
@@ -44,6 +49,7 @@
   $effect(() => {
     loadArtists();
     loadRoles();
+    loadInstruments();
     loadConcerts();
   });
 
@@ -76,6 +82,19 @@
     }
   }
 
+  async function loadInstruments() {
+    try {
+      const res = await fetch(`${API}/api/instruments`);
+      instruments = await res.json();
+
+      if (!editing && (form.instrument_id === null || form.instrument_id === undefined || form.instrument_id === '')) {
+        form.instrument_id = getDefaultPianoInstrumentId();
+      }
+    } catch (e) {
+      console.error('Failed to load instruments:', e);
+    }
+  }
+
   async function loadMedia() {
     try {
       const res = await fetch(`${API}/api/media?category=artist&limit=100`);
@@ -87,9 +106,21 @@
   }
 
   // ── 폼 초기화 ──────────────────────────────
+  function getDefaultPianoInstrumentId() {
+    const piano = instruments.find(i => i.name_en?.toLowerCase() === 'piano');
+    return piano ? piano.id : null;
+  }
+
   function resetForm() {
     form = {
-      name: '', name_en: '', headline: '', role_id: null, description: '', career: '',
+      name: '',
+      name_en: '',
+      headline: '',
+      role_id: null,
+      instrument_id: getDefaultPianoInstrumentId(),
+      group_artist_ids: [],
+      description: '',
+      career: '',
       videos: [], image_list: [], notice: '', sort_order: 0, image_media_id: null, concert_ids: [],
     };
     selectedImageUrl = '';
@@ -101,6 +132,8 @@
 
   function openCreate() {
     resetForm();
+    groupMemberQuery = '';
+    concertQuery = '';
     showForm = true;
   }
 
@@ -111,6 +144,8 @@
       name_en: artist.name_en || '',
       headline: artist.headline || '',
       role_id: artist.role_id || null,
+      instrument_id: artist.instrument_id ?? getDefaultPianoInstrumentId(),
+      group_artist_ids: artist.group_artist_ids ? [...artist.group_artist_ids] : [],
       description: artist.description || '',
       career: artist.career || '',
       videos: artist.videos ? [...artist.videos] : [],
@@ -121,6 +156,8 @@
       concert_ids: (artist.concerts || []).map(c => c.id),
     };
     selectedImageUrl = artist.image_url || '';
+    groupMemberQuery = '';
+    concertQuery = '';
     showForm = true;
   }
 
@@ -204,6 +241,47 @@
     }
   }
 
+  function isGroupRoleSelected() {
+    const roleId = Number(form.role_id);
+    const role = roles.find(r => Number(r.id) === roleId);
+    return role?.name === 'group';
+  }
+
+  function toggleGroupArtist(artistId) {
+    if (form.group_artist_ids.includes(artistId)) {
+      form.group_artist_ids = form.group_artist_ids.filter(id => id !== artistId);
+    } else {
+      form.group_artist_ids = [...form.group_artist_ids, artistId];
+    }
+  }
+
+  function getGroupMemberOptions() {
+    const editingId = editing?.id;
+    return artists.filter(a => a.id !== editingId);
+  }
+
+  function getFilteredGroupMemberOptions() {
+    const query = groupMemberQuery.trim().toLowerCase();
+    if (!query) return getGroupMemberOptions();
+
+    return getGroupMemberOptions().filter(option => {
+      const name = String(option.name || '').toLowerCase();
+      const role = String(option.role_name || getRoleName(option.role_id) || '').toLowerCase();
+      return name.includes(query) || role.includes(query);
+    });
+  }
+
+  function getFilteredConcertOptions() {
+    const query = concertQuery.trim().toLowerCase();
+    if (!query) return concerts;
+
+    return concerts.filter(concert => {
+      const title = String(concert.title || '').toLowerCase();
+      const date = String(concert.date || '').toLowerCase();
+      return title.includes(query) || date.includes(query);
+    });
+  }
+
   // ── 미디어 선택 ────────────────────────────
   async function openMediaPicker() {
     await loadMedia();
@@ -272,6 +350,9 @@
     if (form.name_en) formData.append('name_en', form.name_en);
     if (form.headline) formData.append('headline', form.headline);
     if (form.role_id) formData.append('role_id', String(form.role_id));
+    if (form.instrument_id !== null && form.instrument_id !== undefined && form.instrument_id !== '') {
+      formData.append('instrument_id', String(form.instrument_id));
+    }
     if (form.description) formData.append('description', form.description);
     if (form.career) formData.append('career', form.career);
     if (form.videos.length > 0) formData.append('videos', JSON.stringify(form.videos));
@@ -279,6 +360,10 @@
     if (form.notice) formData.append('notice', form.notice);
     formData.append('sort_order', String(form.sort_order));
     if (form.image_media_id) formData.append('image_media_id', String(form.image_media_id));
+    const safeGroupArtistIds = isGroupRoleSelected()
+      ? (form.group_artist_ids || []).filter(id => !editing || id !== editing.id)
+      : [];
+    formData.append('group_artist_ids', JSON.stringify(safeGroupArtistIds));
     if (form.concert_ids.length > 0) formData.append('concert_ids', JSON.stringify(form.concert_ids));
 
     try {
@@ -397,7 +482,7 @@
   {#if showForm}
     <div class="modal-overlay">
       <!-- svelte-ignore a11y_click_events_have_key_events -->
-      <div class="modal" role="dialog" onclick={(e) => e.stopPropagation()}>
+      <div class="modal" role="none" onclick={(e) => e.stopPropagation()}>
         <button class="modal-close" onclick={resetForm}>✕</button>
         <h2>{editing ? '아티스트 편집' : '새 아티스트'}</h2>
 
@@ -425,6 +510,56 @@
               {/each}
             </select>
           </label>
+
+          <label>
+            악기
+            <select bind:value={form.instrument_id}>
+              {#if instruments.length === 0}
+                <option value={null}>악기 로딩 중...</option>
+              {:else}
+                {#each instruments as instrument}
+                  <option value={instrument.id}>
+                    {instrument.name_ko || instrument.name_en}
+                    {instrument.abbreviation ? ` (${instrument.abbreviation})` : ''}
+                  </option>
+                {/each}
+              {/if}
+            </select>
+          </label>
+
+          {#if isGroupRoleSelected()}
+            <label>
+              그룹 멤버 선택
+              <div class="search-row">
+                <span>검색</span>
+                <input
+                  class="inline-search-input"
+                  type="text"
+                  bind:value={groupMemberQuery}
+                  placeholder="이름 또는 역할로 검색"
+                />
+              </div>
+              <div class="concert-list" style="margin-top:0.4rem;">
+                {#each getFilteredGroupMemberOptions() as option}
+                  <label class="concert-check">
+                    <input
+                      type="checkbox"
+                      checked={form.group_artist_ids.includes(option.id)}
+                      onchange={() => toggleGroupArtist(option.id)}
+                    />
+                    {option.name} ({option.role_name || getRoleName(option.role_id) || '-'})
+                  </label>
+                {/each}
+                {#if getFilteredGroupMemberOptions().length === 0}
+                  <p class="empty">검색 결과가 없습니다.</p>
+                {/if}
+              </div>
+              <small style="display:block;margin-top:0.35rem;color:#666;">
+                artist / performer / group_artist 모두 추가할 수 있습니다.
+              </small>
+            </label>
+          {/if}
+
           <label>
             정렬 순서
             <input type="number" bind:value={form.sort_order} />
@@ -546,8 +681,17 @@
         <!-- 콘서트 연결 -->
         <div class="form-section">
           <h3>연결된 콘서트</h3>
+          <div class="search-row">
+            <span>검색</span>
+            <input
+              class="inline-search-input"
+              type="text"
+              bind:value={concertQuery}
+              placeholder="콘서트명 또는 날짜로 검색"
+            />
+          </div>
           <div class="concert-list">
-            {#each concerts as concert}
+            {#each getFilteredConcertOptions() as concert}
               <label class="concert-check">
                 <input
                   type="checkbox"
@@ -557,8 +701,8 @@
                 {concert.title} ({concert.date || '날짜 미정'})
               </label>
             {/each}
-            {#if concerts.length === 0}
-              <p class="empty">등록된 콘서트가 없습니다.</p>
+            {#if getFilteredConcertOptions().length === 0}
+              <p class="empty">검색 결과가 없습니다.</p>
             {/if}
           </div>
         </div>
@@ -576,7 +720,7 @@
   <!-- ── 서브 이미지 미디어 피커 모달 ──────── -->
   {#if showSubMediaPicker}
     <div class="modal-overlay">
-      <div class="modal media-picker" role="dialog" onclick={(e) => e.stopPropagation()}>
+      <div class="modal media-picker" role="none" onclick={(e) => e.stopPropagation()}>
         <button class="modal-close" onclick={() => (showSubMediaPicker = false)}>✕</button>
         <h2>서브 이미지 선택</h2>
         <div class="media-grid">
@@ -598,7 +742,7 @@
   <!-- ── 미디어 피커 모달 ──────────────────── -->
   {#if showMediaPicker}
     <div class="modal-overlay">
-      <div class="modal media-picker" role="dialog" onclick={(e) => e.stopPropagation()}>
+      <div class="modal media-picker" role="none" onclick={(e) => e.stopPropagation()}>
         <button class="modal-close" onclick={() => (showMediaPicker = false)}>✕</button>
         <h2>이미지 선택</h2>
         <div class="media-grid">
@@ -912,6 +1056,25 @@
     background: #f9fafb;
     border-radius: 6px;
     border: 1px solid #e5e7eb;
+  }
+
+  .search-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.35rem 0 0.4rem;
+    font-size: 0.85rem;
+    color: #666;
+  }
+
+  .inline-search-input {
+    max-width: 260px;
+    padding: 0.35rem 0.55rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    background: #fff;
+    color: #333;
   }
   .concert-check {
     display: flex;

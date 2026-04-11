@@ -1,4 +1,8 @@
 <script>
+    import ArtistCard from "$lib/components/artists/ArtistCard.svelte";
+    import ArtistInlineDetail from "$lib/components/artists/ArtistInlineDetail.svelte";
+    import { slide } from "svelte/transition";
+
     let { artist } = $props();
     let activeTab = $state('profile');
     let gradientStyle = $state('#000');
@@ -63,6 +67,47 @@
     );
 
     const videos = $derived(artist.videos || []);
+    const isGroupArtist = $derived(artist.role_name === 'group');
+    const groupMembers = $derived(artist.group_artists || []);
+    let expandedMemberId = $state(null);
+    let membersGridEl = $state(null);
+    let memberColumns = $state(1);
+
+    const expandedMember = $derived(groupMembers.find((member) => member.id === expandedMemberId) || null);
+    const expandedMemberIndex = $derived(groupMembers.findIndex((member) => member.id === expandedMemberId));
+    const expandedRowEndIndex = $derived(
+        expandedMemberIndex < 0
+            ? -1
+            : Math.min(
+                groupMembers.length - 1,
+                (Math.floor(expandedMemberIndex / memberColumns) + 1) * memberColumns - 1,
+            )
+    );
+
+    function updateMemberColumns() {
+        if (!membersGridEl) return;
+        const style = getComputedStyle(membersGridEl);
+        const parsed = style.gridTemplateColumns.split(' ').filter(Boolean).length;
+        memberColumns = Math.max(1, parsed || 1);
+    }
+
+    function observeMembersGrid(node) {
+        const observer = new ResizeObserver(() => {
+            updateMemberColumns();
+        });
+        observer.observe(node);
+        updateMemberColumns();
+        return {
+            destroy() {
+                observer.disconnect();
+            },
+        };
+    }
+
+    function toggleMemberInline(member) {
+        if (member.role_name !== 'group_artist') return;
+        expandedMemberId = expandedMemberId === member.id ? null : member.id;
+    }
 
     // ── 비디오 캐러셀 ───────────────────────
     let currentVideoIndex = $state(0);
@@ -75,6 +120,7 @@
     $effect(() => {
         const _ = artist.id ?? artist.name;
         currentVideoIndex = 0;
+        expandedMemberId = null;
     });
 
     function prevVideo() {
@@ -126,6 +172,14 @@
             .sort((a, b) => (b.date ?? '').localeCompare(a.date ?? ''))
             .slice(0, 4)
     );
+
+    const detailTabs = $derived([
+        'profile',
+        ...(videos.length > 0 ? ['video'] : []),
+        ...(concerts.length > 0 ? ['concert'] : []),
+        ...(isGroupArtist ? ['members'] : []),
+        ...(artist.notice ? ['notice'] : []),
+    ]);
 
     function inView(node, { threshold = 0.5 } = {}) {
         const observer = new IntersectionObserver(
@@ -307,6 +361,52 @@
             </section>
             {/if}
 
+            <!-- Members (Group 전용) -->
+            {#if isGroupArtist}
+            <section id="members" class="detail-section">
+                <h3 class="section-header">Members</h3>
+                {#if groupMembers.length > 0}
+                    <div class="members-grid" bind:this={membersGridEl} use:observeMembersGrid>
+                        {#each groupMembers as member, index (member.id)}
+                            <div
+                                class="member-slot"
+                                class:active={expandedMemberId === member.id}
+                                class:dimmed={expandedMemberId !== null && expandedMemberId !== member.id}
+                            >
+                                {#if member.role_name === 'group_artist'}
+                                    <button
+                                        type="button"
+                                        class="member-card-trigger"
+                                        class:active={expandedMemberId === member.id}
+                                        onclick={() => toggleMemberInline(member)}
+                                        aria-expanded={expandedMemberId === member.id}
+                                        aria-controls={`member-inline-detail-${member.id}`}
+                                    >
+                                        <ArtistCard artist={member} />
+                                    </button>
+                                {:else}
+                                    <ArtistCard artist={member} />
+                                {/if}
+                            </div>
+
+                            {#if expandedMember && index === expandedRowEndIndex}
+                                <div
+                                    id={`member-inline-detail-${expandedMember.id}`}
+                                    class="member-inline-panel full-width"
+                                    in:slide={{ duration: 240 }}
+                                    out:slide={{ duration: 220 }}
+                                >
+                                    <ArtistInlineDetail artist={expandedMember} />
+                                </div>
+                            {/if}
+                        {/each}
+                    </div>
+                {:else}
+                    <p class="members-empty">등록된 그룹 멤버가 없습니다.</p>
+                {/if}
+            </section>
+            {/if}
+
             <!-- Notice -->
             {#if artist.notice}
             <section id="notice" class="detail-section">
@@ -321,7 +421,7 @@
         <!-- 우: 섹션 내비게이션 (PC) -->
         <nav class="right-nav">
             <ul class="nav-list">
-                {#each ['profile', 'video', 'concert', 'notice'] as tab}
+                {#each detailTabs as tab}
                     <li class:active={activeTab === tab}>
                         <button onclick={() => scrollToSection(tab)}>
                             {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -441,7 +541,12 @@
         .headline-bar {
             position: relative;
             width: 100%;
-            background-color: black;
+            background: linear-gradient(to bottom, 
+                rgba(0, 0, 0, 0) 0%, 
+                rgba(0, 0, 0, 0.5) 50%,
+                rgba(0, 0, 0, 0.7) 90%,
+            );
+            backdrop-filter: blur(12px);
             text-align: center;
             margin-top: 0;
             padding: 2.5rem 5vw;
@@ -581,6 +686,63 @@
         line-height: 1.9;
         font-weight: 300;
         color: #555;
+
+        p {
+            white-space: pre-wrap;
+        }
+    }
+
+    .members-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(140px, 1fr));
+        gap: 1rem;
+
+        @media (--desktop) {
+            grid-template-columns: repeat(3, minmax(100px, 1fr));
+            gap: 0.75rem;
+        }   
+
+        @media (--mobile) {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.6rem;
+        }
+    }
+
+    .member-slot {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+        transition: opacity 0.22s ease, filter 0.22s ease;
+
+        &.dimmed {
+            opacity: 0.34;
+            filter: grayscale(0.3) saturate(0.65);
+        }
+    }
+
+    .member-card-trigger {
+        border: 0;
+        padding: 0;
+        background: transparent;
+        text-align: left;
+        border-radius: 2px;
+        width: 100%;
+        transition: box-shadow 0.2s ease, outline-color 0.2s ease;
+    }
+
+    .member-inline-panel {
+        margin-top: 1.5rem;
+
+        &.full-width {
+            grid-column: 1 / -1;
+            margin-top: 0.4rem;
+        }
+    }
+
+    .members-empty {
+        color: #888;
+        font-size: 0.9rem;
+        font-weight: 300;
     }
 
     /* ── Video Carousel ─────────────────── */
@@ -731,7 +893,7 @@
 
         /* 태블릿: 2열 */
         @media (--tablet) {
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 0.75rem;
         }
 
