@@ -11,12 +11,15 @@
     let error = $state(null);
 
     $effect(() => {
-        fetch(`${API}/api/artists?active_only=true&role_id=1`)
+        fetch(`${API}/api/artists?active_only=true`)
             .then(res => {
                 if (!res.ok) throw new Error(`서버 오류: ${res.status}`);
                 return res.json();
             })
-            .then(data => { artists = data; })
+            .then(data => {
+                const allowedRoles = new Set(["artist", "group"]);
+                artists = (data || []).filter(item => allowedRoles.has(item.role_name));
+            })
             .catch(err => { error = err.message; })
             .finally(() => { loading = false; });
     });

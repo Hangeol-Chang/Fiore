@@ -1,6 +1,6 @@
 <script>
     import { onMount } from 'svelte';
-    import fioreum_wallpaper from '$lib/assets/images/fioreum/fioreum_wallpaper.png';
+    import fioreum_wallpaper from '$lib/assets/images/fioreum/fioreum_wallpaper.jpg';
     import FlowerLine from '@/components/fioreum/Flower.svelte';
     import flower_ref_image from '$lib/assets/images/fioreum/flower.jpg';
     import FioreumTitle from '@/components/fioreum/FioreumTitle.svelte';
@@ -214,9 +214,9 @@
         width: 100%;
         height: 100%;
         background: linear-gradient(to bottom, 
-            rgba(0, 0, 0, 0.5) 20%, 
-            rgba(0, 0, 0, 0.8) 70%,
-            rgba(0, 0, 0, 1) 90%
+            rgba(0, 0, 0, 0.5) 50%, 
+            rgba(0, 0, 0, 0.8) 90%,
+            rgba(0, 0, 0, 1) 95%
         );
     }
 
