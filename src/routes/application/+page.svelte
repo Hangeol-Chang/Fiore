@@ -31,7 +31,7 @@
                  .sort((a, b) => (b.start_date ?? '').localeCompare(a.start_date ?? ''))
     );
 
-    const filters = ['auditions',];
+    const filters = ['auditions', 'concourse'];
     let activeFilter = $state('auditions');
 
 </script>

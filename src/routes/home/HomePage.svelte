@@ -41,19 +41,15 @@
     onMount(async () => {
         const today = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
 
-        // const [concertsRes, auditionsRes, concoursRes] = await Promise.allSettled([
-        //     fetch(`${API}/api/concerts?active_only=true`).then(r => r.json()),
-        //     fetch(`${API}/api/auditions?active_only=false`).then(r => r.json()),
-        //     fetch(`${API}/api/concours?active_only=false`).then(r => r.json()),
-        // ]);
-        const [concertsRes, auditionsRes] = await Promise.allSettled([
+        const [concertsRes, auditionsRes, concoursRes] = await Promise.allSettled([
             fetch(`${API}/api/concerts?active_only=true`).then(r => r.json()),
-            fetch(`${API}/api/auditions?active_only=false`).then(r => r.json())
+            fetch(`${API}/api/auditions?active_only=true`).then(r => r.json()),
+            fetch(`${API}/api/concours/?active_only=true`).then(r => r.json()),
         ]);
-        
+
         const newSlides = [{ type: 'main' }];
 
-        // 가장 가까운 예정 공연 (date >= today)
+        // 가장 가까운 예정 공연 1개 (date >= today)
         if (concertsRes.status === 'fulfilled' && Array.isArray(concertsRes.value)) {
             const upcoming = concertsRes.value
                 .filter(c => c.date && c.date >= today)
@@ -63,14 +59,9 @@
                 const image = c.banner_image_url || c.poster_url;
                 if (image) newSlides.push({ type: 'link', image, link: `/concerts/${c.id}` });
             }
-            if(upcoming.length > 1) {
-                const c = upcoming[1];
-                const image = c.banner_image_url || c.poster_url;
-                if (image) newSlides.push({ type: 'link', image, link: `/concerts/${c.id}` });
-            }
         }
 
-        // 가장 가까운 오디션 (end_date >= today)
+        // 가장 가까운 오디션 1개 (end_date >= today)
         if (auditionsRes.status === 'fulfilled' && Array.isArray(auditionsRes.value)) {
             const upcoming = auditionsRes.value
                 .filter(a => a.end_date && a.end_date >= today)
@@ -78,21 +69,18 @@
             if (upcoming.length > 0) {
                 const a = upcoming[0];
                 const image = a.banner_image_url || a.poster_url;
-                if (image) newSlides.push({ type: 'link', image, link: `/auditions/${a.id}` });
+                if (image) newSlides.push({ type: 'link', image, link: `/application/auditions/${a.id}` });
             }
         }
 
-        // 가장 가까운 콩쿠르 (end_date >= today)
-        // if (concoursRes.status === 'fulfilled' && Array.isArray(concoursRes.value)) {
-        //     const upcoming = concoursRes.value
-        //         .filter(c => c.end_date && c.end_date >= today)
-        //         .sort((a, b) => a.end_date.localeCompare(b.end_date));
-        //     if (upcoming.length > 0) {
-        //         const c = upcoming[0];
-        //         const image = c.banner_image_url || c.poster_url;
-        //         if (image) newSlides.push({ type: 'link', image, link: `/concours/${c.id}` });
-        //     }
-        // }
+        // 활성화된 콩쿠르 1개 (가장 최근 등록)
+        if (concoursRes.status === 'fulfilled' && Array.isArray(concoursRes.value)) {
+            if (concoursRes.value.length > 0) {
+                const c = concoursRes.value[0];
+                const image = c.poster_url;
+                if (image) newSlides.push({ type: 'link', image, link: `/application/concours` });
+            }
+        }
 
         slides = newSlides;
         // Clamp active index in case placeholders were removed

@@ -46,8 +46,11 @@
         },
         { 
             name: 'Application', 
-            href: '/application',
-            subItems: null
+            href: '/application/audition',
+            subItems: [
+                { name: "audition", href: '/application/audition' },
+                { name: "concours", href: '/application/concours' },
+            ]
         },
         {
             name: "Fioreum",
