@@ -390,7 +390,7 @@
     }
 
     ul {
-        list-style: square;
+        list-style: none;
         padding: 0;
         margin: 0;
         display: flex;
@@ -438,7 +438,7 @@
 
     /* ── 불릿 목록 (특전/규정) ───────────── */
     .bullet-list {
-        list-style: square;
+        list-style: none;
         padding: 0;
         padding-left: 1rem;
         margin: 0;
@@ -448,7 +448,7 @@
 
         li {
             padding: 0.75rem 0 0.75rem 1rem;
-            border-bottom: 0.5px solid #f0f0f0;
+            // border-bottom: 0.5px solid #f0f0f0;
             position: relative;
             font-size: 0.9rem;
             font-weight: 300;
