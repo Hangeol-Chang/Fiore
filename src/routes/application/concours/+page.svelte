@@ -94,7 +94,14 @@
     </div>
 {:else}
     <div class="concours-detail-page">
-        <!-- <HeroSection image={concours.poster_url} maxHeight="700px" /> -->
+        <div class="large-desktop-poster">
+            <HeroSection
+                image={concours.poster_url}
+                scrollYOffset={200}
+                aspectRatio="1/2"
+                backgroundColor="transparent"
+            />
+        </div>
 
         <section class="main-content-section">
             <!-- 포스터 (sticky left) -->
@@ -226,7 +233,6 @@
     .state-msg {
         color: #999;
         font-weight: 300;
-        font-size: 0.95rem;
     }
     .skeleton-hero {
         width: 100%;
@@ -268,6 +274,14 @@
     /* ── 페이지 ──────────────────────────── */
     .concours-detail-page {
         width: 100%;
+    }
+
+    .large-desktop-poster {
+        display: block;
+        @media(--desktop) {
+            display: none;
+            margin-bottom: 2rem;
+        }
     }
 
     .main-content-section {
@@ -334,15 +348,11 @@
     }
 
     .concours-title {
-        font-size: 1.8rem;
         font-weight: 300;
         color: #111;
         margin: 0 0 1.5rem;
         line-height: 1.3;
         letter-spacing: 0.01em;
-
-        @media(--tablet) { font-size: 1.4rem; }
-        @media(--mobile) { font-size: 1.1rem; margin-bottom: 1rem; }
     }
 
     .overview-block,
@@ -364,7 +374,6 @@
     }
 
     .text-pre {
-        font-size: 0.9rem;
         margin: 0;
         white-space: pre-line;
         padding-left: 1rem;
@@ -399,7 +408,6 @@
 
         li {
             padding: 0.5rem 0 0.5rem 1rem;
-            font-size: 0.88rem;
             font-weight: 300;
         }
     }
@@ -424,14 +432,12 @@
         }
     }
     .schedule-date {
-        font-size: 0.88rem;
         font-weight: 400;
         color: #888;
         font-variant-numeric: tabular-nums;
         white-space: nowrap;
     }
     .schedule-desc {
-        font-size: 0.9rem;
         font-weight: 300;
         color: #333;
     }
@@ -450,7 +456,6 @@
             padding: 0.75rem 0 0.75rem 1rem;
             // border-bottom: 0.5px solid #f0f0f0;
             position: relative;
-            font-size: 0.9rem;
             font-weight: 300;
             color: #444;
         }
