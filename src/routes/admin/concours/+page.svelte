@@ -20,6 +20,7 @@
     prizes: [],
     entry_fee: '',
     rules: [],
+    register_link: '',
     poster_media_id: null,
     banner_image_media_id: null,
     is_active: true,
@@ -66,7 +67,7 @@
   function resetForm() {
     form = {
       title: '', overview: '', description: '', divisions: [], schedule_items: [],
-      repertoire: [], prizes: [], entry_fee: '', rules: [],
+      repertoire: [], prizes: [], entry_fee: '', rules: [], register_link: '',
       poster_media_id: null, banner_image_media_id: null, is_active: true,
     };
     selectedPosterUrl = '';
@@ -94,6 +95,7 @@
       prizes: item.prizes ? [...item.prizes] : [],
       entry_fee: item.entry_fee || '',
       rules: item.rules ? [...item.rules] : [],
+      register_link: item.register_link || '',
       poster_media_id: null,
       banner_image_media_id: null,
       is_active: item.is_active ?? true,
@@ -237,6 +239,7 @@
     formData.append('prizes', JSON.stringify(form.prizes.filter(v => v.trim())));
     if (form.entry_fee) formData.append('entry_fee', form.entry_fee);
     formData.append('rules', JSON.stringify(form.rules.filter(v => v.trim())));
+    if (form.register_link) formData.append('register_link', form.register_link);
     if (form.poster_media_id) formData.append('poster_media_id', String(form.poster_media_id));
     if (editing && !form.poster_media_id && !pendingPosterFile && !selectedPosterUrl) {
       formData.append('clear_poster', 'true');
@@ -539,6 +542,12 @@
             </div>
           {/each}
           <button type="button" class="btn-add" onclick={() => { form.rules = addListItem(form.rules); }}>+ 규정 추가</button>
+        </div>
+
+        <!-- 접수 링크 -->
+        <div class="form-section">
+          <h3>접수 링크</h3>
+          <input type="url" bind:value={form.register_link} placeholder="https://..." />
         </div>
 
         <div class="form-actions">

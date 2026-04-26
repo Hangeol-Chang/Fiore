@@ -9,7 +9,7 @@
     let error = $state(null);
 
     $effect(() => {
-        const today = new Date().toISOString().slice(0, 10);
+        const today = new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
         fetch(`${API}/api/concours/?active_only=true`)
             .then(res => {
@@ -52,6 +52,20 @@
         if (s.end_date) return `${formatDate(s.start_date)} ~ ${formatDate(s.end_date)}`;
         return formatDate(s.start_date);
     }
+
+    const today = new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
+    // schedule_items 중 description에 "접수"가 포함된 항목의 기간 안에 있으면 활성
+    // 해당 항목이 없으면 항상 활성
+    let isRegistrationOpen = $derived((() => {
+        if (!concours?.register_link) return false;
+        const regItems = (concours.schedule_items || []).filter(s => s.description?.includes('접수') || s.description?.includes('지원'));
+        if (!regItems.length) return true;
+        return regItems.some(s => {
+            const end = s.end_date || s.start_date;
+            return today >= s.start_date && today <= end;
+        });
+    })());
 
     function inView(node, { threshold = 0.15 } = {}) {
         const observer = new IntersectionObserver(
@@ -121,7 +135,20 @@
             <!-- 기본 정보 -->
             <div class="information-container">
                 <div>
-                    <h1 class="concours-title">{concours.title}</h1>
+                    <div class="title-row">
+                        <h1 class="concours-title">{concours.title}</h1>
+                        {#if concours.register_link}
+                            <span class="register-wrap" class:disabled={!isRegistrationOpen} data-tooltip="접수 기간이 아닙니다">
+                                <a
+                                    class="register-btn"
+                                    href={isRegistrationOpen ? concours.register_link : undefined}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    aria-disabled={!isRegistrationOpen}
+                                >Register</a>
+                            </span>
+                        {/if}
+                    </div>
 
                     {#if concours.overview}
                         <div class="overview-block">
@@ -211,6 +238,21 @@
                                 <li>{rule}</li>
                             {/each}
                         </ul>
+                    </div>
+                {/if}
+
+                <!-- 하단 접수 버튼 -->
+                {#if concours.register_link}
+                    <div class="register-bottom">
+                        <span class="register-wrap" class:disabled={!isRegistrationOpen} data-tooltip="접수 기간이 아닙니다">
+                            <a
+                                class="register-btn large"
+                                href={isRegistrationOpen ? concours.register_link : undefined}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-disabled={!isRegistrationOpen}
+                            >Register</a>
+                        </span>
                     </div>
                 {/if}
 
@@ -347,12 +389,88 @@
         padding-top: 0.5rem;
     }
 
+    .title-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1.2rem;
+        flex-wrap: wrap;
+        margin-bottom: 1.5rem;
+    }
+
     .concours-title {
         font-weight: 300;
         color: #111;
-        margin: 0 0 1.5rem;
+        margin: 0;
         line-height: 1.3;
         letter-spacing: 0.01em;
+    }
+
+    .register-wrap {
+        position: relative;
+        display: inline-block;
+
+        &.disabled {
+            cursor: not-allowed;
+
+            .register-btn {
+                pointer-events: none;
+                border-color: #ccc;
+                color: #bbb;
+            }
+
+            &::after {
+                content: attr(data-tooltip);
+                position: absolute;
+                bottom: calc(100% + 6px);
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(0, 0, 0, 0.75);
+                color: #fff;
+                font-size: 0.75rem;
+                font-weight: 400;
+                letter-spacing: 0.02em;
+                white-space: nowrap;
+                padding: 0.3rem 0.65rem;
+                border-radius: 4px;
+                pointer-events: none;
+                opacity: 0;
+                transition: opacity 0.15s;
+            }
+
+            &:hover::after {
+                opacity: 1;
+            }
+        }
+    }
+
+    .register-btn {
+        display: inline-block;
+        padding: 0.45rem 1.2rem;
+        border: 1px solid #333;
+        color: #333;
+        font-size: 0.8rem;
+        font-weight: 400;
+        letter-spacing: 0.08em;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: background 0.2s, color 0.2s, border-color 0.2s;
+
+        &:hover {
+            background: #333;
+            color: #fff;
+        }
+
+        &.large {
+            padding: 0.5rem 2rem;
+            font-size: 0.9rem;
+        }
+    }
+
+    .register-bottom {
+        display: flex;
+        justify-content: flex-end;
+        padding: 2rem 0 1rem;
     }
 
     .overview-block,
