@@ -40,8 +40,14 @@
     /** @type {boolean} 스크롤 시 배경 이미지 위치 조정 여부 */
     export let scrollAction = true;
 
+    /** @type {number} */
+    export let scrollYOffset = 0;
+
     /** @type {boolean} */
     export let blurImageOutline = false;
+
+    /** @type {string} */
+    export let backgroundColor = "black";
 
     let scrollY = 0;
 </script>
@@ -55,11 +61,12 @@
         --aspect-ratio: {aspectRatio};
         --gradient-overlay: {gradientOverlay};
         --bg-anchor: {bgAnchor};    
+        --background-color: {backgroundColor};
     "
 >
     <div class="hero-image-container">
         <img src={image} alt="{alt} Background" class="hero-image-background"
-            style="transform: translateY(calc({scrollAction ? scrollY : 0} * 0.7px));
+            style="transform: translateY(calc({scrollAction ? ( scrollY - scrollYOffset) : 0} * 0.7px));
                 {blurImageOutline
                     ? `mask-image:
                             linear-gradient(to bottom, transparent 5%, black 10%, black 100%);
@@ -73,7 +80,7 @@
         <!-- <div class="hero-image-background-overlay"></div> -->
         <img src={image} alt={alt} class="hero-image"
             style="
-                --scroll-y: {scrollAction ? scrollY : 0};
+                --scroll-y: {scrollAction ? (scrollY - scrollYOffset) : 0};
                 {blurImageOutline
                     ? `mask-image:
                             linear-gradient(to right, transparent 0%, black 14%, black 86%, transparent 100%), 
@@ -109,7 +116,7 @@
     position: absolute;
     display: flex;
     justify-content: center;
-    background-color: black;
+    background-color: var(--background-color, black);
 
     * {
         height: 100vh;
