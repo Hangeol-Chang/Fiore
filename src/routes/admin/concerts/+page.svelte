@@ -1234,6 +1234,20 @@
       &:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
     }
     textarea { resize: vertical; font-family: inherit; }
+
+    /* Safari: globals.scss의 * { padding: 0 } 리셋이 WebKit 내부 가상 요소에도 적용되어
+       시간/날짜 입력 필드의 클릭 영역이 사라지는 버그 수정 */
+    input[type="date"],
+    input[type="time"] {
+      &::-webkit-datetime-edit-fields-wrapper { padding: 0 2px; }
+      &::-webkit-datetime-edit { padding: 0; display: inline-flex; align-items: center; }
+      &::-webkit-datetime-edit-hour-field,
+      &::-webkit-datetime-edit-minute-field,
+      &::-webkit-datetime-edit-ampm-field,
+      &::-webkit-datetime-edit-month-field,
+      &::-webkit-datetime-edit-day-field,
+      &::-webkit-datetime-edit-year-field { padding: 1px 3px; }
+    }
   }
 
   .row-2 {
