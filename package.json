@@ -28,6 +28,7 @@
 	},
 	"dependencies": {
 		"@auth/sveltekit": "^1.11.1",
-		"@vercel/analytics": "^2.0.1"
+		"@vercel/analytics": "^2.0.1",
+		"@vercel/speed-insights": "^2.0.0"
 	}
 }
