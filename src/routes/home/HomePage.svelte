@@ -38,6 +38,14 @@
         currentSlide = index;
     }
 
+    // 슬라이드의 대표 이미지 (좌우에 뜨는 이전/다음 배너 미리보기용)
+    function slideImage(slide) {
+        if (!slide) return null;
+        if (slide.type === 'main') return bgImage;
+        if (slide.type === 'link') return slide.image;
+        return null; // loading 상태는 미리보기 없음
+    }
+
     onMount(async () => {
         const today = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
 
@@ -95,14 +103,24 @@
     <div class="banner-slider-container">
         <div class="slider-track" style="transform: translateX(-{currentSlide * 100}%)">
             {#each slides as slide, index}
+                {@const prevImg = slideImage(slides[(index - 1 + slides.length) % slides.length])}
+                {@const nextImg = slideImage(slides[(index + 1) % slides.length])}
                 <div class="slide-item">
                     {#if slide.type === 'main'}
                         <div class="main-banner">
-                            <div class="main-banner-bg" style="--scroll-y: {scrollY}">
-                                <img src={bgImage} alt="Hero Background" />
-                                <div class="overlay"></div>
+                            <div class="banner-visual" style="--scroll-y: {scrollY}">
+                                {#if prevImg}
+                                    <div class="visual-side left" style="background-image: url({prevImg})"></div>
+                                {/if}
+                                {#if nextImg}
+                                    <div class="visual-side right" style="background-image: url({nextImg})"></div>
+                                {/if}
+                                <div class="visual-sharp">
+                                    <img src={bgImage} alt="Hero Background" />
+                                    <div class="overlay"></div>
+                                </div>
                             </div>
-                            
+
                             <div class="banner-content">
                                 <h3 class="sub-title">예술가들의 음악이 피어나는 곳</h3>
                                 <h1 class="main-title">Fiore에서 만나는 클래식의 감동</h1>
@@ -116,37 +134,44 @@
                         </div>
                     {:else}
                         <!-- Link Banner -->
-                        <a href={slide.link} class="link-banner main-banner-bg" style="--scroll-y: {scrollY}">
-                            <img src={slide.image} class="background-blur-img" alt="" />
-                            <img src={slide.image} class="banner-img" alt="" />
+                        <a href={slide.link} class="link-banner banner-visual" style="--scroll-y: {scrollY}">
+                            {#if prevImg}
+                                <div class="visual-side left" style="background-image: url({prevImg})"></div>
+                            {/if}
+                            {#if nextImg}
+                                <div class="visual-side right" style="background-image: url({nextImg})"></div>
+                            {/if}
+                            <div class="visual-sharp">
+                                <img src={slide.image} alt="" />
+                            </div>
                         </a>
                     {/if}
                 </div>
             {/each}
         </div>
 
-        <!-- Navigation Controls -->
-        <button class="nav-btn prev" onclick={prevSlide} aria-label="Previous slide">
-            <ChevronLeft size={32} color="white" />
-        </button>
-        <button class="nav-btn next" onclick={nextSlide} aria-label="Next slide">
-            <ChevronRight size={32} color="white" />
-        </button>
-
         <!-- Indicators -->
         <div class="indicators">
             {#each slides as _, i}
-                <button 
-                    class="indicator-dot {currentSlide === i ? 'active' : ''}" 
+                <button
+                    class="indicator-dot {currentSlide === i ? 'active' : ''}"
                     onclick={() => goToSlide(i)}
                     aria-label="Go to slide {i + 1}"
                 ></button>
             {/each}
         </div>
+
+        <!-- Navigation Controls (anchored to the 1280px banner edge) -->
+        <button class="nav-btn prev" onclick={prevSlide} aria-label="Previous slide">
+            <ChevronLeft size={28} color="#333" />
+        </button>
+        <button class="nav-btn next" onclick={nextSlide} aria-label="Next slide">
+            <ChevronRight size={28} color="#333" />
+        </button>
     </div>
 
-    <Vision />
     <ArtistsDashboard />
+    <Vision />
     <ConcertsDashboard />
     <GalleryDashboard />
 </div>
@@ -160,13 +185,16 @@
     }
 
     /* Slider Styles */
+    $banner-max-width: 1280px;
+    $banner-gap: 20px; // 메인 이미지와 좌우 사이드 이미지 사이 간격
+
     .banner-slider-container {
         position: relative;
         width: 100vw;
         height: 9/16 * 100vw; // 16:9 비율 유지
         max-height: 700px;
         margin-left: 0;
-        background-color: black;
+        background-color: rgba(255, 255, 255, 0.85);
         overflow: hidden;
     }
 
@@ -191,31 +219,6 @@
         height: 100%;
         position: relative;
         text-decoration: none;
-        
-        
-        .background-blur-img {
-            position: absolute;
-            left: 50%;
-            width: 100%; height: 100%;
-
-            object-fit: cover;
-            filter: blur(20px) brightness(0.5);
-            transform: translateX(-50%) scaleY(1.2);
-            z-index: -2;
-            overflow: hidden;
-        }
-
-        .banner-img {
-            position: absolute;
-            left: 50%;
-            transform: translate(-50%, 0);
-
-            width: 100%;
-            max-width: 16/9 * 700px; // 16:9 비율로 최대 높이 700px
-            height: 100%;
-            object-fit: cover;
-            z-index: -1;
-        }
     }
 
     /* Loading skeleton slide */
@@ -256,32 +259,35 @@
         100% { background-position: -200% 0; }
     }
 
-    /* Navigation */
+    /* Navigation — anchored to the 1280px banner edge, sitting in the
+       white translucent gutter once the viewport grows past it */
     .nav-btn {
         position: absolute;
         top: 50%;
         transform: translateY(-50%);
-        background: rgba(0,0,0,0.2);
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(4px);
         border: none;
         cursor: pointer;
-        padding: 0.5rem;
-        transition: background 0.3s;
+        padding: 0.6rem;
+        border-radius: 50%;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: background 0.3s, box-shadow 0.3s;
         display: flex;
         align-items: center;
         justify-content: center;
         z-index: 6;
-        
+
         &:hover {
-            background: rgba(0,0,0,0.5);
+            background: rgba(255, 255, 255, 0.85);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.18);
         }
 
         &.prev {
-            left: 0;
-            border-radius: 0 50% 50% 0;
+            left: max(0.75rem, calc((100% - $banner-max-width) / 2 - 1.25rem));
         }
-        &.next { 
-            right: 0; 
-            border-radius: 50% 0 0 50%;
+        &.next {
+            right: max(0.75rem, calc((100% - $banner-max-width) / 2 - 1.25rem));
         }
     }
 
@@ -321,33 +327,69 @@
         justify-content: center;
         color: #fff;
         text-align: center;
-        // overflow: hidden;
-        background-color: black;
-        z-index: -1; 
     }
 
-    .main-banner-bg {
+    // 슬라이드 하나 전체(가운데 1280px 선명 + 좌우 자기 이미지를 흐리게 채운 영역)를
+    // 통째로 트랙과 함께 슬라이딩시켜, 화살표를 누르면 옆 배너가 자연스럽게 중앙으로 들어오게 함
+    .banner-visual {
         will-change: transform, opacity;
         transform: translateY(calc(var(--scroll-y) * 0.7px));
         opacity: calc(1 - (var(--scroll-y) / 1000));
         position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    // 좌우 gutter: 실제 이전/다음 배너 이미지를 흰 반투명 레이어로 흐릿하게 얹음
+    .visual-side {
+        position: absolute;
         top: 0;
-        left: 0;
-        width: 100%; 
-        // height: 100%;
-        
+        width: max(0px, calc((100% - $banner-max-width) / 2 - #{$banner-gap} / 2));
+        height: 100%;
+        background-size: cover;
+        background-repeat: no-repeat;
+        overflow: hidden;
+
+        &::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.55);
+        }
+
+        &.left {
+            left: 0;
+            background-position: right center;
+        }
+        &.right {
+            right: 0;
+            background-position: left center;
+        }
+    }
+
+    // 가운데 1280px: 선명하게
+    .visual-sharp {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        max-width: calc(#{$banner-max-width} - #{$banner-gap});
+        height: 100%;
+        overflow: hidden;
+
         img {
             width: 100%;
-            height: 100%; 
+            height: 100%;
             object-fit: cover;
             max-height: 700px;
-            aspect-ratio: 16/9;
         }
         .overlay {
             position: absolute;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background: 
+            background:
             linear-gradient(to bottom, rgba(0,0,0,0.2) 10%, rgba(0,0,0,0.5) 60%, rgba(0,0,0,0.9) 100%);
         }
     }
