@@ -1,5 +1,6 @@
 <script>
   import { PIANOLIFE_BACKEND_URL } from '$env/static/public';
+  import FocusPointModal from '$lib/components/artists/FocusPointModal.svelte';
 
   const API = PIANOLIFE_BACKEND_URL || 'http://localhost:8000';
 
@@ -28,6 +29,7 @@
     notice: '',
     sort_order: 0,
     image_media_id: null,
+    image_focus_y: 50,
     concert_ids: [],
   });
 
@@ -40,6 +42,7 @@
   let subImageUploading = $state(false);
   let subImageDragOver = $state(false);
   let showSubMediaPicker = $state(false);
+  let showFocusModal = $state(false);
   /** 아직 업로드 안 된 프로필 이미지 File 객체 (저장 시 업로드) */
   let pendingProfileFile = $state(null);
   /** 아직 업로드 안 된 서브 이미지 File 객체 목록 (저장 시 업로드) */
@@ -121,7 +124,7 @@
       group_artist_ids: [],
       description: '',
       career: '',
-      videos: [], image_list: [], notice: '', sort_order: 0, image_media_id: null, concert_ids: [],
+      videos: [], image_list: [], notice: '', sort_order: 0, image_media_id: null, image_focus_y: 50, concert_ids: [],
     };
     selectedImageUrl = '';
     pendingProfileFile = null;
@@ -153,6 +156,7 @@
       notice: artist.notice || '',
       sort_order: artist.sort_order || 0,
       image_media_id: null,
+      image_focus_y: artist.image_focus_y ?? 50,
       concert_ids: (artist.concerts || []).map(c => c.id),
     };
     selectedImageUrl = artist.image_url || '';
@@ -360,6 +364,7 @@
     if (form.notice) formData.append('notice', form.notice);
     formData.append('sort_order', String(form.sort_order));
     if (form.image_media_id) formData.append('image_media_id', String(form.image_media_id));
+    formData.append('image_focus_y', String(form.image_focus_y ?? 50));
     const safeGroupArtistIds = isGroupRoleSelected()
       ? (form.group_artist_ids || []).filter(id => !editing || id !== editing.id)
       : [];
@@ -599,9 +604,19 @@
               class="file-input"
             />
           </div>
-          <button type="button" class="btn-secondary btn-sm" onclick={openMediaPicker} style="margin-top: 0.5rem;">
-            미디어 라이브러리에서 선택
-          </button>
+          <div class="profile-image-actions">
+            <button type="button" class="btn-secondary btn-sm" onclick={openMediaPicker}>
+              미디어 라이브러리에서 선택
+            </button>
+            <button
+              type="button"
+              class="btn-secondary btn-sm"
+              disabled={!selectedImageUrl}
+              onclick={() => (showFocusModal = true)}
+            >
+              가로 배너 위치 설정 ({form.image_focus_y ?? 50}%)
+            </button>
+          </div>
         </div>
 
         <!-- 소개 -->
@@ -715,6 +730,16 @@
         </div>
       </div>
     </div>
+  {/if}
+
+  <!-- ── 가로 배너 위치 설정 모달 ──────────── -->
+  {#if showFocusModal && selectedImageUrl}
+    <FocusPointModal
+      imageUrl={selectedImageUrl}
+      initialFocusY={form.image_focus_y ?? 50}
+      onSave={(y) => (form.image_focus_y = y)}
+      onClose={() => (showFocusModal = false)}
+    />
   {/if}
 
   <!-- ── 서브 이미지 미디어 피커 모달 ──────── -->
@@ -1000,6 +1025,13 @@
       display: block;
       margin: 0 auto;
     }
+  }
+
+  .profile-image-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    flex-wrap: wrap;
   }
 
   /* ── 서브 이미지 목록 ───────────────── */

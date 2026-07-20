@@ -99,7 +99,7 @@
     flex-direction: row;
     border: 0.5px solid rgba(0, 0, 0, 0.15);
     background: #fff;
-    transition: box-shadow 0.2s;
+    transition: background-color 0.2s;
 
     height: 250px;
 
@@ -108,9 +108,7 @@
     }
 
     &:hover {
-        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.07);
-        z-index: 1;
-        position: relative;
+        background-color: #f2f2f2;
     }
 }
 
