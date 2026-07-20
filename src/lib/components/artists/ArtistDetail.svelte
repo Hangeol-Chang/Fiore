@@ -196,6 +196,7 @@
     }
 
     let scrollY = $state(0) ;
+    const focusY = $derived(artist.image_focus_y ?? 50);
 </script>
 
 <svelte:window bind:scrollY={scrollY} />
@@ -206,6 +207,7 @@
         class="hero-background-blured"
         src={artist.image_url}
         alt={artist.name}
+        style="object-position: center {focusY}%;"
     />
 
     <header class="artist-header" style="--text-color: {headerTextColor}">
@@ -220,7 +222,7 @@
                 src={artist.image_url}
                 alt={artist.name}
                 onload={(e) => extractGradientFromImg(e.currentTarget)}
-                style="--scroll-y: {scrollY};"
+                style="--scroll-y: {scrollY}; object-position: center {focusY}%;"
             />
             <div class="hero-image-overlay"></div>
         </div>
@@ -658,8 +660,8 @@
 
     .section-header {
         font-size: 1.1rem;
-        font-weight: 300;
-        color: #999;
+        font-weight: 600;
+        color: #333;
         border-bottom: 1px solid #eee;
         padding-bottom: 0.75rem;
         margin-bottom: 1.5rem;

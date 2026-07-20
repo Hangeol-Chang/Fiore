@@ -112,6 +112,8 @@
         display: grid;
         grid-template-columns: 2fr minmax(380px, 1fr);
         align-items: stretch;
+        max-width: 1280px;
+        margin: 0 auto;
 
         @media(--tablet) {
             grid-template-columns: 1fr minmax(300px, 1fr);
@@ -213,6 +215,9 @@
         grid-template-columns: repeat(3, 1fr);
         gap: 2rem;
         margin-top: 4rem;
+        max-width: 1280px;
+        margin-left: auto;
+        margin-right: auto;
 
         @media(--tablet) {
             grid-template-columns: repeat(2, 1fr);
