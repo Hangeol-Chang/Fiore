@@ -66,17 +66,7 @@
         }
         
         @media (--tablet) {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-
-            max-height: 500px;
-            overflow-y: scroll;
             padding-bottom: 1rem;
-        }
-        @media (--mobile) {
-            display: grid;
-            max-height: 400px;
-            grid-template-columns: repeat(2, minmax(100px, 1fr));
         }
     }
 
@@ -87,9 +77,15 @@
         text-decoration: none;
         color: inherit;
         
-        @media (min-width: 769px) { 
-            align-items: flex-start; 
-            flex: 0 0 20%; 
+        flex: 0 0 40%;
+
+        @media (--mobile) {
+            flex: 0 0 42%;
+        }
+
+        @media (min-width: 769px) {
+            align-items: flex-start;
+            flex: 0 0 20%;
         }
 
         .profile-image {

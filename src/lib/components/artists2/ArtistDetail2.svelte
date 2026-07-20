@@ -382,8 +382,10 @@
 
         @media (--tablet) {
             flex-basis: auto;
-            margin-left: 0;
-            aspect-ratio: 4 / 5;
+            max-width: 100%;
+            width: 100%;
+            margin: 0 auto;
+            aspect-ratio: 18 / 9;
         }
 
         img {
@@ -404,7 +406,7 @@
 
         @media (--tablet) {
             flex-basis: auto;
-            padding: 2.5rem 6vw 3.5rem;
+            padding: 2.5rem 1rem 3.5rem;
         }
     }
 
