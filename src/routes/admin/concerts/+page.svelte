@@ -1235,18 +1235,25 @@
     }
     textarea { resize: vertical; font-family: inherit; }
 
-    /* Safari: globals.scss의 * { padding: 0 } 리셋이 WebKit 내부 가상 요소에도 적용되어
-       시간/날짜 입력 필드의 클릭 영역이 사라지는 버그 수정 */
+    /* Safari: globals.scss의 * { padding: 0; font-weight: 200 } 리셋이 WebKit 내부
+       가상 요소(shadow parts)에도 그대로 적용됨. padding:0은 클릭 영역을 없애고,
+       font-weight:200(극세)은 Safari가 글리프 렌더 영역 기준으로 서브필드를
+       hit-test하기 때문에 hour/minute 필드의 포커스·입력 판정 자체가 무력화됨
+       (Chrome/Firefox는 박스 모델 기준 hit-test라 영향 없음) */
     input[type="date"],
     input[type="time"] {
       &::-webkit-datetime-edit-fields-wrapper { padding: 0 2px; }
       &::-webkit-datetime-edit { padding: 0; display: inline-flex; align-items: center; }
+      &::-webkit-datetime-edit-text,
       &::-webkit-datetime-edit-hour-field,
       &::-webkit-datetime-edit-minute-field,
       &::-webkit-datetime-edit-ampm-field,
       &::-webkit-datetime-edit-month-field,
       &::-webkit-datetime-edit-day-field,
-      &::-webkit-datetime-edit-year-field { padding: 1px 3px; }
+      &::-webkit-datetime-edit-year-field {
+        padding: 1px 3px;
+        font-weight: normal;
+      }
     }
   }
 
