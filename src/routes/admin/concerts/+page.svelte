@@ -1255,6 +1255,25 @@
         font-weight: normal;
       }
     }
+
+    /* Safari: 필드 빈 칸(placeholder 상태) 클릭 시 실제 클릭 가능 영역은
+       달력/시계 아이콘(-webkit-calendar-picker-indicator)뿐이라, 텍스트 영역을
+       눌러도 반응 없는 것처럼 보임. 아이콘을 인풋 전체 크기로 늘려서
+       필드 어디를 클릭해도 피커/포커스가 열리도록 확장 */
+    input[type="date"],
+    input[type="time"] {
+      position: relative;
+      &::-webkit-calendar-picker-indicator {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        opacity: 0;
+        cursor: pointer;
+      }
+    }
   }
 
   .row-2 {
