@@ -16,6 +16,7 @@
 	);
 
 	const displayImage = $derived(artist.mid_url || artist.thumb_url || artist.image_url || '');
+	const description = $derived(artist.description?.trim() || '');
 </script>
 
 <article class="inline-detail-wrap">
@@ -46,10 +47,10 @@
 		</section>
 	{/if}
 
-	{#if artist.description}
+	{#if description}
 		<section class="inline-section">
 			<h6>Profile</h6>
-			<p>{artist.description}</p>
+			<p>{description}</p>
 		</section>
 	{/if}
 
@@ -81,10 +82,10 @@
 			<div class="inline-concert-list">
 				{#each concerts as concert}
 					<a href="/concerts/{concert.id}">
-						{#if concert.date}
-							<span>{concert.date}</span>
-						{/if}
 						<strong>{concert.title}</strong>
+						{#if concert.date}
+							<span>{concert.date.split(' ')[0]}</span>
+						{/if}
 					</a>
 				{/each}
 			</div>
@@ -154,8 +155,9 @@
 	}
 
 	.inline-section {
-		margin-top: 0.4rem;
-        padding-top: 1rem;
+		margin-top: 1rem;
+		margin-bottom: 0;
+		padding-top: 0;
 
 		h6 {
 			margin: 0 0 0.5rem;
@@ -221,12 +223,12 @@
 			align-items: baseline;
 
 			span {
-				color: rgba(255, 255, 255, 0.65);
+				color: rgba(0, 0, 0, 0.55);
 				font-size: 0.78rem;
 			}
 
 			strong {
-				color: rgba(255, 255, 255, 0.92);
+				color: rgba(0, 0, 0, 0.88);
 				font-size: 0.86rem;
 				font-weight: 400;
 			}

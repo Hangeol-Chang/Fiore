@@ -1,7 +1,7 @@
 <script>
     import { page } from "$app/stores";
     import { PIANOLIFE_BACKEND_URL } from "$env/static/public";
-    import ArtistDetail from "$lib/components/artists/ArtistDetail.svelte";
+    import ArtistDetail2 from "$lib/components/artists2/ArtistDetail2.svelte";
 
     const API = PIANOLIFE_BACKEND_URL || "http://localhost:8000";
 
@@ -27,7 +27,7 @@
 {:else if error}
     <div class="state-wrap"><p class="state-msg error">{error}</p></div>
 {:else if artist}
-    <ArtistDetail {artist} />
+    <ArtistDetail2 {artist} />
 {/if}
 
 <style>
@@ -37,6 +37,6 @@
         align-items: center;
         justify-content: center;
     }
-    .state-msg { color: #999; font-size: 1rem; }
+    .state-msg { color: #999; }
     .state-msg.error { color: #e53e3e; }
 </style>
