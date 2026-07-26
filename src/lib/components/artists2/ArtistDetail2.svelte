@@ -177,7 +177,7 @@
                             <a href={l.link} target="_blank" rel="noopener noreferrer" aria-label={l.label || l.icon} class="link-icon">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">{@html iconPath(l.icon)}</svg>
                                 {#if l.label}
-                                    <span class="link-tooltip">{l.label}</span>
+                                    <span class="link-label">{l.label}</span>
                                 {/if}
                             </a>
                         {/each}
@@ -487,52 +487,31 @@
 
         .artist-links {
             display: flex;
-            gap: 0.9rem;
+            flex-direction: column;
+            gap: 0.6rem;
             margin: -0.5rem 0 2rem;
 
             a {
-                position: relative;
                 color: rgba(0, 0, 0, 0.45);
-                display: flex;
+                display: inline-flex;
                 align-items: center;
+                gap: 0.5rem;
+                width: fit-content;
                 transition: color 0.2s ease;
 
                 &:hover {
                     color: #8BBad4;
                 }
 
-                .link-tooltip {
-                    position: absolute;
-                    top: calc(100% + 8px);
-                    left: 50%;
-                    transform: translateX(-50%) translateY(-4px);
-                    background: rgba(0, 0, 0, 0.8);
-                    color: #fff;
-                    font-size: 0.72rem;
-                    font-weight: 400;
+                .link-label {
+                    font-size: 0.8rem;
+                    font-weight: 300;
                     letter-spacing: 0.02em;
-                    white-space: nowrap;
-                    padding: 0.3rem 0.6rem;
-                    border-radius: 4px;
-                    pointer-events: none;
-                    opacity: 0;
-                    transition: opacity 0.15s ease, transform 0.15s ease;
-                    z-index: 10;
-
-                    &::before {
-                        content: '';
-                        position: absolute;
-                        bottom: 100%;
-                        left: 50%;
-                        transform: translateX(-50%);
-                        border: 5px solid transparent;
-                        border-bottom-color: rgba(0, 0, 0, 0.8);
-                    }
+                    color: rgba(0, 0, 0, 0.55);
                 }
 
-                &:hover .link-tooltip {
-                    opacity: 1;
-                    transform: translateX(-50%) translateY(0);
+                &:hover .link-label {
+                    color: #8BBad4;
                 }
             }
         }
