@@ -15,11 +15,19 @@
         }
     };
 
-    const careerLines = $derived(
-        artist.career
-            ? artist.career.split('\n').map(l => l.trim()).filter(Boolean)
-            : []
-    );
+    const careerItems = $derived.by(() => {
+        const list = Array.isArray(artist.career) ? artist.career : [];
+        let prevYear = null;
+        return list.map((item) => {
+            const [year, month] = String(item.date ?? '').split('.');
+            let displayDate = item.date ?? '';
+            if (year && year === prevYear) {
+                displayDate = month ?? '';
+            }
+            prevYear = year || prevYear;
+            return { date: displayDate, content: item.content ?? '' };
+        });
+    });
 
     const videos = $derived(artist.videos || []);
     const links = $derived(artist.links || []);
@@ -197,14 +205,15 @@
         <main class="main-content">
             <!-- Profile -->
             <section id="profile" class="detail-section">
-                {#if careerLines.length > 0}
+                {#if careerItems.length > 0}
                     <div class="career-group">
                         <h3 class="section-header">Career</h3>
-                        <ul class="career-list">
-                            {#each careerLines as item}
-                                <li class="career-item">• {item}</li>
+                        <div class="career-grid">
+                            {#each careerItems as item}
+                                <span class="career-date">{item.date}</span>
+                                <span class="career-content">{item.content}</span>
                             {/each}
-                        </ul>
+                        </div>
                     </div>
                 {/if}
 
@@ -385,14 +394,23 @@
 </div>
 
 <style lang="scss">
+    /* globals.scss 의 h1~h6/p 전역 margin(clamp 들여쓰기)이 새어 들어오는 걸 차단해서
+       섹션 타이틀과 콘텐츠(grid 등)의 좌측 정렬을 균일하게 맞춘다. */
     .artist-detail-page {
         width: 100%;
+
+        h1, h2, h3, h4, h5, h6, p {
+            margin-left: 0;
+            margin-right: 0;
+        }
     }
 
     /* ── Hero: 좌우 분할, 그라데이션 마스크 없음 ── */
     .hero {
         display: flex;
         min-height: 88vh;
+        max-width: 1440px;
+        margin: 0 auto;
         background: #fff;
 
         @media (--tablet) {
@@ -570,6 +588,10 @@
         margin-top: 0;
         margin-bottom: 5rem;
         scroll-margin-top: 120px;
+        /* h1~h6/p 가 globals.scss에서 갖던 좌우 들여쓰기(clamp)를 섹션 전체(제목+콘텐츠)에
+           동일하게 적용해서 정렬을 맞춘다. */
+        padding-left: clamp(0px, 5vw, 38.4px);
+        padding-right: clamp(0px, 5vw, 38.4px);
 
         @media(--tablet) {
             margin-left: 1rem;
@@ -590,13 +612,25 @@
     .career-group {
         margin-bottom: 2rem;
 
-        .career-list {
-            list-style: none;
+        .career-grid {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            column-gap: 1.25rem;
+            row-gap: 0.5rem;
+            align-items: baseline;
 
-            .career-item {
+            .career-date {
+                font-size: 0.85rem;
+                font-weight: 400;
+                line-height: 1.6;
+                color: #999;
+                white-space: nowrap;
+            }
+
+            .career-content {
                 font-size: 0.9rem;
                 font-weight: 300;
-                line-height: 1.9;
+                line-height: 1.6;
                 color: #333;
             }
         }

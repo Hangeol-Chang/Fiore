@@ -1,11 +1,19 @@
 <script>
 	let { artist } = $props();
 
-	const careerLines = $derived(
-		artist.career
-			? artist.career.split('\n').map((line) => line.trim()).filter(Boolean)
-			: []
-	);
+	const careerItems = $derived.by(() => {
+		const list = Array.isArray(artist.career) ? artist.career : [];
+		let prevYear = null;
+		return list.map((item) => {
+			const [year, month] = String(item.date ?? '').split('.');
+			let displayDate = item.date ?? '';
+			if (year && year === prevYear) {
+				displayDate = month ?? '';
+			}
+			prevYear = year || prevYear;
+			return { date: displayDate, content: item.content ?? '' };
+		});
+	});
 
 	const videos = $derived(artist.videos || []);
 	const concerts = $derived(
@@ -36,14 +44,15 @@
 		</div>
 	</div>
 
-	{#if careerLines.length > 0}
+	{#if careerItems.length > 0}
 		<section class="inline-section">
 			<h6>Career</h6>
-			<ul>
-				{#each careerLines as line}
-					<li>{line}</li>
+			<div class="inline-career-grid">
+				{#each careerItems as item}
+					<span class="career-date">{item.date}</span>
+					<span class="career-content">{item.content}</span>
 				{/each}
-			</ul>
+			</div>
 		</section>
 	{/if}
 
@@ -101,10 +110,16 @@
 </article>
 
 <style lang="scss">
+	/* globals.scss 의 h1~h6/p 전역 margin(clamp 들여쓰기) 차단 → 좌측 정렬 균일화 */
 	.inline-detail-wrap {
 		border: 1px solid rgba(255, 255, 255, 0.2);
 		padding: 1.4rem;
 		color: rgba(255, 255, 255, 0.92);
+
+		h1, h2, h3, h4, h5, h6, p {
+			margin-left: 0;
+			margin-right: 0;
+		}
 	}
 
 	.inline-header {
@@ -183,6 +198,27 @@
 				font-size: 0.88rem;
 				line-height: 1.7;
 			}
+		}
+	}
+
+	.inline-career-grid {
+		display: grid;
+		grid-template-columns: auto 1fr;
+		column-gap: 1rem;
+		row-gap: 0.4rem;
+		align-items: baseline;
+
+		.career-date {
+			font-size: 0.78rem;
+			line-height: 1.6;
+			color: rgba(255, 255, 255, 0.55);
+			white-space: nowrap;
+		}
+
+		.career-content {
+			font-size: 0.88rem;
+			line-height: 1.6;
+			color: rgba(255, 255, 255, 0.92);
 		}
 	}
 

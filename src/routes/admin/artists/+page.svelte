@@ -23,7 +23,7 @@
     instrument_id: null,
     group_artist_ids: [],
     description: '',
-    career: '',
+    career: [],
     videos: [],
     links: [],
     image_list: [],
@@ -126,7 +126,7 @@
       instrument_id: getDefaultPianoInstrumentId(),
       group_artist_ids: [],
       description: '',
-      career: '',
+      career: [],
       videos: [], links: [], image_list: [], notice: '', sort_order: 0, image_media_id: null, image_focus_y: 50, concert_ids: [],
     };
     selectedImageUrl = '';
@@ -153,7 +153,7 @@
       instrument_id: artist.instrument_id ?? getDefaultPianoInstrumentId(),
       group_artist_ids: artist.group_artist_ids ? [...artist.group_artist_ids] : [],
       description: artist.description || '',
-      career: artist.career || '',
+      career: artist.career ? artist.career.map(c => ({ ...c })) : [],
       videos: artist.videos ? [...artist.videos] : [],
       links: artist.links ? artist.links.map(l => ({ ...l })) : [],
       image_list: artist.image_list ? [...artist.image_list] : [],
@@ -167,6 +167,15 @@
     groupMemberQuery = '';
     concertQuery = '';
     showForm = true;
+  }
+
+  // ── Career 관리 ────────────────────────────
+  function addCareer() {
+    form.career = [...form.career, { date: '', content: '' }];
+  }
+
+  function removeCareer(idx) {
+    form.career = form.career.filter((_, i) => i !== idx);
   }
 
   // ── Video 관리 ─────────────────────────────
@@ -371,7 +380,7 @@
       formData.append('instrument_id', String(form.instrument_id));
     }
     if (form.description) formData.append('description', form.description);
-    if (form.career) formData.append('career', form.career);
+    if (form.career.length > 0) formData.append('career', JSON.stringify(form.career));
     if (form.videos.length > 0) formData.append('videos', JSON.stringify(form.videos));
     if (form.links.length > 0) formData.append('links', JSON.stringify(form.links));
     if (form.image_list.length > 0) formData.append('image_list', JSON.stringify(form.image_list));
@@ -502,8 +511,15 @@
     <div class="modal-overlay">
       <!-- svelte-ignore a11y_click_events_have_key_events -->
       <div class="modal" role="none" onclick={(e) => e.stopPropagation()}>
-        <button class="modal-close" onclick={resetForm}>✕</button>
-        <h2>{editing ? '아티스트 편집' : '새 아티스트'}</h2>
+        <div class="modal-header-row">
+          <h2>{editing ? '아티스트 편집' : '새 아티스트'}</h2>
+          <div class="modal-header-actions">
+            <button class="btn-primary btn-save-top" onclick={saveArtist} disabled={!form.name}>
+              {editing ? '수정' : '등록'}
+            </button>
+            <button class="modal-close" onclick={resetForm}>✕</button>
+          </div>
+        </div>
 
         <!-- 기본 정보 -->
         <div class="form-section">
@@ -642,7 +658,14 @@
         <!-- 경력 -->
         <div class="form-section">
           <h3>경력 (Career)</h3>
-          <textarea bind:value={form.career} rows="4" placeholder="경력 사항"></textarea>
+          {#each form.career as item, i}
+            <div class="career-row">
+              <input type="text" bind:value={item.date} placeholder="YYYY.MM" class="career-date" />
+              <input type="text" bind:value={item.content} placeholder="경력 내용" />
+              <button class="btn-sm btn-delete" onclick={() => removeCareer(i)}>×</button>
+            </div>
+          {/each}
+          <button type="button" class="btn-secondary btn-sm" onclick={addCareer}>+ 경력 추가</button>
         </div>
 
         <!-- 공지 -->
@@ -961,8 +984,25 @@
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
     position: relative;
 
-    h2 { margin: 0 0 1.5rem; font-size: 1.3rem; color: #111; }
+    h2 { margin: 0; font-size: 1.3rem; color: #111; }
   }
+
+  .modal-header-row {
+    position: sticky;
+    top: -2rem;
+    z-index: 2;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 1rem;
+    margin: -2rem -2rem 1.5rem;
+    padding: 1.25rem 2rem 1rem;
+    background: #fff;
+    border-bottom: 1px solid #eee;
+  }
+  .modal-header-actions {
+    display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0;
+    .modal-close { position: static; }
+  }
+  .btn-save-top { flex-shrink: 0; padding: 0.45rem 1rem; font-size: 0.85rem; }
 
   .modal-close {
     position: absolute;
@@ -1110,6 +1150,15 @@
     gap: 0.5rem;
     margin-bottom: 0.5rem;
     input { flex: 1; }
+  }
+
+  /* ── Career 행 ─────────────────────── */
+  .career-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    input { flex: 1; }
+    .career-date { flex: 0 0 120px; }
   }
 
   /* ── Link 행 ───────────────────────── */
