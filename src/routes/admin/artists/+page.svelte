@@ -25,6 +25,7 @@
     description: '',
     career: '',
     videos: [],
+    links: [],
     image_list: [],
     notice: '',
     sort_order: 0,
@@ -32,6 +33,8 @@
     image_focus_y: 50,
     concert_ids: [],
   });
+
+  const LINK_ICONS = ['instagram', 'youtube', 'facebook', 'twitter', 'threads', 'blog', 'soundcloud', 'website'];
 
   // ── 미디어 선택 ────────────────────────────
   let mediaList = $state([]);
@@ -124,7 +127,7 @@
       group_artist_ids: [],
       description: '',
       career: '',
-      videos: [], image_list: [], notice: '', sort_order: 0, image_media_id: null, image_focus_y: 50, concert_ids: [],
+      videos: [], links: [], image_list: [], notice: '', sort_order: 0, image_media_id: null, image_focus_y: 50, concert_ids: [],
     };
     selectedImageUrl = '';
     pendingProfileFile = null;
@@ -152,6 +155,7 @@
       description: artist.description || '',
       career: artist.career || '',
       videos: artist.videos ? [...artist.videos] : [],
+      links: artist.links ? artist.links.map(l => ({ ...l })) : [],
       image_list: artist.image_list ? [...artist.image_list] : [],
       notice: artist.notice || '',
       sort_order: artist.sort_order || 0,
@@ -172,6 +176,15 @@
 
   function removeVideo(idx) {
     form.videos = form.videos.filter((_, i) => i !== idx);
+  }
+
+  // ── Link 관리 ──────────────────────────────
+  function addLink() {
+    form.links = [...form.links, { label: '', icon: LINK_ICONS[0], link: '' }];
+  }
+
+  function removeLink(idx) {
+    form.links = form.links.filter((_, i) => i !== idx);
   }
 
   // ── Image List 관리 ────────────────────────
@@ -360,6 +373,7 @@
     if (form.description) formData.append('description', form.description);
     if (form.career) formData.append('career', form.career);
     if (form.videos.length > 0) formData.append('videos', JSON.stringify(form.videos));
+    if (form.links.length > 0) formData.append('links', JSON.stringify(form.links));
     if (form.image_list.length > 0) formData.append('image_list', JSON.stringify(form.image_list));
     if (form.notice) formData.append('notice', form.notice);
     formData.append('sort_order', String(form.sort_order));
@@ -648,6 +662,24 @@
             </div>
           {/each}
           <button type="button" class="btn-secondary btn-sm" onclick={addVideo}>+ 동영상 추가</button>
+        </div>
+
+        <!-- 링크 (SNS 등) -->
+        <div class="form-section">
+          <h3>링크 (Links)</h3>
+          {#each form.links as link, i}
+            <div class="link-row">
+              <select bind:value={link.icon}>
+                {#each LINK_ICONS as opt}
+                  <option value={opt}>{opt}</option>
+                {/each}
+              </select>
+              <input type="text" bind:value={link.label} placeholder="표시 이름 (예: Instagram)" />
+              <input type="text" bind:value={link.link} placeholder="https://..." />
+              <button class="btn-sm btn-delete" onclick={() => removeLink(i)}>×</button>
+            </div>
+          {/each}
+          <button type="button" class="btn-secondary btn-sm" onclick={addLink}>+ 링크 추가</button>
         </div>
 
         <!-- 서브 이미지 목록 -->
@@ -1077,6 +1109,15 @@
     display: flex;
     gap: 0.5rem;
     margin-bottom: 0.5rem;
+    input { flex: 1; }
+  }
+
+  /* ── Link 행 ───────────────────────── */
+  .link-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    select { flex: 0 0 130px; }
     input { flex: 1; }
   }
 
