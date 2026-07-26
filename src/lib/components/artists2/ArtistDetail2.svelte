@@ -22,6 +22,7 @@
     );
 
     const videos = $derived(artist.videos || []);
+    const links = $derived(artist.links || []);
     const isGroupArtist = $derived(artist.role_name === 'group');
     const groupMembers = $derived(artist.group_artists || []);
     let expandedMemberId = $state(null);
@@ -132,6 +133,21 @@
     ]);
 
     const focusY = $derived(artist.image_focus_y ?? 50);
+
+    const LINK_ICON_PATHS = {
+        instagram: '<rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>',
+        youtube: '<path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.33 29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon>',
+        facebook: '<path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>',
+        twitter: '<path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>',
+        threads: '<circle cx="12" cy="12" r="10"></circle><path d="M9 8.5c1.5-1 4-1 5.2.3 1.2 1.3 1.1 3.5-.2 4.7-1.1 1-2.6 1.2-3.8.6-.9-.4-1.5-1.2-1.5-2.1 0-1.4 1.4-2.2 2.9-2 1.2.2 2 1 2.3 2.1"></path>',
+        blog: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>',
+        soundcloud: '<path d="M3 12v5"></path><path d="M7 9v8"></path><path d="M11 6v11"></path><path d="M15 10a3 3 0 0 1 3 3v3"></path><path d="M19 11a2 2 0 0 1 2 2v2"></path>',
+        website: '<circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 0 20 15.3 15.3 0 0 1 0-20z"></path>',
+    };
+
+    function iconPath(icon) {
+        return LINK_ICON_PATHS[icon] || LINK_ICON_PATHS.website;
+    }
 </script>
 
 <div class="artist-detail-page">
@@ -153,6 +169,19 @@
 
                 {#if artist.headline}
                     <p class="headline">{@html artist.headline}</p>
+                {/if}
+
+                {#if links.length > 0}
+                    <div class="artist-links">
+                        {#each links as l}
+                            <a href={l.link} target="_blank" rel="noopener noreferrer" aria-label={l.label || l.icon} class="link-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">{@html iconPath(l.icon)}</svg>
+                                {#if l.label}
+                                    <span class="link-label">{l.label}</span>
+                                {/if}
+                            </a>
+                        {/each}
+                    </div>
                 {/if}
 
                 <button class="scroll-cue" onclick={() => scrollToSection('profile')}>
@@ -454,6 +483,37 @@
             border-top: 1px solid rgba(0, 0, 0, 0.12);
             padding-top: 1.75rem;
             margin: 0 0 2.5rem;
+        }
+
+        .artist-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            margin: -0.5rem 0 2rem;
+
+            a {
+                color: rgba(0, 0, 0, 0.45);
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
+                width: fit-content;
+                transition: color 0.2s ease;
+
+                &:hover {
+                    color: #8BBad4;
+                }
+
+                .link-label {
+                    font-size: 0.8rem;
+                    font-weight: 300;
+                    letter-spacing: 0.02em;
+                    color: rgba(0, 0, 0, 0.55);
+                }
+
+                &:hover .link-label {
+                    color: #8BBad4;
+                }
+            }
         }
 
         .scroll-cue {
