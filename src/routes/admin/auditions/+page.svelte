@@ -293,8 +293,15 @@
   {#if showForm}
     <div class="modal-overlay">
       <div class="modal" role="none" onclick={(e) => e.stopPropagation()}>
-        <button class="modal-close" onclick={resetForm}>✕</button>
-        <h2>{editing ? '오디션 편집' : '새 오디션'}</h2>
+        <div class="modal-header-row">
+          <h2>{editing ? '오디션 편집' : '새 오디션'}</h2>
+          <div class="modal-header-actions">
+            <button class="btn-primary btn-save-top" onclick={saveItem} disabled={!form.title}>
+              {editing ? '수정' : '등록'}
+            </button>
+            <button class="modal-close" onclick={resetForm}>✕</button>
+          </div>
+        </div>
 
         <!-- 기본 정보 -->
         <div class="form-section">
@@ -523,8 +530,24 @@
     background: #fff; border: 1px solid #e0e0e0; border-radius: 12px;
     padding: 2rem; width: 100%; max-width: 700px; max-height: 90vh;
     overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.15); position: relative;
-    h2 { margin: 0 0 1.5rem; font-size: 1.3rem; color: #111; }
+    h2 { margin: 0; font-size: 1.3rem; color: #111; }
   }
+  .modal-header-row {
+    position: sticky;
+    top: -2rem;
+    z-index: 2;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 1rem;
+    margin: -2rem -2rem 1.5rem;
+    padding: 1.25rem 2rem 1rem;
+    background: #fff;
+    border-bottom: 1px solid #eee;
+  }
+  .modal-header-actions {
+    display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0;
+    .modal-close { position: static; }
+  }
+  .btn-save-top { flex-shrink: 0; padding: 0.45rem 1rem; font-size: 0.85rem; }
   .modal-close {
     position: absolute; top: 0.75rem; right: 0.75rem;
     background: none; border: none; color: #888; font-size: 1.4rem; cursor: pointer; z-index: 1;

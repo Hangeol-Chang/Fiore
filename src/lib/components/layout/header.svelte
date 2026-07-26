@@ -21,6 +21,7 @@
             subItems: [
                 { name: 'about', href: '/about' },
                 { name: 'membership', href: '/about/membership' },
+                { name: 'notice', href: '/about/notice' },
             ]
         },
         { 

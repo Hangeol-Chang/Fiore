@@ -478,19 +478,6 @@
         margin-bottom: 1.5rem;
     }
 
-    h3 {
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        color: #555;
-        margin: 0;
-        margin-top : 3rem;
-    }
-    .underbar {
-        padding-bottom: 0.5rem;
-        border-bottom: 0.5px solid #eee;
-        margin-bottom: 1rem;
-    }
-
     .text-pre {
         margin: 0;
         white-space: pre-line;

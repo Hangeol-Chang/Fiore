@@ -41,6 +41,10 @@
                     <h3>🎤 오디션 관리</h3>
                     <p>오디션 정보 추가/수정/삭제</p>
                 </a>
+                <a href="/admin/notice" class="admin-card">
+                    <h3>📢 공지사항 관리</h3>
+                    <p>공지사항 추가/수정/삭제</p>
+                </a>
             </div>
         </section>
 
