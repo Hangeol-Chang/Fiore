@@ -9,16 +9,27 @@
     let loading = $state(true);
     let error = $state(null);
 
+    let subImages = $state([]);
+    let subImagesLoading = $state(true);
+
     $effect(() => {
         const id = $page.params.id;
         loading = true;
         error = null;
         fetch(`${API}/api/artists/${id}`)
-            .then(res => {
-                return res.json();
-            })
+            .then(res => res.json())
             .then(data => { artist = data; loading = false; })
             .catch(e => { error = e.message; loading = false; });
+    });
+
+    // 서브 이미지는 상세 API와 별개로 로드해서, 메인 컨텐츠 렌더링을 기다리지 않게 한다.
+    $effect(() => {
+        const id = $page.params.id;
+        subImagesLoading = true;
+        fetch(`${API}/api/artists/${id}/images`)
+            .then(res => res.json())
+            .then(data => { subImages = data.image_list || []; subImagesLoading = false; })
+            .catch(() => { subImages = []; subImagesLoading = false; });
     });
 </script>
 
@@ -27,7 +38,7 @@
 {:else if error}
     <div class="state-wrap"><p class="state-msg error">{error}</p></div>
 {:else if artist}
-    <ArtistDetail2 {artist} />
+    <ArtistDetail2 {artist} {subImages} {subImagesLoading} />
 {/if}
 
 <style>

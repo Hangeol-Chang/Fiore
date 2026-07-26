@@ -3,7 +3,7 @@
     import ArtistInlineDetail from "$lib/components/artists/ArtistInlineDetail.svelte";
     import { slide } from "svelte/transition";
 
-    let { artist } = $props();
+    let { artist, subImages = [], subImagesLoading = false } = $props();
     let activeTab = $state('profile');
 
     const scrollToSection = (id) => {
@@ -125,6 +125,68 @@
         dragOffset = 0;
     }
 
+    // ── Photos 캐러셀 (sub image list) ──
+    let currentPhotoIndex = $state(0);
+    let photoDragOffset = $state(0);
+    let isPhotoDragging = $state(false);
+    let photoDragStartX = 0;
+    let photoViewportEl = $state(null);
+
+    $effect(() => {
+        const _ = artist.id ?? artist.name;
+        currentPhotoIndex = 0;
+    });
+
+    function getPhotoSlidePx() {
+        if (!photoViewportEl) return 0;
+        const slide = photoViewportEl.querySelector('.photo-slide');
+        if (!slide) return photoViewportEl.offsetWidth;
+        const style = getComputedStyle(slide);
+        return slide.offsetWidth
+            + (parseFloat(style.marginLeft) || 0)
+            + (parseFloat(style.marginRight) || 0);
+    }
+    function prevPhoto() {
+        if (currentPhotoIndex > 0) currentPhotoIndex--;
+    }
+    function nextPhoto() {
+        if (currentPhotoIndex < subImages.length - 1) currentPhotoIndex++;
+        else currentPhotoIndex = 0;
+    }
+    function handlePhotoPointerDown(e) {
+        isPhotoDragging = true;
+        photoDragStartX = e.clientX;
+        photoDragOffset = 0;
+        e.currentTarget.setPointerCapture(e.pointerId);
+    }
+    function handlePhotoPointerMove(e) {
+        if (!isPhotoDragging) return;
+        photoDragOffset = e.clientX - photoDragStartX;
+    }
+    function handlePhotoPointerUp() {
+        if (!isPhotoDragging) return;
+        isPhotoDragging = false;
+        const step = getPhotoSlidePx();
+        if (step > 0) {
+            const threshold = step * 0.25;
+            if (photoDragOffset < -threshold && currentPhotoIndex < subImages.length - 1) {
+                currentPhotoIndex++;
+            } else if (photoDragOffset > threshold && currentPhotoIndex > 0) {
+                currentPhotoIndex--;
+            }
+        }
+        photoDragOffset = 0;
+    }
+
+    // 일정 시간마다 자동으로 다음 사진으로 넘어감 (드래그 중엔 멈춤)
+    $effect(() => {
+        if (subImages.length <= 1 || isPhotoDragging) return;
+        const timer = setInterval(() => {
+            currentPhotoIndex = currentPhotoIndex < subImages.length - 1 ? currentPhotoIndex + 1 : 0;
+        }, 4000);
+        return () => clearInterval(timer);
+    });
+
     const concerts = $derived(
         (artist.concerts || [])
             .slice()
@@ -134,6 +196,7 @@
 
     const detailTabs = $derived([
         'profile',
+        ...(subImages.length > 0 ? ['photos'] : []),
         ...(videos.length > 0 ? ['video'] : []),
         ...(concerts.length > 0 ? ['concert'] : []),
         ...(isGroupArtist ? ['members'] : []),
@@ -223,6 +286,81 @@
                     </div>
                 {/if}
             </section>
+
+            <!-- Photos (서브 이미지 목록) -->
+            {#if subImages.length > 0}
+            <section id="photos" class="detail-section photo-section">
+                <h3 class="section-header">Photos</h3>
+                <div class="photo-carousel">
+                    <button
+                        class="carousel-btn carousel-prev"
+                        onclick={prevPhoto}
+                        disabled={subImages.length <= 1}
+                        aria-label="이전 사진"
+                    >&#8249;</button>
+
+                    <div class="carousel-outer">
+                    <div
+                        class="carousel-viewport"
+                        class:dragging={isPhotoDragging}
+                        role="region"
+                        aria-label="사진 캐러셀"
+                        bind:this={photoViewportEl}
+                        onpointerdown={handlePhotoPointerDown}
+                        onpointermove={handlePhotoPointerMove}
+                        onpointerup={handlePhotoPointerUp}
+                        onpointercancel={handlePhotoPointerUp}
+                    >
+                        <div
+                            class="carousel-track"
+                            style="transform: translateX(calc({-currentPhotoIndex * getPhotoSlidePx()}px + {photoDragOffset}px)); transition: {isPhotoDragging ? 'none' : 'transform 0.35s ease'};"
+                        >
+                            {#each subImages as img}
+                                <div class="photo-slide">
+                                    <div class="photo-wrap">
+                                        <img src={img.url} alt="{artist.name} 사진" />
+                                    </div>
+                                </div>
+                            {/each}
+                        </div>
+                    </div>
+
+                    {#if subImages.length > 1}
+                        <div class="photo-progress-track">
+                            {#key currentPhotoIndex}
+                                <div class="photo-progress-bar" class:paused={isPhotoDragging}></div>
+                            {/key}
+                        </div>
+                    {/if}
+                    </div>
+
+                    <button
+                        class="carousel-btn carousel-next"
+                        onclick={nextPhoto}
+                        disabled={subImages.length <= 1}
+                        aria-label="다음 사진"
+                    >&#8250;</button>
+                </div>
+
+                {#if subImages.length > 1}
+                <div class="carousel-dots">
+                    {#each subImages as _, i}
+                        <button
+                            class="dot"
+                            class:active={i === currentPhotoIndex}
+                            onclick={() => currentPhotoIndex = i}
+                            aria-label="사진 {i + 1}"
+                        ></button>
+                    {/each}
+                </div>
+                {/if}
+            </section>
+            {:else if subImagesLoading}
+            <section id="photos" class="detail-section photo-section">
+                <h3 class="section-header">Photos</h3>
+                <p class="photo-loading">불러오는 중...</p>
+            </section>
+            {/if}
 
             <!-- Video -->
             {#if videos.length > 0}
@@ -766,6 +904,98 @@
 
     .carousel-viewport.dragging .video-wrap iframe {
         pointer-events: none;
+    }
+
+    /* ── Photo Carousel ─────────────────── */
+    .photo-section {
+        padding-bottom: 1.5rem;
+    }
+
+    .photo-carousel {
+        --peek: 48px;
+        --slide-gap: 14px;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+
+        @media (--tablet) {
+            --peek: 28px;
+            --slide-gap: 10px;
+            gap: 0;
+        }
+    }
+
+    .photo-slide {
+        flex: 0 0 calc(100% - 2 * var(--peek));
+        margin: 0 calc(var(--slide-gap) / 2);
+        box-sizing: border-box;
+    }
+
+    /* 세로 이미지 hover 확장 */
+    .photo-wrap {
+        position: relative;
+        width: 100%;
+        padding-top: 75%; /* 기본 비율 (4:3) */
+        overflow: hidden;
+        transition: padding-top 0.45s ease;
+
+        img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+    }
+
+    /* 데스크탑: photos 블록에 마우스 올리면 세로로 확장 (호버 가능한 기기만) */
+    @media (hover: hover) and (pointer: fine) {
+        .photo-carousel:hover .photo-wrap {
+            padding-top: 140%;
+        }
+    }
+
+    /* 모바일 등 호버 불가 기기는 애초에 세로로 길게 */
+    @media (hover: none) {
+        .photo-wrap {
+            padding-top: 140%;
+        }
+    }
+
+    .carousel-viewport.dragging .photo-wrap img {
+        pointer-events: none;
+    }
+
+    /* 다음 사진으로 넘어가기까지 남은 시간 표시 (이미지 아래, 여백 두고 별도 배치) */
+    .photo-progress-track {
+        margin-top: 0.75rem;
+        height: 3px;
+        border-radius: 2px;
+        background: rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .photo-progress-bar {
+        height: 100%;
+        width: 0%;
+        background: #333;
+        animation: photoProgress 4s linear forwards;
+
+        &.paused {
+            animation-play-state: paused;
+        }
+    }
+
+    @keyframes photoProgress {
+        from { width: 0%; }
+        to { width: 100%; }
+    }
+
+    .photo-loading {
+        color: #999;
+        font-size: 0.9rem;
+        font-weight: 300;
     }
 
     .carousel-btn {
