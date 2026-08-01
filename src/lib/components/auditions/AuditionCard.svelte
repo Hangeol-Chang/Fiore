@@ -1,8 +1,17 @@
 <script>
+    import { onMount } from 'svelte';
     import { Calendar, ExternalLink, X } from 'lucide-svelte';
+    import { PIANOLIFE_BACKEND_URL } from '$env/static/public';
+
+    const API = PIANOLIFE_BACKEND_URL || 'http://localhost:8000';
+
     let { audition } = $props();
 
     let showModal = $state(false);
+
+    onMount(() => {
+        fetch(`${API}/api/auditions/${audition.id}/view`, { method: 'POST' }).catch(() => {});
+    });
 
     function parseDateStr(dateStr) {
         if (!dateStr) return null;
@@ -68,6 +77,7 @@
         {#if audition.content}
             <button class="more-btn" onclick={() => showModal = true}>view detail</button>
         {/if}
+        <span class="view-count">views {audition.view_count ?? 0}</span>
     </div>
 </div>
 
@@ -193,6 +203,14 @@
 
     @media(--tablet) { font-size: 1.2rem; }
     @media(--mobile) { font-size: 1rem; }
+}
+
+.view-count {
+    align-self: flex-end;
+    margin-top: auto;
+    font-size: 0.7rem;
+    font-weight: 300;
+    color: #ccc;
 }
 
 .meta-item {

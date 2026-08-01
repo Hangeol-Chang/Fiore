@@ -36,6 +36,7 @@
                 });
 
                 concours = sorted[0];
+                fetch(`${API}/api/concours/${concours.id}/view`, { method: 'POST' }).catch(() => {});
             })
             .catch(err => { error = err.message; })
             .finally(() => { loading = false; });
@@ -256,6 +257,8 @@
                     </div>
                 {/if}
 
+                <div class="view-count-footer">views {concours.view_count ?? 0}</div>
+
             </div>
         </section>
     </div>
@@ -471,6 +474,14 @@
         display: flex;
         justify-content: flex-end;
         padding: 2rem 0 1rem;
+    }
+
+    .view-count-footer {
+        text-align: right;
+        font-size: 0.75rem;
+        font-weight: 300;
+        color: #ccc;
+        padding-top: 1rem;
     }
 
     .overview-block,

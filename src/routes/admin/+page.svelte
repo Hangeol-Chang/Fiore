@@ -49,6 +49,10 @@
                     <h3>🎞️ 배너 관리</h3>
                     <p>메인 페이지 배너 항목/순서 관리</p>
                 </a>
+                <a href="/admin/rentals" class="admin-card">
+                    <h3>🏛️ 대관 관리</h3>
+                    <p>대관 신청 승인/거절, 대관 계획 등록</p>
+                </a>
             </div>
         </section>
 

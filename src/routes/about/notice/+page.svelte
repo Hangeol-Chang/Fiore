@@ -47,6 +47,7 @@
             <div class="board-header">
                 <span class="col-num">No.</span>
                 <span class="col-title">제목</span>
+                <span class="col-views">조회수</span>
                 <span class="col-date">날짜</span>
             </div>
 
@@ -61,6 +62,7 @@
                     <a class="board-row" href="/about/notice/{notice.id}">
                         <span class="col-num">{notice.id}</span>
                         <span class="col-title">{notice.title}</span>
+                        <span class="col-views">{notice.view_count ?? 0}</span>
                         <span class="col-date">{formatDate(notice.created_at)}</span>
                     </a>
                 {/each}
@@ -108,7 +110,7 @@
 
     .board-header {
         display: grid;
-        grid-template-columns: 80px 1fr 140px;
+        grid-template-columns: 80px 1fr 90px 140px;
         padding: 0.9rem 1rem;
         border-bottom: 1px solid #ddd;
         font-size: 0.85rem;
@@ -116,13 +118,13 @@
         color: #555;
 
         @media (--tablet) {
-            grid-template-columns: 50px 1fr 90px;
+            grid-template-columns: 50px 1fr 70px 90px;
         }
     }
 
     .board-row {
         display: grid;
-        grid-template-columns: 80px 1fr 140px;
+        grid-template-columns: 80px 1fr 90px 140px;
         padding: 0.9rem 1rem;
         border-bottom: 1px solid #eee;
         text-decoration: none;
@@ -135,12 +137,13 @@
         }
 
         @media (--tablet) {
-            grid-template-columns: 50px 1fr 90px;
+            grid-template-columns: 50px 1fr 70px 90px;
             font-size: 0.85rem;
         }
     }
 
     .col-num,
+    .col-views,
     .col-date {
         color: #888;
         text-align: center;
