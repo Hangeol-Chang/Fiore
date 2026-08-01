@@ -14,13 +14,13 @@
 
     const API = PIANOLIFE_BACKEND_URL || 'http://localhost:8000';
 
-    // Banner Slides Data (dynamically fetched)
-    // Start with loading placeholders so the slider is usable immediately
+    const DEFAULT_SUB_TITLE = '예술가들의 음악이 피어나는 곳';
+    const DEFAULT_MAIN_TITLE = 'Fiore에서 만나는 클래식의 감동';
+
+    // Banner Slides Data (admin이 등록한 순서대로 백엔드에서 해석되어 내려옴)
+    // Start with a loading placeholder so the slider is usable immediately
     let slides = $state([
-        { type: 'main' },
-        { type: 'loading', id: 'concert' },
-        { type: 'loading', id: 'audition' },
-        { type: 'loading', id: 'concours' },
+        { type: 'loading', id: 'banners' },
     ]);
 
     let scrollY = $state(0);
@@ -41,56 +41,36 @@
     // 슬라이드의 대표 이미지 (좌우에 뜨는 이전/다음 배너 미리보기용)
     function slideImage(slide) {
         if (!slide) return null;
-        if (slide.type === 'main') return bgImage;
-        if (slide.type === 'link') return slide.image;
+        if (slide.type === 'main' || slide.type === 'link') return slide.image;
         return null; // loading 상태는 미리보기 없음
     }
 
     onMount(async () => {
-        const today = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
+        try {
+            const res = await fetch(`${API}/api/banners/resolved`);
+            const resolved = res.ok ? await res.json() : [];
 
-        const [concertsRes, auditionsRes, concoursRes] = await Promise.allSettled([
-            fetch(`${API}/api/concerts?active_only=true`).then(r => r.json()),
-            fetch(`${API}/api/auditions?active_only=true`).then(r => r.json()),
-            fetch(`${API}/api/concours/?active_only=true`).then(r => r.json()),
-        ]);
+            const newSlides = resolved.map((s) =>
+                s.item_type === 'hero'
+                    ? {
+                        type: 'main',
+                        image: s.image || bgImage,
+                        link: s.link || null,
+                        subTitle: s.subtitle || DEFAULT_SUB_TITLE,
+                        mainTitle: s.title || DEFAULT_MAIN_TITLE,
+                    }
+                    : { type: 'link', image: s.image, link: s.link }
+            );
 
-        const newSlides = [{ type: 'main' }];
-
-        // 가장 가까운 예정 공연 1개 (date >= today)
-        if (concertsRes.status === 'fulfilled' && Array.isArray(concertsRes.value)) {
-            const upcoming = concertsRes.value
-                .filter(c => c.date && c.date >= today)
-                .sort((a, b) => a.date.localeCompare(b.date));
-            if (upcoming.length > 0) {
-                const c = upcoming[0];
-                const image = c.banner_image_url || c.poster_url;
-                if (image) newSlides.push({ type: 'link', image, link: `/concerts/${c.id}` });
-            }
+            // 배너가 하나도 등록되지 않았다면 기본 Hero 슬라이드로 대체
+            slides = newSlides.length > 0
+                ? newSlides
+                : [{ type: 'main', image: bgImage, link: null, subTitle: DEFAULT_SUB_TITLE, mainTitle: DEFAULT_MAIN_TITLE }];
+        } catch (e) {
+            console.error('Failed to load banners:', e);
+            slides = [{ type: 'main', image: bgImage, link: null, subTitle: DEFAULT_SUB_TITLE, mainTitle: DEFAULT_MAIN_TITLE }];
         }
 
-        // 가장 가까운 오디션 1개 (end_date >= today)
-        if (auditionsRes.status === 'fulfilled' && Array.isArray(auditionsRes.value)) {
-            const upcoming = auditionsRes.value
-                .filter(a => a.end_date && a.end_date >= today)
-                .sort((a, b) => a.end_date.localeCompare(b.end_date));
-            if (upcoming.length > 0) {
-                const a = upcoming[0];
-                const image = a.banner_image_url || a.poster_url;
-                if (image) newSlides.push({ type: 'link', image, link: `/application/auditions/${a.id}` });
-            }
-        }
-
-        // 활성화된 콩쿠르 1개 (가장 최근 등록)
-        if (concoursRes.status === 'fulfilled' && Array.isArray(concoursRes.value)) {
-            if (concoursRes.value.length > 0) {
-                const c = concoursRes.value[0];
-                const image = c.poster_url;
-                if (image) newSlides.push({ type: 'link', image, link: `/application/concours` });
-            }
-        }
-
-        slides = newSlides;
         // Clamp active index in case placeholders were removed
         if (currentSlide >= slides.length) currentSlide = slides.length - 1;
     });
@@ -116,14 +96,14 @@
                                     <div class="visual-side right" style="background-image: url({nextImg})"></div>
                                 {/if}
                                 <div class="visual-sharp">
-                                    <img src={bgImage} alt="Hero Background" />
+                                    <img src={slide.image || bgImage} alt="Hero Background" />
                                     <div class="overlay"></div>
                                 </div>
                             </div>
 
                             <div class="banner-content">
-                                <h3 class="sub-title">예술가들의 음악이 피어나는 곳</h3>
-                                <h1 class="main-title">Fiore에서 만나는 클래식의 감동</h1>
+                                <h3 class="sub-title">{slide.subTitle}</h3>
+                                <h1 class="main-title">{slide.mainTitle}</h1>
                             </div>
                         </div>
                     {:else if slide.type === 'loading'}

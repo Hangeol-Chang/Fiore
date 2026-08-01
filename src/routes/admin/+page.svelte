@@ -45,6 +45,10 @@
                     <h3>📢 공지사항 관리</h3>
                     <p>공지사항 추가/수정/삭제</p>
                 </a>
+                <a href="/admin/banners" class="admin-card">
+                    <h3>🎞️ 배너 관리</h3>
+                    <p>메인 페이지 배너 항목/순서 관리</p>
+                </a>
             </div>
         </section>
 
