@@ -2,6 +2,7 @@
     import rentalImage from '$lib/assets/images/fioreum/rental_info.png';
     import { PIANOLIFE_BACKEND_URL } from '$env/static/public';
     import { Phone, Mail, CheckCircle, XCircle } from 'lucide-svelte';
+    import RentalCalendar from './RentalCalendar.svelte';
 
     const API = PIANOLIFE_BACKEND_URL || 'http://localhost:8000';
 
@@ -11,7 +12,8 @@
         email: '',
         rental_type: '레슨, 연습',
         desired_date: '',
-        usage_time: ''
+        start_time: '',
+        end_time: ''
     };
     let submitting = false;
     let resultMessage = '';
@@ -19,6 +21,7 @@
     let visible = false;
     let fadeOut = false;
     let timer;
+    let calendarRef;
 
     function showToast(message, type) {
         clearTimeout(timer);
@@ -33,19 +36,24 @@
     }
 
     async function handleSubmit() {
+        if (form.start_time && form.end_time && form.start_time >= form.end_time) {
+            showToast('종료 시간은 시작 시간보다 늦어야 합니다.', 'error');
+            return;
+        }
         submitting = true;
         try {
-            const res = await fetch(`${API}/api/email/rental-inquiry`, {
+            const body = new FormData();
+            body.append('name', form.name);
+            body.append('phone', form.phone);
+            body.append('email', form.email);
+            body.append('rental_type', form.rental_type);
+            body.append('date', form.desired_date);
+            body.append('start_time', form.start_time);
+            body.append('end_time', form.end_time);
+
+            const res = await fetch(`${API}/api/rentals/`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    name: form.name,
-                    phone: form.phone,
-                    email: form.email,
-                    rental_type: form.rental_type,
-                    desired_date: form.desired_date,
-                    usage_time: form.usage_time,
-                })
+                body
             });
             const data = await res.json();
             if (res.ok) {
@@ -56,8 +64,10 @@
                     email: '',
                     rental_type: '레슨, 연습',
                     desired_date: '',
-                    usage_time: ''
+                    start_time: '',
+                    end_time: ''
                 };
+                calendarRef?.refresh();
             } else {
                 showToast(data.detail || '오류가 발생했습니다. 다시 시도해주세요.', 'error');
             }
@@ -115,8 +125,12 @@
                 <input id="desired_date" type="date" bind:value={form.desired_date} required />
             </div>
             <div class="form-row">
-                <label for="usage_time">사용 시간 <span class="required">*</span></label>
-                <input id="usage_time" type="text" bind:value={form.usage_time} required placeholder="예) 오후 2시 ~ 5시" />
+                <label for="start_time">사용 시간 <span class="required">*</span></label>
+                <div class="time-range">
+                    <input id="start_time" type="time" bind:value={form.start_time} required />
+                    <span class="time-sep">~</span>
+                    <input id="end_time" type="time" bind:value={form.end_time} required />
+                </div>
             </div>
 
             <div class="submit-row">
@@ -126,6 +140,8 @@
             </div>
         </form>
     </section>
+
+    <RentalCalendar bind:this={calendarRef} />
 </div>
 
 {#if visible}
@@ -263,6 +279,22 @@
             border-color: #a08878;
             background: #fff;
         }
+    }
+
+    .time-range {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        input {
+            width: auto;
+            flex: 1;
+        }
+    }
+
+    .time-sep {
+        color: #999;
+        flex-shrink: 0;
     }
 
     .required {

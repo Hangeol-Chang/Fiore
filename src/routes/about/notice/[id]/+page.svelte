@@ -22,7 +22,10 @@
                 if (!r.ok) throw new Error('공지사항을 찾을 수 없습니다.');
                 return r.json();
             })
-            .then(data => { notice = data; })
+            .then(data => {
+                notice = data;
+                fetch(`${API}/api/notices/${id}/view`, { method: 'POST' }).catch(() => {});
+            })
             .catch(err => { error = err.message; })
             .finally(() => { loading = false; });
     });
@@ -43,7 +46,10 @@
 
             <div class="notice-header">
                 <h1 class="notice-title">{notice.title}</h1>
-                <div class="notice-date">{formatDate(notice.created_at)}</div>
+                <div class="notice-meta">
+                    <span class="notice-views">views {notice.view_count ?? 0}</span>
+                    <span class="notice-date">{formatDate(notice.created_at)}</span>
+                </div>
             </div>
         </div>
 
@@ -103,8 +109,15 @@
         margin: 0;
     }
 
-    .notice-date {
+    .notice-meta {
         flex-shrink: 0;
+        display: flex;
+        align-items: baseline;
+        gap: 0.75rem;
+    }
+
+    .notice-views,
+    .notice-date {
         color: #999;
         font-size: 0.85rem;
         margin: 0;

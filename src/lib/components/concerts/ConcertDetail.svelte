@@ -212,6 +212,8 @@
             </div>
         </div>
 
+        <div class="view-count-footer">views {concert.view_count ?? 0}</div>
+
     </section>
 </div>
 
@@ -309,6 +311,19 @@
         padding: 3rem 0 0 0;
 
         grid-column: 2 / -1;
+
+        @media(--tablet) {
+            grid-column: 1 / -1;
+        }
+    }
+
+    .view-count-footer {
+        grid-column: 2 / -1;
+        text-align: right;
+        padding: 0 0 2rem;
+        font-size: 0.75rem;
+        font-weight: 300;
+        color: #ccc;
 
         @media(--tablet) {
             grid-column: 1 / -1;

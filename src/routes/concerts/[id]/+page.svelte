@@ -23,7 +23,10 @@
                 if (!res.ok) throw new Error(`콘서트를 찾을 수 없습니다 (${res.status})`);
                 return res.json();
             })
-            .then(data => { concert = data; })
+            .then(data => {
+                concert = data;
+                fetch(`${API}/api/concerts/${id}/view`, { method: 'POST' }).catch(() => {});
+            })
             .catch(err => { error = err.message; })
             .finally(() => { loading = false; });
     });
