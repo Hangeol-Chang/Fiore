@@ -12,6 +12,9 @@
     let subImages = $state([]);
     let subImagesLoading = $state(true);
 
+    let albums = $state([]);
+    let albumsLoading = $state(true);
+
     $effect(() => {
         const id = $page.params.id;
         loading = true;
@@ -31,6 +34,16 @@
             .then(data => { subImages = data.image_list || []; subImagesLoading = false; })
             .catch(() => { subImages = []; subImagesLoading = false; });
     });
+
+    // 앨범 목록도 상세 API와 별개로 로드
+    $effect(() => {
+        const id = $page.params.id;
+        albumsLoading = true;
+        fetch(`${API}/api/albums?artist_id=${id}`)
+            .then(res => res.json())
+            .then(data => { albums = data || []; albumsLoading = false; })
+            .catch(() => { albums = []; albumsLoading = false; });
+    });
 </script>
 
 {#if loading}
@@ -38,7 +51,7 @@
 {:else if error}
     <div class="state-wrap"><p class="state-msg error">{error}</p></div>
 {:else if artist}
-    <ArtistDetail2 {artist} {subImages} {subImagesLoading} />
+    <ArtistDetail2 {artist} {subImages} {subImagesLoading} {albums} {albumsLoading} />
 {/if}
 
 <style>

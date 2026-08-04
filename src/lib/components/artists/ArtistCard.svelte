@@ -5,8 +5,8 @@
 {#if artist.role_name === "artist" || artist.role_name === "group"}
 <a href="/artists/{artist.id}" class="artist-card">
     <div class="card-image-wrapper">
-        {#if artist.mid_url || artist.image_url}
-            <img src={artist.mid_url || artist.image_url} alt={artist.name} class="card-image" />
+        {#if artist.thumb_url || artist.mid_url || artist.image_url}
+            <img src={artist.thumb_url || artist.mid_url || artist.image_url} alt={artist.name} class="card-image" loading="lazy" decoding="async" />
         {:else}
             <div class="card-image-placeholder"></div>
         {/if}
@@ -22,8 +22,8 @@
 {:else}
 <div class="artist-card no-link">
     <div class="card-image-wrapper">
-        {#if artist.mid_url || artist.thumb_url || artist.image_url}
-            <img src={artist.mid_url || artist.thumb_url || artist.image_url} alt={artist.name} class="card-image" />
+        {#if artist.thumb_url || artist.mid_url || artist.image_url}
+            <img src={artist.thumb_url || artist.mid_url || artist.image_url} alt={artist.name} class="card-image" loading="lazy" decoding="async" />
         {:else}
             <div class="card-image-placeholder"></div>
         {/if}

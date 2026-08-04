@@ -3,7 +3,7 @@
     import ArtistInlineDetail from "$lib/components/artists/ArtistInlineDetail.svelte";
     import { slide } from "svelte/transition";
 
-    let { artist, subImages = [], subImagesLoading = false } = $props();
+    let { artist, subImages = [], subImagesLoading = false, albums = [], albumsLoading = false } = $props();
     let activeTab = $state('profile');
 
     const scrollToSection = (id) => {
@@ -187,6 +187,32 @@
         return () => clearInterval(timer);
     });
 
+    // ── Albums 3D 캐러셀 ──
+    let currentAlbumIndex = $state(0);
+
+    $effect(() => {
+        const _ = artist.id ?? artist.name;
+        currentAlbumIndex = 0;
+    });
+
+    function prevAlbum() {
+        if (currentAlbumIndex > 0) currentAlbumIndex--;
+    }
+    function nextAlbum() {
+        if (currentAlbumIndex < albums.length - 1) currentAlbumIndex++;
+    }
+
+    const activeAlbum = $derived(albums[currentAlbumIndex] ?? null);
+    const activeAlbumLinks = $derived(
+        activeAlbum?.links ? Object.entries(activeAlbum.links).filter(([, v]) => v) : []
+    );
+
+    const ALBUM_LINK_LABELS = {
+        'youtube music': 'YouTube Music',
+        'spotify': 'Spotify',
+        'apple music': 'Apple Music',
+    };
+
     const concerts = $derived(
         (artist.concerts || [])
             .slice()
@@ -196,10 +222,11 @@
 
     const detailTabs = $derived([
         'profile',
+        ...(isGroupArtist ? ['members'] : []),
         ...(subImages.length > 0 ? ['photos'] : []),
+        ...(albums.length > 0 ? ['albums'] : []),
         ...(videos.length > 0 ? ['video'] : []),
         ...(concerts.length > 0 ? ['concert'] : []),
-        ...(isGroupArtist ? ['members'] : []),
         ...(artist.notice ? ['notice'] : []),
     ]);
 
@@ -214,6 +241,9 @@
         blog: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>',
         soundcloud: '<path d="M3 12v5"></path><path d="M7 9v8"></path><path d="M11 6v11"></path><path d="M15 10a3 3 0 0 1 3 3v3"></path><path d="M19 11a2 2 0 0 1 2 2v2"></path>',
         website: '<circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 0 20 15.3 15.3 0 0 1 0-20z"></path>',
+        spotify: '<circle cx="12" cy="12" r="10"></circle><path d="M7.5 9.5c3-1 6.5-.7 9 .8"></path><path d="M8 12.7c2.4-.7 5.2-.5 7.3.8"></path><path d="M8.5 15.8c1.9-.5 4-.4 5.6.6"></path>',
+        'apple music': '<path d="M9 18V6l10-2v12"></path><circle cx="6.5" cy="18.5" r="2.5"></circle><circle cx="16.5" cy="16.5" r="2.5"></circle>',
+        'youtube music': '<circle cx="12" cy="12" r="10"></circle><polygon points="10 8.5 15.5 12 10 15.5 10 8.5"></polygon>',
     };
 
     function iconPath(icon) {
@@ -287,6 +317,52 @@
                 {/if}
             </section>
 
+            <!-- Members (Group 전용) -->
+            {#if isGroupArtist}
+            <section id="members" class="detail-section">
+                <h3 class="section-header">Members</h3>
+                {#if groupMembers.length > 0}
+                    <div class="members-grid" bind:this={membersGridEl} use:observeMembersGrid>
+                        {#each groupMembers as member, index (member.id)}
+                            <div
+                                class="member-slot"
+                                class:active={expandedMemberId === member.id}
+                                class:dimmed={expandedMemberId !== null && expandedMemberId !== member.id}
+                            >
+                                {#if member.role_name === 'group_artist'}
+                                    <button
+                                        type="button"
+                                        class="member-card-trigger"
+                                        class:active={expandedMemberId === member.id}
+                                        onclick={() => toggleMemberInline(member)}
+                                        aria-expanded={expandedMemberId === member.id}
+                                        aria-controls={`member-inline-detail-${member.id}`}
+                                    >
+                                        <ArtistCard artist={member} />
+                                    </button>
+                                {:else}
+                                    <ArtistCard artist={member} />
+                                {/if}
+                            </div>
+
+                            {#if expandedMember && index === expandedRowEndIndex}
+                                <div
+                                    id={`member-inline-detail-${expandedMember.id}`}
+                                    class="member-inline-panel full-width"
+                                    in:slide={{ duration: 240 }}
+                                    out:slide={{ duration: 220 }}
+                                >
+                                    <ArtistInlineDetail artist={expandedMember} />
+                                </div>
+                            {/if}
+                        {/each}
+                    </div>
+                {:else}
+                    <p class="members-empty">등록된 그룹 멤버가 없습니다.</p>
+                {/if}
+            </section>
+            {/if}
+
             <!-- Photos (서브 이미지 목록) -->
             {#if subImages.length > 0}
             <section id="photos" class="detail-section photo-section">
@@ -359,6 +435,104 @@
             <section id="photos" class="detail-section photo-section">
                 <h3 class="section-header">Photos</h3>
                 <p class="photo-loading">불러오는 중...</p>
+            </section>
+            {/if}
+
+            <!-- Albums -->
+            {#if albums.length > 0}
+            <section id="albums" class="detail-section albums-section">
+                <h3 class="section-header">Albums</h3>
+
+                <div class="album-carousel">
+                    <button
+                        class="carousel-btn carousel-prev"
+                        onclick={prevAlbum}
+                        disabled={currentAlbumIndex === 0}
+                        aria-label="이전 앨범"
+                    >&#8249;</button>
+
+                    <div class="album-stage" role="region" aria-label="앨범 캐러셀">
+                        {#each albums as album, i (album.id)}
+                            {@const offset = i - currentAlbumIndex}
+                            {@const abs = Math.abs(offset)}
+                            {#if abs <= 3}
+                                <button
+                                    type="button"
+                                    class="album-slide"
+                                    class:active={offset === 0}
+                                    style="
+                                        transform: translate(-50%, -50%) translateX({offset * 130}px) translateZ({-abs * 90}px) scale({1 - Math.min(abs, 3) * 0.15});
+                                        opacity: {abs === 0 ? 1 : abs === 1 ? 0.55 : 0.28};
+                                        filter: grayscale({abs === 0 ? 0 : 0.5}) brightness({abs === 0 ? 1 : 0.9});
+                                        z-index: {10 - abs};
+                                        pointer-events: {abs === 0 ? 'none' : 'auto'};
+                                    "
+                                    onclick={() => currentAlbumIndex = i}
+                                    aria-label={album.title}
+                                    aria-current={offset === 0}
+                                >
+                                    {#if album.cover_thumb_url || album.cover_url}
+                                        <img src={album.cover_mid_url || album.cover_url} alt={album.title} />
+                                    {:else}
+                                        <div class="album-cover-placeholder"></div>
+                                    {/if}
+                                </button>
+                            {/if}
+                        {/each}
+                    </div>
+
+                    <button
+                        class="carousel-btn carousel-next"
+                        onclick={nextAlbum}
+                        disabled={currentAlbumIndex === albums.length - 1}
+                        aria-label="다음 앨범"
+                    >&#8250;</button>
+                </div>
+
+                {#if albums.length > 1}
+                <div class="carousel-dots">
+                    {#each albums as _, i}
+                        <button
+                            class="dot"
+                            class:active={i === currentAlbumIndex}
+                            onclick={() => currentAlbumIndex = i}
+                            aria-label="앨범 {i + 1}"
+                        ></button>
+                    {/each}
+                </div>
+                {/if}
+
+                {#if activeAlbum}
+                    {#key activeAlbum.id}
+                    <div class="album-info">
+                        <div class="album-info-head">
+                            <h4 class="album-title">{activeAlbum.title}</h4>
+                            {#if activeAlbumLinks.length > 0}
+                                <div class="album-links">
+                                    {#each activeAlbumLinks as [key, url]}
+                                        <a href={url} target="_blank" rel="noopener noreferrer" class="album-link">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">{@html iconPath(key)}</svg>
+                                            <span class="link-tooltip">{ALBUM_LINK_LABELS[key] ?? key}</span>
+                                        </a>
+                                    {/each}
+                                </div>
+                            {/if}
+                        </div>
+
+                        {#if activeAlbum.release_date}
+                            <span class="album-release-date">{activeAlbum.release_date}</span>
+                        {/if}
+
+                        {#if activeAlbum.tracklist?.length > 0}
+                            <ol class="album-tracklist">
+                                {#each activeAlbum.tracklist as track}
+                                    <li>{track}</li>
+                                {/each}
+                            </ol>
+                        {/if}
+                    </div>
+                    {/key}
+                {/if}
             </section>
             {/if}
 
@@ -456,52 +630,6 @@
                         </a>
                     {/each}
                 </div>
-            </section>
-            {/if}
-
-            <!-- Members (Group 전용) -->
-            {#if isGroupArtist}
-            <section id="members" class="detail-section">
-                <h3 class="section-header">Members</h3>
-                {#if groupMembers.length > 0}
-                    <div class="members-grid" bind:this={membersGridEl} use:observeMembersGrid>
-                        {#each groupMembers as member, index (member.id)}
-                            <div
-                                class="member-slot"
-                                class:active={expandedMemberId === member.id}
-                                class:dimmed={expandedMemberId !== null && expandedMemberId !== member.id}
-                            >
-                                {#if member.role_name === 'group_artist'}
-                                    <button
-                                        type="button"
-                                        class="member-card-trigger"
-                                        class:active={expandedMemberId === member.id}
-                                        onclick={() => toggleMemberInline(member)}
-                                        aria-expanded={expandedMemberId === member.id}
-                                        aria-controls={`member-inline-detail-${member.id}`}
-                                    >
-                                        <ArtistCard artist={member} />
-                                    </button>
-                                {:else}
-                                    <ArtistCard artist={member} />
-                                {/if}
-                            </div>
-
-                            {#if expandedMember && index === expandedRowEndIndex}
-                                <div
-                                    id={`member-inline-detail-${expandedMember.id}`}
-                                    class="member-inline-panel full-width"
-                                    in:slide={{ duration: 240 }}
-                                    out:slide={{ duration: 220 }}
-                                >
-                                    <ArtistInlineDetail artist={expandedMember} />
-                                </div>
-                            {/if}
-                        {/each}
-                    </div>
-                {:else}
-                    <p class="members-empty">등록된 그룹 멤버가 없습니다.</p>
-                {/if}
             </section>
             {/if}
 
@@ -1056,6 +1184,159 @@
             &.active {
                 background: #333;
                 transform: scale(1.4);
+            }
+        }
+    }
+
+    /* ── Album Carousel (3D) ─────────────── */
+    .albums-section {
+        padding-bottom: 1.5rem;
+    }
+
+    .album-carousel {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .album-stage {
+        flex: 1;
+        min-width: 0;
+        height: 220px;
+        position: relative;
+        perspective: 900px;
+        transform-style: preserve-3d;
+
+        @media (--mobile) {
+            height: 170px;
+        }
+    }
+
+    .album-slide {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 220px;
+        aspect-ratio: 1 / 1;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        background: #eee;
+        transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.45s ease, filter 0.45s ease;
+
+        @media (--mobile) {
+            width: 170px;
+        }
+
+        &.active {
+            cursor: default;
+        }
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .album-cover-placeholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a1a1a, #333);
+        }
+    }
+
+    .album-info {
+        margin: 2rem auto 0;
+        max-width: 460px;
+        padding: 0 clamp(1rem, 5vw, 3.5rem);
+        text-align: left;
+
+        .album-info-head {
+            display: flex;
+            align-items: baseline;
+            justify-content: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+
+            .album-title {
+                font-size: 1.05rem;
+                font-weight: 500;
+                color: #111;
+                margin: 0;
+            }
+        }
+
+        .album-release-date {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 300;
+            color: #999;
+            margin-bottom: 1rem;
+        }
+
+        .album-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            gap: 0.6rem;
+
+            .album-link {
+                position: relative;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 32px;
+                height: 32px;
+                border: 1px solid rgba(0, 0, 0, 0.12);
+                border-radius: 50%;
+                color: rgba(0, 0, 0, 0.55);
+                text-decoration: none;
+                transition: color 0.2s ease, border-color 0.2s ease;
+
+                &:hover {
+                    color: #8BBad4;
+                    border-color: #8BBad4;
+                }
+
+                .link-tooltip {
+                    position: absolute;
+                    bottom: calc(100% + 8px);
+                    left: 50%;
+                    transform: translateX(-50%) translateY(4px);
+                    white-space: nowrap;
+                    font-size: 0.68rem;
+                    font-weight: 400;
+                    letter-spacing: 0.02em;
+                    color: #fff;
+                    background: rgba(0, 0, 0, 0.82);
+                    padding: 0.3rem 0.6rem;
+                    border-radius: 4px;
+                    opacity: 0;
+                    pointer-events: none;
+                    transition: opacity 0.2s ease, transform 0.2s ease;
+                }
+
+                &:hover .link-tooltip,
+                &:focus-visible .link-tooltip {
+                    opacity: 1;
+                    transform: translateX(-50%) translateY(0);
+                }
+            }
+        }
+
+        .album-tracklist {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+            padding: 0;
+
+            li {
+                font-size: 0.88rem;
+                font-weight: 300;
+                color: #333;
+                padding: 0.3rem 0;
             }
         }
     }
