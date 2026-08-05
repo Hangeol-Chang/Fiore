@@ -679,7 +679,7 @@
           <h3>동영상 (Video)</h3>
           {#each form.videos as video, i}
             <div class="video-row">
-              <input type="text" bind:value={video.id} placeholder="YouTube ID" />
+              <input type="text" bind:value={video.id} placeholder="YouTube ID 또는 영상 URL" />
               <input type="text" bind:value={video.description} placeholder="설명" />
               <button class="btn-sm btn-delete" onclick={() => removeVideo(i)}>×</button>
             </div>
