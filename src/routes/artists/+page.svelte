@@ -5,23 +5,36 @@
     import NavSection from "@/components/common/NavSection.svelte";
 
     const API = PIANOLIFE_BACKEND_URL || "http://localhost:8000";
+    const PAGE_SIZE = 12;
+    const allowedRoles = new Set(["artist", "group"]);
 
     let artists = $state([]);
     let loading = $state(true);
     let error = $state(null);
 
+    async function loadArtists() {
+        let offset = 0;
+        let first = true;
+        while (true) {
+            const res = await fetch(`${API}/api/artists/summary?active_only=true&limit=${PAGE_SIZE}&offset=${offset}`);
+            if (!res.ok) throw new Error(`서버 오류: ${res.status}`);
+            const page = await res.json();
+            if (first) {
+                loading = false;
+                first = false;
+            }
+            if (!page || page.length === 0) break;
+            artists = [...artists, ...page.filter(item => allowedRoles.has(item.role_name))];
+            if (page.length < PAGE_SIZE) break;
+            offset += PAGE_SIZE;
+        }
+    }
+
     $effect(() => {
-        fetch(`${API}/api/artists?active_only=true`)
-            .then(res => {
-                if (!res.ok) throw new Error(`서버 오류: ${res.status}`);
-                return res.json();
-            })
-            .then(data => {
-                const allowedRoles = new Set(["artist", "group"]);
-                artists = (data || []).filter(item => allowedRoles.has(item.role_name));
-            })
-            .catch(err => { error = err.message; })
-            .finally(() => { loading = false; });
+        loadArtists().catch(err => {
+            error = err.message;
+            loading = false;
+        });
     });
 </script>
 
