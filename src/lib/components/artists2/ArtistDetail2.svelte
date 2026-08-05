@@ -29,6 +29,11 @@
         });
     });
 
+    const hideBrokenImage = (e) => {
+        e.currentTarget.closest('.photo-slide, .album-slide, .concert-poster, .hero-media')?.classList.add('img-broken');
+        e.currentTarget.style.display = 'none';
+    };
+
     const videos = $derived(artist.videos || []);
     const links = $derived(artist.links || []);
     const isGroupArtist = $derived(artist.role_name === 'group');
@@ -258,6 +263,7 @@
             <img
                 src={artist.mid_url || artist.image_url}
                 alt={artist.name}
+                onerror={hideBrokenImage}
                 style="object-position: center {focusY}%;"
             />
         </div>
@@ -394,7 +400,7 @@
                             {#each subImages as img}
                                 <div class="photo-slide">
                                     <div class="photo-wrap">
-                                        <img src={img.url} alt="{artist.name} 사진" />
+                                        <img src={img.url} alt="{artist.name} 사진" onerror={hideBrokenImage} />
                                     </div>
                                 </div>
                             {/each}
@@ -472,7 +478,7 @@
                                     aria-current={offset === 0}
                                 >
                                     {#if album.cover_thumb_url || album.cover_url}
-                                        <img src={album.cover_mid_url || album.cover_url} alt={album.title} />
+                                        <img src={album.cover_mid_url || album.cover_url} alt={album.title} onerror={hideBrokenImage} />
                                     {:else}
                                         <div class="album-cover-placeholder"></div>
                                     {/if}
@@ -616,7 +622,7 @@
                         <a href="/concerts/{c.id}" class="concert-card">
                             <div class="concert-poster">
                                 {#if c.poster_url}
-                                    <img src={c.poster_url} alt={c.title} />
+                                    <img src={c.poster_url} alt={c.title} onerror={hideBrokenImage} />
                                 {:else}
                                     <div class="concert-poster-placeholder"></div>
                                 {/if}
@@ -683,6 +689,10 @@
             flex-direction: column;
             min-height: auto;
         }
+    }
+
+    .img-broken {
+        background: linear-gradient(135deg, #1a1a1a, #333);
     }
 
     .hero-media {
