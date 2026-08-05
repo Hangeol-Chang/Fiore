@@ -33,6 +33,10 @@
                     <h3>🎹 아티스트 관리</h3>
                     <p>아티스트 정보 추가/수정/삭제</p>
                 </a>
+                <a href="/admin/albums" class="admin-card">
+                    <h3>💿 앨범 관리</h3>
+                    <p>앨범 정보 추가/수정/삭제</p>
+                </a>
                 <a href="/admin/concours" class="admin-card">
                     <h3>🏆 콩쿠르 관리</h3>
                     <p>콩쿠르 정보 추가/수정/삭제</p>

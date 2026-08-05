@@ -23,8 +23,9 @@
             {#each artists as artist}
                 <a class="artist-card" href="/artists/{artist.id}">
                     <div class="profile-image" class:no-image={!artist.image_url}>
-                        {#if artist.mid_url || artist.image_url}
-                            <img src={artist.mid_url || artist.image_url} alt={artist.name_en ?? artist.name}
+                        {#if artist.thumb_url || artist.mid_url || artist.image_url}
+                            <img src={artist.thumb_url || artist.mid_url || artist.image_url} alt={artist.name_en ?? artist.name}
+                                loading="lazy" decoding="async"
                                 onerror={(e) => { e.currentTarget.style.display='none'; e.currentTarget.parentNode.classList.add('no-image'); }}/>
                         {/if}
                     </div>
