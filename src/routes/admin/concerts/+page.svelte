@@ -1,5 +1,6 @@
 <script>
   import { PIANOLIFE_BACKEND_URL } from '$env/static/public';
+  import { uploadMediaFile, fetchWithRetry } from '$lib/utils/uploadMedia.js';
 
   const API = PIANOLIFE_BACKEND_URL || 'http://localhost:8000';
 
@@ -35,6 +36,8 @@
   let showBannerMediaPicker = $state(false);
   let selectedPosterUrl = $state('');
   let selectedBannerUrl = $state('');
+  let saving = $state(false);
+  let saveError = $state('');
 
   // ── 드래그 앤 드롭 ────────────────────────────
   let imageUploading = $state(false);
@@ -108,6 +111,8 @@
     showPlaceResults = false;
     editing = null;
     showForm = false;
+    saving = false;
+    saveError = '';
   }
 
   function openCreate() {
@@ -337,12 +342,7 @@
     
     // 비동기 병렬 업로드 (Promise.all)
     const uploadPromises = pendingSubImageFiles.map(async (file) => {
-      const fd = new FormData();
-      fd.append('file', file);
-      fd.append('category', 'concert');
-      const res = await fetch(`${API}/api/media`, { method: 'POST', body: fd });
-      if (!res.ok) throw new Error(await res.text());
-      const media = await res.json();
+      const media = await uploadMediaFile(API, file, 'concert');
       return { file, media };
     });
 
@@ -387,12 +387,7 @@
   /** 저장 시 호출: pending 포스터를 실제 업로드 */
   async function flushPendingPoster() {
     if (!pendingPosterFile) return;
-    const fd = new FormData();
-    fd.append('file', pendingPosterFile);
-    fd.append('category', 'concert');
-    const res = await fetch(`${API}/api/media`, { method: 'POST', body: fd });
-    if (!res.ok) throw new Error(await res.text());
-    const media = await res.json();
+    const media = await uploadMediaFile(API, pendingPosterFile, 'concert');
     form.poster_media_id = media.id;
     selectedPosterUrl = media.thumb_url || media.url;
     URL.revokeObjectURL(pendingPosterFile._previewUrl);
@@ -436,12 +431,7 @@
   /** 저장 시 호출: pending 배너 이미지를 실제 업로드 */
   async function flushPendingBanner() {
     if (!pendingBannerFile) return;
-    const fd = new FormData();
-    fd.append('file', pendingBannerFile);
-    fd.append('category', 'concert');
-    const res = await fetch(`${API}/api/media`, { method: 'POST', body: fd });
-    if (!res.ok) throw new Error(await res.text());
-    const media = await res.json();
+    const media = await uploadMediaFile(API, pendingBannerFile, 'concert');
     form.banner_image_media_id = media.id;
     selectedBannerUrl = media.thumb_url || media.url;
     URL.revokeObjectURL(pendingBannerFile._previewUrl);
@@ -450,6 +440,10 @@
 
   // ── 저장 ───────────────────────────────────
   async function saveConcert() {
+    if (saving) return;
+    saving = true;
+    saveError = '';
+
     try {
       // 1. pending 이미지 먼저 병렬로 비동기 업로드
       await Promise.all([
@@ -458,7 +452,8 @@
         flushPendingSubImages()
       ]);
     } catch (e) {
-      alert('이미지 업로드 실패: ' + e.message);
+      saving = false;
+      saveError = '이미지 업로드 실패: ' + (e?.message || e);
       return;
     }
 
@@ -500,13 +495,13 @@
         : `${API}/api/concerts`;
       const method = editing ? 'PUT' : 'POST';
 
-      const res = await fetch(url, { method, body: formData });
-      if (!res.ok) throw new Error(await res.text());
+      await fetchWithRetry(url, { method, body: formData });
 
       resetForm();
       await loadConcerts();
     } catch (e) {
-      alert('저장 실패: ' + e.message);
+      saving = false;
+      saveError = '저장 실패: ' + (e?.message || e);
     }
   }
 
@@ -669,12 +664,16 @@
         <div class="modal-header-row">
           <h2>{editing ? '공연 편집' : '새 공연'}</h2>
           <div class="modal-header-actions">
-            <button class="btn-primary btn-save-top" onclick={saveConcert} disabled={!form.title}>
-              {editing ? '수정' : '등록'}
+            <button class="btn-primary btn-save-top" onclick={saveConcert} disabled={!form.title || saving}>
+              {saving ? '저장 중...' : (editing ? '수정' : '등록')}
             </button>
             <button class="modal-close" onclick={resetForm}>✕</button>
           </div>
         </div>
+
+        {#if saveError}
+          <p class="save-error">{saveError}</p>
+        {/if}
 
         <!-- 기본 정보 -->
         <div class="form-section">
@@ -990,8 +989,8 @@
         </div>
 
         <div class="form-actions">
-          <button class="btn-primary" onclick={saveConcert} disabled={!form.title}>
-            {editing ? '수정' : '생성'}
+          <button class="btn-primary" onclick={saveConcert} disabled={!form.title || saving}>
+            {saving ? '저장 중...' : (editing ? '수정' : '생성')}
           </button>
           <button class="btn-secondary" onclick={resetForm}>취소</button>
         </div>
@@ -1213,6 +1212,17 @@
     .modal-close { position: static; }
   }
   .btn-save-top { flex-shrink: 0; padding: 0.45rem 1rem; font-size: 0.85rem; }
+
+  .save-error {
+    background: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+    border-radius: 6px;
+    padding: 0.6rem 0.9rem;
+    margin: 0 0 1rem;
+    font-size: 0.85rem;
+    white-space: pre-wrap;
+  }
 
   .modal-close {
     position: absolute;

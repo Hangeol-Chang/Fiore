@@ -1,6 +1,7 @@
 <script>
   import { PIANOLIFE_BACKEND_URL } from '$env/static/public';
   import FocusPointModal from '$lib/components/artists/FocusPointModal.svelte';
+  import { uploadMediaFile, fetchWithRetry } from '$lib/utils/uploadMedia.js';
 
   const API = PIANOLIFE_BACKEND_URL || 'http://localhost:8000';
 
@@ -40,6 +41,8 @@
   let mediaList = $state([]);
   let showMediaPicker = $state(false);
   let selectedImageUrl = $state('');
+  let saving = $state(false);
+  let saveError = $state('');
   let imageUploading = $state(false);
   let imageDragOver = $state(false);
   let subImageUploading = $state(false);
@@ -134,6 +137,8 @@
     pendingSubImageFiles = [];
     editing = null;
     showForm = false;
+    saving = false;
+    saveError = '';
   }
 
   function openCreate() {
@@ -244,12 +249,7 @@
   async function flushPendingSubImages() {
     if (pendingSubImageFiles.length === 0) return;
     for (const file of pendingSubImageFiles) {
-      const fd = new FormData();
-      fd.append('file', file);
-      fd.append('category', 'artist');
-      const res = await fetch(`${API}/api/media`, { method: 'POST', body: fd });
-      if (!res.ok) throw new Error(await res.text());
-      const media = await res.json();
+      const media = await uploadMediaFile(API, file, 'artist');
       form.image_list = form.image_list.map(img =>
         img.url === file._previewUrl ? { media_id: media.id, url: media.url } : img
       );
@@ -348,12 +348,7 @@
   /** 저장 시 호출: pending 프로필 이미지를 실제 업로드 */
   async function flushPendingProfileImage() {
     if (!pendingProfileFile) return;
-    const fd = new FormData();
-    fd.append('file', pendingProfileFile);
-    fd.append('category', 'artist');
-    const res = await fetch(`${API}/api/media`, { method: 'POST', body: fd });
-    if (!res.ok) throw new Error(await res.text());
-    const media = await res.json();
+    const media = await uploadMediaFile(API, pendingProfileFile, 'artist');
     form.image_media_id = media.id;
     selectedImageUrl = media.url;
     URL.revokeObjectURL(pendingProfileFile._previewUrl);
@@ -362,12 +357,17 @@
 
   // ── 저장 ───────────────────────────────────
   async function saveArtist() {
+    if (saving) return;
+    saving = true;
+    saveError = '';
+
     try {
       // 1. pending 이미지 먼저 업로드
       await flushPendingProfileImage();
       await flushPendingSubImages();
     } catch (e) {
-      alert('이미지 업로드 실패: ' + e.message);
+      saving = false;
+      saveError = '이미지 업로드 실패: ' + (e?.message || e);
       return;
     }
 
@@ -400,13 +400,13 @@
         : `${API}/api/artists`;
       const method = editing ? 'PUT' : 'POST';
 
-      const res = await fetch(url, { method, body: formData });
-      if (!res.ok) throw new Error(await res.text());
+      await fetchWithRetry(url, { method, body: formData });
 
       resetForm();
       await loadArtists();
     } catch (e) {
-      alert('저장 실패: ' + e.message);
+      saving = false;
+      saveError = '저장 실패: ' + (e?.message || e);
     }
   }
 
@@ -514,12 +514,16 @@
         <div class="modal-header-row">
           <h2>{editing ? '아티스트 편집' : '새 아티스트'}</h2>
           <div class="modal-header-actions">
-            <button class="btn-primary btn-save-top" onclick={saveArtist} disabled={!form.name}>
-              {editing ? '수정' : '등록'}
+            <button class="btn-primary btn-save-top" onclick={saveArtist} disabled={!form.name || saving}>
+              {saving ? '저장 중...' : (editing ? '수정' : '등록')}
             </button>
             <button class="modal-close" onclick={resetForm}>✕</button>
           </div>
         </div>
+
+        {#if saveError}
+          <p class="save-error">{saveError}</p>
+        {/if}
 
         <!-- 기본 정보 -->
         <div class="form-section">
@@ -778,8 +782,8 @@
         </div>
 
         <div class="form-actions">
-          <button class="btn-primary" onclick={saveArtist} disabled={!form.name}>
-            {editing ? '수정' : '생성'}
+          <button class="btn-primary" onclick={saveArtist} disabled={!form.name || saving}>
+            {saving ? '저장 중...' : (editing ? '수정' : '생성')}
           </button>
           <button class="btn-secondary" onclick={resetForm}>취소</button>
         </div>
@@ -1003,6 +1007,17 @@
     .modal-close { position: static; }
   }
   .btn-save-top { flex-shrink: 0; padding: 0.45rem 1rem; font-size: 0.85rem; }
+
+  .save-error {
+    background: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+    border-radius: 6px;
+    padding: 0.6rem 0.9rem;
+    margin: 0 0 1rem;
+    font-size: 0.85rem;
+    white-space: pre-wrap;
+  }
 
   .modal-close {
     position: absolute;

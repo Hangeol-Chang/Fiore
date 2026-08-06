@@ -1,5 +1,6 @@
 <script>
   import { PIANOLIFE_BACKEND_URL } from '$env/static/public';
+  import { uploadMediaFile, fetchWithRetry } from '$lib/utils/uploadMedia.js';
 
   const API = PIANOLIFE_BACKEND_URL || 'http://localhost:8000';
 
@@ -33,6 +34,8 @@
   let bannerDragOver = $state(false);
   let pendingPosterFile = $state(null);
   let pendingBannerFile = $state(null);
+  let saving = $state(false);
+  let saveError = $state('');
 
   // ── 초기 로드 ──────────────────────────────
   $effect(() => { loadItems(); });
@@ -70,6 +73,8 @@
     pendingBannerFile = null;
     editing = null;
     showForm = false;
+    saving = false;
+    saveError = '';
   }
 
   function openCreate() {
@@ -116,12 +121,7 @@
   }
   async function flushPendingPoster() {
     if (!pendingPosterFile) return;
-    const fd = new FormData();
-    fd.append('file', pendingPosterFile);
-    fd.append('category', 'concert');
-    const res = await fetch(`${API}/api/media`, { method: 'POST', body: fd });
-    if (!res.ok) throw new Error(await res.text());
-    const media = await res.json();
+    const media = await uploadMediaFile(API, pendingPosterFile, 'concert');
     form.poster_media_id = media.id;
     selectedPosterUrl = media.url;
     URL.revokeObjectURL(pendingPosterFile._previewUrl);
@@ -157,12 +157,7 @@
   }
   async function flushPendingBanner() {
     if (!pendingBannerFile) return;
-    const fd = new FormData();
-    fd.append('file', pendingBannerFile);
-    fd.append('category', 'concert');
-    const res = await fetch(`${API}/api/media`, { method: 'POST', body: fd });
-    if (!res.ok) throw new Error(await res.text());
-    const media = await res.json();
+    const media = await uploadMediaFile(API, pendingBannerFile, 'concert');
     form.banner_image_media_id = media.id;
     selectedBannerUrl = media.url;
     URL.revokeObjectURL(pendingBannerFile._previewUrl);
@@ -179,11 +174,16 @@
 
   // ── 저장 ───────────────────────────────────
   async function saveItem() {
+    if (saving) return;
+    saving = true;
+    saveError = '';
+
     try {
       await flushPendingPoster();
       await flushPendingBanner();
     } catch (e) {
-      alert('이미지 업로드 실패: ' + e.message);
+      saving = false;
+      saveError = '이미지 업로드 실패: ' + (e?.message || e);
       return;
     }
 
@@ -201,12 +201,12 @@
     try {
       const url = editing ? `${API}/api/auditions/${editing.id}` : `${API}/api/auditions`;
       const method = editing ? 'PUT' : 'POST';
-      const res = await fetch(url, { method, body: formData });
-      if (!res.ok) throw new Error(await res.text());
+      await fetchWithRetry(url, { method, body: formData });
       resetForm();
       await loadItems();
     } catch (e) {
-      alert('저장 실패: ' + e.message);
+      saving = false;
+      saveError = '저장 실패: ' + (e?.message || e);
     }
   }
 
@@ -296,12 +296,16 @@
         <div class="modal-header-row">
           <h2>{editing ? '오디션 편집' : '새 오디션'}</h2>
           <div class="modal-header-actions">
-            <button class="btn-primary btn-save-top" onclick={saveItem} disabled={!form.title}>
-              {editing ? '수정' : '등록'}
+            <button class="btn-primary btn-save-top" onclick={saveItem} disabled={!form.title || saving}>
+              {saving ? '저장 중...' : (editing ? '수정' : '등록')}
             </button>
             <button class="modal-close" onclick={resetForm}>✕</button>
           </div>
         </div>
+
+        {#if saveError}
+          <p class="save-error">{saveError}</p>
+        {/if}
 
         <!-- 기본 정보 -->
         <div class="form-section">
@@ -404,8 +408,8 @@
         </div>
 
         <div class="form-actions">
-          <button class="btn-primary" onclick={saveItem} disabled={!form.title}>
-            {editing ? '수정' : '등록'}
+          <button class="btn-primary" onclick={saveItem} disabled={!form.title || saving}>
+            {saving ? '저장 중...' : (editing ? '수정' : '등록')}
           </button>
           <button class="btn-secondary" onclick={resetForm}>취소</button>
         </div>
@@ -548,6 +552,11 @@
     .modal-close { position: static; }
   }
   .btn-save-top { flex-shrink: 0; padding: 0.45rem 1rem; font-size: 0.85rem; }
+  .save-error {
+    background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca;
+    border-radius: 6px; padding: 0.6rem 0.9rem; margin: 0 0 1rem;
+    font-size: 0.85rem; white-space: pre-wrap;
+  }
   .modal-close {
     position: absolute; top: 0.75rem; right: 0.75rem;
     background: none; border: none; color: #888; font-size: 1.4rem; cursor: pointer; z-index: 1;
