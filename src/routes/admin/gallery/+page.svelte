@@ -1,5 +1,6 @@
 <script>
   import { PIANOLIFE_BACKEND_URL } from '$env/static/public';
+  import { uploadMediaFile, fetchWithRetry } from '$lib/utils/uploadMedia.js';
 
   const API = PIANOLIFE_BACKEND_URL || 'http://localhost:8000';
 
@@ -127,15 +128,8 @@
 
     for (const file of dropFiles) {
       try {
-        // 1단계: media 업로드
-        const mForm = new FormData();
-        mForm.append('file', file);
-        mForm.append('category', uploadCategory);
-        if (addTitle) mForm.append('alt_text', addTitle);
-
-        const mRes = await fetch(`${API}/api/media`, { method: 'POST', body: mForm });
-        if (!mRes.ok) throw new Error('미디어 업로드 실패: ' + (await mRes.text()));
-        const media = await mRes.json();
+        // 1단계: media 업로드 (실패 시 자동 재시도)
+        const media = await uploadMediaFile(API, file, uploadCategory, { alt_text: addTitle || undefined });
 
         // 2단계: gallery_images에 추가
         const gForm = new FormData();
@@ -144,8 +138,7 @@
         if (addCategory) gForm.append('category', addCategory);
         gForm.append('sort_order', String(addSortOrder));
 
-        const gRes = await fetch(`${API}/api/gallery/`, { method: 'POST', body: gForm });
-        if (!gRes.ok) throw new Error('갤러리 추가 실패: ' + (await gRes.text()));
+        await fetchWithRetry(`${API}/api/gallery/`, { method: 'POST', body: gForm });
 
         uploadResults = [...uploadResults, { success: true, name: file.name }];
       } catch (e) {
