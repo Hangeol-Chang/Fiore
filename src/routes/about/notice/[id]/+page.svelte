@@ -1,6 +1,6 @@
 <script>
     import { page } from '$app/stores';
-    import { marked } from 'marked';
+    import { renderMarkdown } from '$lib/utils/markdown.js';
     import { PIANOLIFE_BACKEND_URL } from '$env/static/public';
 
     const API = PIANOLIFE_BACKEND_URL || 'http://localhost:8000';
@@ -55,13 +55,18 @@
 
         {#if notice.image_mid_url || notice.image_url}
             <div class="notice-image-wrap">
-                <img class="notice-image" src={notice.image_mid_url || notice.image_url} alt={notice.title} />
+                <img
+                    class="notice-image"
+                    src={notice.image_mid_url || notice.image_url}
+                    alt={notice.title}
+                    style="max-width: {notice.image_width || 1280}px;"
+                />
             </div>
         {/if}
 
         <div class="notice-text-wrap">
             <div class="notice-content markdown-body">
-                {@html marked.parse(notice.content || '')}
+                {@html renderMarkdown(notice.content)}
             </div>
         </div>
     {/if}
@@ -140,6 +145,22 @@
 
     .notice-content {
         overflow-wrap: break-word;
+
+        :global(table) {
+            width: 100%;
+            margin: 1.5rem 0;
+            border-collapse: collapse;
+            text-align: center;
+        }
+        :global(th),
+        :global(td) {
+            border: 1px solid #ddd;
+            padding: 0.3rem 0.6rem;
+            text-align: center;
+        }
+        :global(th) {
+            font-weight: 700;
+        }
     }
 
     .status-msg {
