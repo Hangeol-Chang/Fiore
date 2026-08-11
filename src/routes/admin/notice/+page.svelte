@@ -1,6 +1,6 @@
 <script>
   import { PIANOLIFE_BACKEND_URL } from '$env/static/public';
-  import { marked } from 'marked';
+  import { renderMarkdown } from '$lib/utils/markdown.js';
   import { uploadMediaFile, fetchWithRetry } from '$lib/utils/uploadMedia.js';
 
   const API = PIANOLIFE_BACKEND_URL || 'http://localhost:8000';
@@ -13,10 +13,13 @@
   let showPreview = $state(false);
 
   // ── 폼 데이터 ──────────────────────────────
+  const DEFAULT_IMAGE_WIDTH = 1280;
+
   let form = $state({
     title: '',
     content: '',
     image_media_id: null,
+    image_width: DEFAULT_IMAGE_WIDTH,
     is_active: true,
   });
 
@@ -56,7 +59,7 @@
 
   // ── 폼 초기화 ──────────────────────────────
   function resetForm() {
-    form = { title: '', content: '', image_media_id: null, is_active: true };
+    form = { title: '', content: '', image_media_id: null, image_width: DEFAULT_IMAGE_WIDTH, is_active: true };
     selectedImageUrl = '';
     pendingImageFile = null;
     editing = null;
@@ -77,6 +80,7 @@
       title: item.title || '',
       content: item.content || '',
       image_media_id: null,
+      image_width: item.image_width || DEFAULT_IMAGE_WIDTH,
       is_active: item.is_active ?? true,
     };
     selectedImageUrl = item.image_url || '';
@@ -137,6 +141,7 @@
     formData.append('title', form.title);
     formData.append('content', form.content || '');
     if (form.image_media_id) formData.append('image_media_id', String(form.image_media_id));
+    formData.append('image_width', String(form.image_width || DEFAULT_IMAGE_WIDTH));
     formData.append('is_active', String(form.is_active));
 
     try {
@@ -280,6 +285,30 @@
               <button type="button" class="btn-secondary" onclick={() => { selectedImageUrl = ''; form.image_media_id = null; pendingImageFile = null; }}>제거</button>
             {/if}
           </div>
+
+          {#if selectedImageUrl}
+            <div class="width-control">
+              <label for="image-width-slider">이미지 최대 너비: {form.image_width}px</label>
+              <div class="width-control-row">
+                <input
+                  id="image-width-slider"
+                  type="range"
+                  min="200"
+                  max="1280"
+                  step="10"
+                  bind:value={form.image_width}
+                />
+                <input
+                  type="number"
+                  min="200"
+                  max="1280"
+                  step="10"
+                  bind:value={form.image_width}
+                  class="width-number"
+                />
+              </div>
+            </div>
+          {/if}
         </div>
 
         <!-- 본문 (마크다운) -->
@@ -292,7 +321,7 @@
           </div>
           {#if showPreview}
             <div class="markdown-preview markdown-body">
-              {@html marked.parse(form.content || '_내용 없음_')}
+              {@html renderMarkdown(form.content || '_내용 없음_')}
             </div>
           {:else}
             <textarea bind:value={form.content} placeholder="마크다운 문법으로 작성하세요 (# 제목, **굵게**, - 목록 등)"></textarea>
@@ -460,6 +489,13 @@
     :global(img) { max-width: 100%; }
     :global(a) { color: #2563eb; }
     :global(ul), :global(ol) { padding-left: 1.5em; margin: 0 0 0.75em; }
+    :global(table) {
+      width: 100%; margin: 0 0 1em; border-collapse: collapse; text-align: center;
+    }
+    :global(th), :global(td) {
+      border: 1px solid #ddd; padding: 0.25rem 0.5rem; text-align: center;
+    }
+    :global(th) { font-weight: 700; }
   }
 
   .checkbox-label {
@@ -480,6 +516,19 @@
     .preview-img {
       max-width: 100%; max-height: 240px; border-radius: 8px;
       object-fit: contain; display: block; margin: 0 auto;
+    }
+  }
+
+  .width-control {
+    margin-top: 0.75rem;
+    label { display: block; margin-bottom: 0.4rem; font-size: 0.85rem; color: #444; }
+  }
+  .width-control-row {
+    display: flex; align-items: center; gap: 0.75rem;
+    input[type="range"] { flex: 1; }
+    .width-number {
+      width: 90px; padding: 0.4rem 0.5rem; border: 1px solid #d1d5db;
+      border-radius: 6px; color: #222; font-size: 0.85rem;
     }
   }
 
