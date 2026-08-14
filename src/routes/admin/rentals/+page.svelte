@@ -4,7 +4,8 @@
   const API = PIANOLIFE_BACKEND_URL || 'http://localhost:8000';
 
   const STATUS_LABEL = { pending: '승인 대기', approved: '승인 완료', rejected: '거절됨' };
-  const RENTAL_TYPES = ['레슨, 연습', '모임 대관', '공연 대관'];
+  // '공연'은 일반 대관 신청 폼에는 노출되지 않는 관리자 전용 카테고리 (콘서트 등록 시 자동 연동)
+  const RENTAL_TYPES = ['레슨, 연습', '모임 대관', '공연 대관', '공연'];
 
   // ── 상태 ──────────────────────────────────
   let items = $state([]);
@@ -73,6 +74,10 @@
   }
 
   async function saveItem() {
+    if (editing?.concert_id) {
+      alert('콘서트와 연동된 대관 일정입니다. 공연 관리 페이지에서 수정해주세요.');
+      return;
+    }
     if (form.start_time && form.end_time && form.start_time >= form.end_time) {
       alert('종료 시간은 시작 시간보다 늦어야 합니다.');
       return;
@@ -114,6 +119,10 @@
   }
 
   async function deleteItem(item) {
+    if (item.concert_id) {
+      alert('콘서트와 연동된 대관 일정입니다. 공연 관리 페이지에서 콘서트를 삭제해주세요.');
+      return;
+    }
     if (!confirm(`${item.date} ${item.start_time}~${item.end_time} 대관 예약을 삭제하시겠습니까?`)) return;
     try {
       await fetch(`${API}/api/rentals/admin/${item.id}`, { method: 'DELETE' });
@@ -183,17 +192,24 @@
               </td>
               <td>
                 <span class="badge source">{item.source === 'admin' ? '관리자 등록' : '온라인 신청'}</span>
+                {#if item.concert_id}
+                  <span class="badge concert-linked">콘서트 연동</span>
+                {/if}
               </td>
               <td>
                 <span class="badge status-{item.status}">{STATUS_LABEL[item.status] || item.status}</span>
               </td>
               <td class="actions">
-                {#if item.status === 'pending'}
-                  <button class="btn-sm btn-approve" onclick={() => setStatus(item, 'approved')}>승인</button>
-                  <button class="btn-sm btn-reject" onclick={() => setStatus(item, 'rejected')}>거절</button>
+                {#if item.concert_id}
+                  <a class="btn-sm btn-edit" href="/admin/concerts">공연 관리로 이동</a>
+                {:else}
+                  {#if item.status === 'pending'}
+                    <button class="btn-sm btn-approve" onclick={() => setStatus(item, 'approved')}>승인</button>
+                    <button class="btn-sm btn-reject" onclick={() => setStatus(item, 'rejected')}>거절</button>
+                  {/if}
+                  <button class="btn-sm btn-edit" onclick={() => openEdit(item)}>편집</button>
+                  <button class="btn-sm btn-delete" onclick={() => deleteItem(item)}>삭제</button>
                 {/if}
-                <button class="btn-sm btn-edit" onclick={() => openEdit(item)}>편집</button>
-                <button class="btn-sm btn-delete" onclick={() => deleteItem(item)}>삭제</button>
               </td>
             </tr>
           {/each}
@@ -354,6 +370,7 @@
     display: inline-block;
   }
   .badge.source { background: #eef2ff; color: #4338ca; }
+  .badge.concert-linked { background: #f3e8ff; color: #7e22ce; margin-left: 0.3rem; }
   .badge.status-pending { background: #fef3c7; color: #92400e; }
   .badge.status-approved { background: #dcfce7; color: #166534; }
   .badge.status-rejected { background: #fee2e2; color: #991b1b; }
@@ -372,7 +389,7 @@
     border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer;
     &:hover { background: #e5e7eb; }
   }
-  .btn-sm { padding: 0.3rem 0.7rem; font-size: 0.85rem; border-radius: 4px; border: none; cursor: pointer; }
+  .btn-sm { padding: 0.3rem 0.7rem; font-size: 0.85rem; border-radius: 4px; border: none; cursor: pointer; display: inline-block; text-decoration: none; }
   .btn-edit { background: #2563eb; color: #fff; &:hover { background: #1d4ed8; } }
   .btn-delete { background: #dc3545; color: #fff; &:hover { background: #c82333; } }
   .btn-approve { background: #16a34a; color: #fff; &:hover { background: #15803d; } }
