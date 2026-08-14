@@ -16,6 +16,7 @@
     title: '',
     date: '',
     time: '',
+    end_time: '',
     brief_description: '',
     reserve_link: '',
     cost: '',
@@ -98,7 +99,7 @@
   // ── 폼 초기화 ──────────────────────────────
   function resetForm() {
     form = {
-      title: '', date: '', time: '', brief_description: '', reserve_link: '', cost: '',
+      title: '', date: '', time: '', end_time: '', brief_description: '', reserve_link: '', cost: '',
       location: '', location_data: null, poster_media_id: null, banner_image_media_id: null, program: [], image_list: [], artist_ids: [], is_active: true,
     };
     selectedPosterUrl = '';
@@ -146,6 +147,7 @@
       title: concert.title || '',
       date: dateStr,
       time: timeStr,
+      end_time: concert.end_time || '',
       brief_description: concert.brief_description || '',
       reserve_link: concert.reserve_link || '',
       cost: concert.cost || '',
@@ -464,6 +466,7 @@
     const formData = new FormData();
     formData.append('title', form.title);
     if (combinedDate) formData.append('date', combinedDate);
+    formData.append('end_time', form.end_time || '');
     if (form.brief_description) formData.append('brief_description', form.brief_description);
     formData.append('reserve_link', form.reserve_link || '');
     formData.append('cost', form.cost || '');
@@ -688,10 +691,17 @@
               <input type="date" bind:value={form.date} />
             </label>
             <label>
-              시간
+              시작 시간
               <input type="time" bind:value={form.time} />
             </label>
           </div>
+          <label>
+            종료 시간
+            <input type="time" bind:value={form.end_time} />
+          </label>
+          <p style="font-size: 0.8rem; color: #999; margin: -0.25rem 0 0.75rem;">
+            날짜/시작/종료 시간이 모두 입력되면 대관 관리에 "공연" 일정으로 자동 등록됩니다.
+          </p>
           <label>
             장소
           </label>
