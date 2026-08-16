@@ -88,7 +88,7 @@
         const duplicate = allMedia.find(m => m.original_filename === file.name);
         if (duplicate) {
           const proceed = confirm(
-            `⚠️ 동일한 파일명이 이미 존재합니다.\n\n` +
+            `동일한 파일명이 이미 존재합니다.\n\n` +
             `파일명: ${file.name}\n` +
             `기존 업로드: ${new Date(duplicate.created_at).toLocaleString()}\n` +
             `카테고리: ${duplicate.category}\n\n` +
@@ -189,7 +189,7 @@
 <div class="page">
   <header class="page-header">
     <a href="/admin" class="back-link">← Admin</a>
-    <h1>📤 이미지 관리</h1>
+    <h1>이미지 관리</h1>
   </header>
 
   <!-- ── 업로드 섹션 ──────────────────────── -->
@@ -204,7 +204,7 @@
       role="button"
       tabindex="0"
     >
-      <p>📁 파일을 드래그하거나 클릭하여 선택</p>
+      <p>파일을 드래그하거나 클릭하여 선택</p>
       <input
         type="file"
         accept="image/*"
@@ -258,7 +258,7 @@
       <div class="upload-results">
         {#each uploadResults as result}
           <div class="result-item" class:success={result.success} class:error={!result.success}>
-            {result.success ? '✅' : '❌'} {result.name}
+            {result.name}
             {#if result.error} — {result.error}{/if}
           </div>
         {/each}
@@ -290,7 +290,7 @@
 
         {#if selectedIds.size > 0}
           <button class="btn-delete-batch" onclick={deleteBatch}>
-            🗑️ {selectedIds.size}개 삭제
+            {selectedIds.size}개 삭제
           </button>
         {/if}
       </div>
@@ -375,10 +375,10 @@
 
             <div class="modal-actions">
               <button class="btn-copy" onclick={() => navigator.clipboard.writeText(selectedMedia.url)}>
-                📋 URL 복사
+                URL 복사
               </button>
               <button class="btn-delete" onclick={() => deleteMedia(selectedMedia.id)}>
-                🗑️ 삭제
+                삭제
               </button>
             </div>
           </div>
@@ -673,7 +673,7 @@
     max-height: 85vh;
     overflow-y: auto;
     position: relative;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   }
 
   .modal-close {

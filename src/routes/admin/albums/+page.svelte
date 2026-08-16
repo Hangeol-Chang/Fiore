@@ -317,9 +317,11 @@
                   {album.is_active ? '활성' : '비활성'}
                 </span>
               </td>
-              <td class="actions">
-                <button class="btn-sm btn-edit" onclick={() => openEdit(album)}>편집</button>
-                <button class="btn-sm btn-delete" onclick={() => deleteAlbum(album)}>삭제</button>
+              <td>
+                <div class="actions">
+                  <button class="btn-sm btn-edit" onclick={() => openEdit(album)}>편집</button>
+                  <button class="btn-sm btn-delete" onclick={() => deleteAlbum(album)}>삭제</button>
+                </div>
               </td>
             </tr>
           {/each}
@@ -379,7 +381,7 @@
             {#if selectedCoverUrl}
               <img src={selectedCoverUrl} alt="cover preview" class="preview-img" />
               {#if pendingCoverFile}
-                <p class="drop-hint pending-hint">💾 저장 시 업로드됩니다</p>
+                <p class="drop-hint pending-hint">저장 시 업로드됩니다</p>
               {/if}
             {:else}
               <p class="drop-text">이미지를 드래그하거나 클릭하여 선택</p>
@@ -538,6 +540,7 @@
     th, td {
       padding: 0.75rem 1rem;
       text-align: left;
+      vertical-align: middle;
       border-bottom: 1px solid #eee;
     }
     th { color: #888; font-weight: 500; font-size: 0.85rem; }
@@ -566,7 +569,7 @@
     &.active { background: #dcfce7; color: #166534; }
   }
 
-  .actions { display: flex; gap: 0.5rem; }
+  .actions { display: flex; gap: 0.5rem; align-items: center; }
 
   /* ── 버튼 ──────────────────────────── */
   .btn-primary {
@@ -613,7 +616,7 @@
     max-width: 700px;
     max-height: 90vh;
     overflow-y: auto;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
     position: relative;
 
     h2 { margin: 0; font-size: 1.3rem; color: #111; }

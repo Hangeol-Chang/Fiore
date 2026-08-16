@@ -180,7 +180,7 @@
 <div class="page">
   <header class="page-header">
     <a href="/admin" class="back-link">← Admin</a>
-    <h1>🖼️ 갤러리 관리</h1>
+    <h1>갤러리 관리</h1>
   </header>
 
   <div class="layout">
@@ -229,11 +229,11 @@
         <button
           class="tab {addTab === 'media' ? 'active' : ''}"
           onclick={() => addTab = 'media'}
-        >📂 미디어에서 선택</button>
+        >미디어에서 선택</button>
         <button
           class="tab {addTab === 'upload' ? 'active' : ''}"
           onclick={() => addTab = 'upload'}
-        >⬆️ 직접 업로드</button>
+        >직접 업로드</button>
       </div>
 
       <!-- 공통 메타 필드 -->
@@ -348,7 +348,7 @@
             role="button"
             tabindex="0"
           >
-            <p>📁 파일을 드래그하거나 클릭하여 선택</p>
+            <p>파일을 드래그하거나 클릭하여 선택</p>
             <p class="drop-hint">여러 파일 동시 선택 가능</p>
             <input
               type="file"
@@ -382,7 +382,7 @@
             <div class="upload-results">
               {#each uploadResults as r}
                 <div class="result-item {r.success ? 'ok' : 'err'}">
-                  {r.success ? '✅' : '❌'} {r.name}{r.error ? ' — ' + r.error : ''}
+                  {r.name}{r.error ? ' — ' + r.error : ''}
                 </div>
               {/each}
             </div>

@@ -199,17 +199,19 @@
               <td>
                 <span class="badge status-{item.status}">{STATUS_LABEL[item.status] || item.status}</span>
               </td>
-              <td class="actions">
-                {#if item.concert_id}
-                  <a class="btn-sm btn-edit" href="/admin/concerts">공연 관리로 이동</a>
-                {:else}
-                  {#if item.status === 'pending'}
-                    <button class="btn-sm btn-approve" onclick={() => setStatus(item, 'approved')}>승인</button>
-                    <button class="btn-sm btn-reject" onclick={() => setStatus(item, 'rejected')}>거절</button>
+              <td>
+                <div class="actions">
+                  {#if item.concert_id}
+                    <a class="btn-sm btn-edit" href="/admin/concerts">공연 관리로 이동</a>
+                  {:else}
+                    {#if item.status === 'pending'}
+                      <button class="btn-sm btn-approve" onclick={() => setStatus(item, 'approved')}>승인</button>
+                      <button class="btn-sm btn-reject" onclick={() => setStatus(item, 'rejected')}>거절</button>
+                    {/if}
+                    <button class="btn-sm btn-edit" onclick={() => openEdit(item)}>편집</button>
+                    <button class="btn-sm btn-delete" onclick={() => deleteItem(item)}>삭제</button>
                   {/if}
-                  <button class="btn-sm btn-edit" onclick={() => openEdit(item)}>편집</button>
-                  <button class="btn-sm btn-delete" onclick={() => deleteItem(item)}>삭제</button>
-                {/if}
+                </div>
               </td>
             </tr>
           {/each}
@@ -356,7 +358,7 @@
   table {
     width: 100%;
     border-collapse: collapse;
-    th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid #eee; }
+    th, td { padding: 0.75rem 1rem; text-align: left; vertical-align: middle; border-bottom: 1px solid #eee; }
     th { color: #888; font-weight: 500; font-size: 0.85rem; }
     tbody tr:hover { background: #f8f9fa; }
   }
@@ -375,7 +377,7 @@
   .badge.status-approved { background: #dcfce7; color: #166534; }
   .badge.status-rejected { background: #fee2e2; color: #991b1b; }
 
-  .actions { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+  .actions { display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; }
   .empty { text-align: center; color: #999; padding: 2rem; }
 
   .btn-primary {
@@ -403,7 +405,7 @@
   .modal {
     background: #fff; border: 1px solid #e0e0e0; border-radius: 12px;
     padding: 2rem; width: 100%; max-width: 600px; max-height: 90vh;
-    overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.15); position: relative;
+    overflow-y: auto; box-shadow: 0 8px 24px rgba(0,0,0,0.15); position: relative;
     h2 { margin: 0; font-size: 1.3rem; color: #111; }
   }
   .modal-header-row {

@@ -623,7 +623,6 @@
             <th>제목</th>
             <th>날짜/시간</th>
             <th>장소</th>
-            <th>프로그램</th>
             <th>아티스트</th>
             <th>상태</th>
             <th>작업</th>
@@ -642,16 +641,17 @@
               <td class="name-cell">{concert.title}</td>
               <td>{concert.date || '-'}</td>
               <td>{concert.location || '-'}</td>
-              <td>{(concert.program || []).reduce((acc, s) => acc + (s.items?.length ?? (s.title !== undefined ? 1 : 0)), 0)}곡</td>
-              <td>{(concert.artists || []).length}명</td>
+              <td>{concert.artists_count ?? (concert.artists || []).length}명</td>
               <td>
                 <span class="badge" class:active={concert.is_active}>
                   {concert.is_active ? '활성' : '비활성'}
                 </span>
               </td>
-              <td class="actions">
-                <button class="btn-sm btn-edit" onclick={() => openEdit(concert)}>편집</button>
-                <button class="btn-sm btn-delete" onclick={() => deleteConcert(concert)}>삭제</button>
+              <td>
+                <div class="actions">
+                  <button class="btn-sm btn-edit" onclick={() => openEdit(concert)}>편집</button>
+                  <button class="btn-sm btn-delete" onclick={() => deleteConcert(concert)}>삭제</button>
+                </div>
               </td>
             </tr>
           {/each}
@@ -685,20 +685,20 @@
             제목 *
             <input type="text" bind:value={form.title} placeholder="공연 제목" required />
           </label>
+          <label>
+            날짜
+            <input type="date" bind:value={form.date} />
+          </label>
           <div class="row-2">
-            <label>
-              날짜
-              <input type="date" bind:value={form.date} />
-            </label>
             <label>
               시작 시간
               <input type="time" bind:value={form.time} />
             </label>
+            <label>
+              종료 시간
+              <input type="time" bind:value={form.end_time} />
+            </label>
           </div>
-          <label>
-            종료 시간
-            <input type="time" bind:value={form.end_time} />
-          </label>
           <p style="font-size: 0.8rem; color: #999; margin: -0.25rem 0 0.75rem;">
             날짜/시작/종료 시간이 모두 입력되면 대관 관리에 "공연" 일정으로 자동 등록됩니다.
           </p>
@@ -770,7 +770,7 @@
             {:else if selectedPosterUrl}
               <img src={selectedPosterUrl} alt="poster preview" class="preview-img poster-preview" />
               {#if pendingPosterFile}
-                <p class="drop-hint pending-hint">💾 저장 시 업로드됩니다</p>
+                <p class="drop-hint pending-hint">저장 시 업로드됩니다</p>
               {/if}
             {:else}
               <p class="drop-text">이미지를 드래그하거나 클릭하여 선택</p>
@@ -798,7 +798,7 @@
             {#if selectedBannerUrl}
               <img src={selectedBannerUrl} alt="banner preview" class="preview-img banner-preview" />
               {#if pendingBannerFile}
-                <p class="drop-hint pending-hint">💾 저장 시 업로드됩니다</p>
+                <p class="drop-hint pending-hint">저장 시 업로드됩니다</p>
               {/if}
             {:else}
               <p class="drop-text">이미지를 드래그하거나 클릭하여 선택</p>
@@ -1125,6 +1125,7 @@
     th, td {
       padding: 0.75rem 1rem;
       text-align: left;
+      vertical-align: middle;
       border-bottom: 1px solid #eee;
     }
     th { color: #888; font-weight: 500; font-size: 0.85rem; }
@@ -1153,7 +1154,7 @@
     &.active { background: #dcfce7; color: #166534; }
   }
 
-  .actions { display: flex; gap: 0.5rem; }
+  .actions { display: flex; gap: 0.5rem; align-items: center; }
 
   /* ── 버튼 ──────────────────────────── */
   .btn-primary {
@@ -1200,7 +1201,7 @@
     max-width: 700px;
     max-height: 90vh;
     overflow-y: auto;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
     position: relative;
 
     h2 { margin: 0; font-size: 1.3rem; color: #111; }

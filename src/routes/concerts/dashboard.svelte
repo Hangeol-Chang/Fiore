@@ -95,7 +95,7 @@
 
     onMount(async () => {
         try {
-            const res = await fetch(`${API}/api/concerts/?active_only=false`);
+            const res = await fetch(`${API}/api/concerts/?active_only=false&summary=true`);
             if (!res.ok) throw new Error(`서버 오류: ${res.status}`);
             rawConcerts = await res.json();
         } catch (e) {
@@ -135,8 +135,15 @@
                 >
                     <a href="/concerts/{concert.id}" class="concert-link">
                         <div class="concert-image">
-                            {#if concert.poster_mid_url || concert.poster_url}
-                                <img src={concert.poster_mid_url || concert.poster_url} alt={concert.title} />
+                            {#if concert.poster_thumb_url || concert.poster_mid_url || concert.poster_url}
+                                <img
+                                    src={i === 1
+                                        ? (concert.poster_mid_url || concert.poster_thumb_url || concert.poster_url)
+                                        : (concert.poster_thumb_url || concert.poster_mid_url || concert.poster_url)}
+                                    alt={concert.title}
+                                    loading="lazy"
+                                    decoding="async"
+                                />
                             {:else}
                                 <div class="poster-placeholder"></div>
                             {/if}

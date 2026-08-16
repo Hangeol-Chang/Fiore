@@ -4,7 +4,7 @@
 
 <div class="unauthorized-container">
   <div class="unauthorized-box">
-    <h1>🚫 접근 권한 없음</h1>
+    <h1>접근 권한 없음</h1>
     <p>이 이메일은 관리자 페이지에 접근할 수 없습니다.</p>
     <p>관리자에게 문의하세요.</p>
     
