@@ -275,9 +275,11 @@
                   {item.is_active ? '활성' : '비활성'}
                 </span>
               </td>
-              <td class="actions">
-                <button class="btn-sm btn-edit" onclick={() => openEdit(item)}>편집</button>
-                <button class="btn-sm btn-delete" onclick={() => deleteItem(item)}>삭제</button>
+              <td>
+                <div class="actions">
+                  <button class="btn-sm btn-edit" onclick={() => openEdit(item)}>편집</button>
+                  <button class="btn-sm btn-delete" onclick={() => deleteItem(item)}>삭제</button>
+                </div>
               </td>
             </tr>
           {/each}
@@ -350,7 +352,7 @@
             {#if selectedPosterUrl}
               <img src={selectedPosterUrl} alt="poster preview" class="preview-img" />
               {#if pendingPosterFile}
-                <p class="drop-hint pending-hint">💾 저장 시 업로드됩니다</p>
+                <p class="drop-hint pending-hint">저장 시 업로드됩니다</p>
               {/if}
             {:else}
               <p class="drop-text">이미지를 드래그하거나 클릭하여 선택</p>
@@ -381,7 +383,7 @@
             {#if selectedBannerUrl}
               <img src={selectedBannerUrl} alt="banner preview" class="preview-img banner-preview" />
               {#if pendingBannerFile}
-                <p class="drop-hint pending-hint">💾 저장 시 업로드됩니다</p>
+                <p class="drop-hint pending-hint">저장 시 업로드됩니다</p>
               {/if}
             {:else}
               <p class="drop-text">이미지를 드래그하거나 클릭하여 선택</p>
@@ -491,7 +493,7 @@
   table {
     width: 100%;
     border-collapse: collapse;
-    th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid #eee; }
+    th, td { padding: 0.75rem 1rem; text-align: left; vertical-align: middle; border-bottom: 1px solid #eee; }
     th { color: #888; font-weight: 500; font-size: 0.85rem; }
     tbody tr:hover { background: #f8f9fa; }
   }
@@ -507,7 +509,7 @@
     &.active { background: #dcfce7; color: #166534; }
   }
 
-  .actions { display: flex; gap: 0.5rem; }
+  .actions { display: flex; gap: 0.5rem; align-items: center; }
   .empty { text-align: center; color: #999; padding: 2rem; }
 
   .btn-primary {
@@ -533,7 +535,7 @@
   .modal {
     background: #fff; border: 1px solid #e0e0e0; border-radius: 12px;
     padding: 2rem; width: 100%; max-width: 700px; max-height: 90vh;
-    overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.15); position: relative;
+    overflow-y: auto; box-shadow: 0 8px 24px rgba(0,0,0,0.15); position: relative;
     h2 { margin: 0; font-size: 1.3rem; color: #111; }
   }
   .modal-header-row {

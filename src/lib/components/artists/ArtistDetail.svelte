@@ -272,7 +272,7 @@
                 <h3 class="section-header">Video</h3>
                 <div class="video-carousel">
                     <button
-                        class="carousel-btn carousel-prev"
+                        class="carousel-nav-btn carousel-prev"
                         onclick={prevVideo}
                         disabled={currentVideoIndex === 0}
                         aria-label="이전 영상"
@@ -315,7 +315,7 @@
                     </div><!-- /carousel-outer -->
 
                     <button
-                        class="carousel-btn carousel-next"
+                        class="carousel-nav-btn carousel-next"
                         onclick={nextVideo}
                         disabled={currentVideoIndex === videos.length - 1}
                         aria-label="다음 영상"
@@ -819,42 +819,9 @@
         pointer-events: none;
     }
 
-    .carousel-btn {
-        width: 40px;
-        height: 40px;
-        border: 1px solid #ddd;
-        background: white;
-        font-size: 1.75rem;
-        cursor: pointer;
-        display: flex;
-        height: 40px;
-
-        text-align: center;
-        justify-content: center;
-        transition: background 0.2s, opacity 0.2s;
-        color: #444;
-        padding: 0;
-
-        &:hover:not(:disabled) {
-            background: #f0f0f0;
-        }
-
-        &:disabled {
-            opacity: 0.25;
-            cursor: default;
-        }
-
+    :global(.carousel-nav-btn) {
         @media (--tablet) {
             display: none;
-        }
-        
-        &.carousel-prev {
-            border-radius: 0 20px 20px 0;
-            border-left: none;
-        }
-        &.carousel-next {
-            border-radius: 20px 0 0 20px;
-            border-right: none;
         }
     }
 

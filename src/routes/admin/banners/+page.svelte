@@ -4,13 +4,13 @@
   const API = PIANOLIFE_BACKEND_URL || 'http://localhost:8000';
 
   const TYPE_LABELS = {
-    hero: '🖼️ Hero 이미지',
-    latest_concert: '🎵 최신 콘서트 (자동)',
-    latest_concours: '🏆 최신 콩쿠르 (자동)',
-    latest_audition: '🎤 최신 오디션 (자동)',
-    concert: '🎵 특정 콘서트',
-    concours: '🏆 특정 콩쿠르',
-    audition: '🎤 특정 오디션',
+    hero: 'Hero 이미지',
+    latest_concert: '최신 콘서트 (자동)',
+    latest_concours: '최신 콩쿠르 (자동)',
+    latest_audition: '최신 오디션 (자동)',
+    concert: '특정 콘서트',
+    concours: '특정 콩쿠르',
+    audition: '특정 오디션',
   };
 
   const REF_TYPES = ['concert', 'concours', 'audition'];
@@ -228,7 +228,7 @@
 <div class="page">
   <header class="page-header">
     <a href="/admin" class="back-link">← Admin</a>
-    <h1>🎞️ 배너 관리</h1>
+    <h1>배너 관리</h1>
   </header>
 
   <div class="layout">
@@ -339,7 +339,7 @@
               <button class="btn-cancel-pick" onclick={() => pickedMedia = null}>✕</button>
             </div>
           {/if}
-          <button class="btn-open-picker" onclick={openPicker}>🖼️ 이미지 선택</button>
+          <button class="btn-open-picker" onclick={openPicker}>이미지 선택</button>
         </div>
       {/if}
 
@@ -711,7 +711,7 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
   }
 
   .picker-modal-header {

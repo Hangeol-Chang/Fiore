@@ -495,9 +495,11 @@
                 </span>
               </td>
               <td>{(artist.concerts || []).length}개</td>
-              <td class="actions">
-                <button class="btn-sm btn-edit" onclick={() => openEdit(artist)}>편집</button>
-                <button class="btn-sm btn-delete" onclick={() => deleteArtist(artist)}>삭제</button>
+              <td>
+                <div class="actions">
+                  <button class="btn-sm btn-edit" onclick={() => openEdit(artist)}>편집</button>
+                  <button class="btn-sm btn-delete" onclick={() => deleteArtist(artist)}>삭제</button>
+                </div>
               </td>
             </tr>
           {/each}
@@ -623,7 +625,7 @@
             {:else if selectedImageUrl}
               <img src={selectedImageUrl} alt="preview" class="preview-img" />
               {#if pendingProfileFile}
-                <p class="drop-hint pending-hint">💾 저장 시 업로드됩니다</p>
+                <p class="drop-hint pending-hint">저장 시 업로드됩니다</p>
               {:else}
                 <p class="drop-hint">다른 이미지를 드래그하여 교체</p>
               {/if}
@@ -748,7 +750,7 @@
             />
           </div>
           <button type="button" class="btn-secondary btn-sm" style="margin-top:0.5rem" onclick={openSubMediaPicker}>
-            📁 미디어에서 선택
+            미디어에서 선택
           </button>
         </div>
 
@@ -910,6 +912,7 @@
     th, td {
       padding: 0.75rem 1rem;
       text-align: left;
+      vertical-align: middle;
       border-bottom: 1px solid #eee;
     }
     th { color: #888; font-weight: 500; font-size: 0.85rem; }
@@ -938,7 +941,7 @@
     &.active { background: #dcfce7; color: #166534; }
   }
 
-  .actions { display: flex; gap: 0.5rem; }
+  .actions { display: flex; gap: 0.5rem; align-items: center; }
 
   /* ── 버튼 ──────────────────────────── */
   .btn-primary {
@@ -985,7 +988,7 @@
     max-width: 700px;
     max-height: 90vh;
     overflow-y: auto;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
     position: relative;
 
     h2 { margin: 0; font-size: 1.3rem; color: #111; }

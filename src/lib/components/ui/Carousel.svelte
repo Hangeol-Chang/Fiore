@@ -60,8 +60,8 @@
         </div>
     </div>
 
-    <button class="nav-btn prev" on:click={prev}>&lt;</button>
-    <button class="nav-btn next" on:click={next}>&gt;</button>
+    <button class="carousel-nav-btn nav-prev" on:click={prev}>&lt;</button>
+    <button class="carousel-nav-btn nav-next" on:click={next}>&gt;</button>
 
     <div class="indicators">
         {#each imageList as _, i}
@@ -114,26 +114,16 @@
         }
     }
 
-    .nav-btn {
+    .nav-prev,
+    .nav-next {
         position: absolute;
         top: 50%;
         transform: translateY(-50%);
-        background: rgba(255,255,255,0.7);
-        border: none;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        cursor: pointer;
         z-index: 20;
-        font-size: 1.2rem;
-        
-        &.prev { left: 10px; }
-        &.next { right: 10px; }
-
-        &:hover {
-            background: white;
-        }
     }
+
+    .nav-prev { left: 10px; }
+    .nav-next { right: 10px; }
 
     .indicators {
         display: flex;
