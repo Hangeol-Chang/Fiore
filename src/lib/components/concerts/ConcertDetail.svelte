@@ -232,12 +232,8 @@
             grid-template-columns: 300px 1fr;
         }
         @media(--tablet) {
-            grid-template-columns: 240px 1fr;
+            grid-template-columns: 1fr;
             gap: 1.5rem;
-        }
-        @media(--mobile) {
-            grid-template-columns: 120px 1fr;
-            gap: 1rem;
         }
 
         .main-poster {
@@ -249,6 +245,9 @@
             @media(--tablet) {
                 position: static;
                 grid-row: 1 / 2;
+                grid-column: 1 / -1;
+                max-width: 360px;
+                margin: 0 auto;
             }
 
             .main-poster-image {
@@ -273,6 +272,10 @@
         flex-direction: column;
         justify-content: space-between;
 
+        @media(--tablet) {
+            grid-column: 1 / -1;
+            grid-row: 2 / 3;
+        }
     }
     h3 {
         padding: 0;
