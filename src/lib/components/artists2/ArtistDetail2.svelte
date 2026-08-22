@@ -53,6 +53,18 @@
             )
     );
 
+    // 스크롤로 화면에 들어오면 클래스 부여 (호버 대체)
+    function inView(node, { threshold = 0.4 } = {}) {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                node.classList.toggle('in-view', entry.isIntersecting);
+            },
+            { threshold }
+        );
+        observer.observe(node);
+        return { destroy() { observer.disconnect(); } };
+    }
+
     function updateMemberColumns() {
         if (!membersGridEl) return;
         const style = getComputedStyle(membersGridEl);
@@ -373,7 +385,7 @@
             {#if subImages.length > 0}
             <section id="photos" class="detail-section photo-section">
                 <h3 class="section-header">Photos</h3>
-                <div class="photo-carousel">
+                <div class="photo-carousel" use:inView={{ threshold: 0.4 }}>
                     <button
                         class="carousel-nav-btn carousel-prev"
                         onclick={prevPhoto}
@@ -400,7 +412,7 @@
                             {#each subImages as img}
                                 <div class="photo-slide">
                                     <div class="photo-wrap">
-                                        <img src={img.url} alt="{artist.name} 사진" onerror={hideBrokenImage} />
+                                        <img src={img.url} alt="{artist.name} 사진" loading="lazy" decoding="async" onerror={hideBrokenImage} />
                                     </div>
                                 </div>
                             {/each}
@@ -729,7 +741,7 @@
 
         @media (--tablet) {
             flex-basis: auto;
-            padding: 2.5rem 1rem 3.5rem;
+            padding: 2rem 1rem 1.5rem;
         }
     }
 
@@ -777,6 +789,11 @@
             border-top: 1px solid rgba(0, 0, 0, 0.12);
             padding-top: 1.75rem;
             margin: 0 0 2.5rem;
+
+            @media (--tablet) {
+                padding-top: 1.1rem;
+                margin: 0 0 1.5rem;
+            }
         }
 
         .artist-links {
@@ -854,6 +871,10 @@
             grid-template-columns: 1fr;
             gap: 1.5rem;
         }
+
+        @media (--tablet) {
+            padding-top: 2rem;
+        }
     }
 
     .main-content {
@@ -872,6 +893,11 @@
         @media(--tablet) {
             margin-left: 1rem;
             margin-right: 1rem;
+            margin-bottom: 3.5rem;
+        }
+
+        @media(--mobile) {
+            margin-bottom: 2rem;
         }
     }
 
@@ -1069,7 +1095,7 @@
         box-sizing: border-box;
     }
 
-    /* 세로 이미지 hover 확장 */
+    /* 세로 이미지 확장: 스크롤로 화면에 들어오면 확대 */
     .photo-wrap {
         position: relative;
         width: 100%;
@@ -1087,15 +1113,12 @@
         }
     }
 
-    /* 데스크탑: photos 블록에 마우스 올리면 세로로 확장 (호버 가능한 기기만) */
-    @media (hover: hover) and (pointer: fine) {
-        .photo-carousel:hover .photo-wrap {
-            padding-top: 140%;
-        }
+    :global(.photo-carousel.in-view) .photo-wrap {
+        padding-top: 140%;
     }
 
-    /* 모바일 등 호버 불가 기기는 애초에 세로로 길게 */
-    @media (hover: none) {
+    /* 태블릿 이하 너비는 스크롤 진입 여부와 무관하게 세로로 길게 고정 */
+    @media (--tablet) {
         .photo-wrap {
             padding-top: 140%;
         }
