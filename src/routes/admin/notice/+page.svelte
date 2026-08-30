@@ -20,6 +20,8 @@
     content: '',
     image_media_id: null,
     image_width: DEFAULT_IMAGE_WIDTH,
+    button_text: '',
+    button_url: '',
     is_active: true,
   });
 
@@ -59,7 +61,7 @@
 
   // ── 폼 초기화 ──────────────────────────────
   function resetForm() {
-    form = { title: '', content: '', image_media_id: null, image_width: DEFAULT_IMAGE_WIDTH, is_active: true };
+    form = { title: '', content: '', image_media_id: null, image_width: DEFAULT_IMAGE_WIDTH, button_text: '', button_url: '', is_active: true };
     selectedImageUrl = '';
     pendingImageFile = null;
     editing = null;
@@ -81,6 +83,8 @@
       content: item.content || '',
       image_media_id: null,
       image_width: item.image_width || DEFAULT_IMAGE_WIDTH,
+      button_text: item.button_text || '',
+      button_url: item.button_url || '',
       is_active: item.is_active ?? true,
     };
     selectedImageUrl = item.image_url || '';
@@ -142,6 +146,9 @@
     formData.append('content', form.content || '');
     if (form.image_media_id) formData.append('image_media_id', String(form.image_media_id));
     formData.append('image_width', String(form.image_width || DEFAULT_IMAGE_WIDTH));
+    formData.append('button_text', form.button_text || '');
+    formData.append('button_url', form.button_url || '');
+    if (editing && !form.button_text && !form.button_url) formData.append('clear_button', 'true');
     formData.append('is_active', String(form.is_active));
 
     try {
@@ -328,6 +335,19 @@
           {:else}
             <textarea bind:value={form.content} placeholder="마크다운 문법으로 작성하세요 (# 제목, **굵게**, - 목록 등)"></textarea>
           {/if}
+        </div>
+
+        <!-- 하단 버튼 -->
+        <div class="form-section">
+          <h3>하단 버튼 (선택, 텍스트 비우면 표시 안 함)</h3>
+          <label>
+            버튼 텍스트
+            <input type="text" bind:value={form.button_text} placeholder="예: 신청하러 가기" />
+          </label>
+          <label>
+            리다이렉트 URL
+            <input type="text" bind:value={form.button_url} placeholder="https://..." />
+          </label>
         </div>
 
         <div class="form-actions">
