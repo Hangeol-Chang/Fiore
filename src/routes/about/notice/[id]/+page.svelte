@@ -68,6 +68,14 @@
             <div class="notice-content markdown-body">
                 {@html renderMarkdown(notice.content)}
             </div>
+
+            {#if notice.button_text && notice.button_url}
+                <div class="notice-cta">
+                    <a class="notice-cta-btn" href={notice.button_url} target="_blank" rel="noopener noreferrer">
+                        {notice.button_text}
+                    </a>
+                </div>
+            {/if}
         </div>
     {/if}
 </div>
@@ -161,6 +169,27 @@
         :global(th) {
             font-weight: 700;
         }
+    }
+
+    .notice-cta {
+        display: flex;
+        justify-content: center;
+        margin-top: 3rem;
+    }
+
+    .notice-cta-btn {
+        display: inline-block;
+        padding: 0.9rem 2.5rem;
+        background: #222;
+        color: #fff;
+        border: 1px solid #222;
+        border-radius: 2px;
+        text-decoration: none;
+        font-size: 0.95rem;
+        letter-spacing: 0.02em;
+        transition: background 0.2s, color 0.2s;
+
+        &:hover { background: #fff; color: #222; }
     }
 
     .status-msg {
