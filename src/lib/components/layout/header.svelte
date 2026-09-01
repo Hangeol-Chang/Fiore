@@ -265,6 +265,7 @@
     .logo {
         transition: opacity 0.3s ease;
         margin-right: 50px;
+        width: 140px;
     }
 
     .logo a {
@@ -402,8 +403,8 @@
         align-items: center;
         padding: 20px 0;
         margin-right: 50px;
-        min-width: 120px;
- 
+        width: 140px;
+
         a {
             display: block;
         }

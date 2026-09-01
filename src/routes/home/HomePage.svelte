@@ -265,9 +265,21 @@
 
         &.prev {
             left: max(0.75rem, calc((100% - $banner-max-width) / 2 - 1.25rem));
+
+            @media (--tablet) {
+                left: 0;
+                padding: 0.5rem 0.4rem;
+                border-radius: 0 50% 50% 0;
+            }
         }
         &.next {
             right: max(0.75rem, calc((100% - $banner-max-width) / 2 - 1.25rem));
+
+            @media (--tablet) {
+                right: 0;
+                padding: 0.5rem 0.4rem;
+                border-radius: 50% 0 0 50%;
+            }
         }
     }
 

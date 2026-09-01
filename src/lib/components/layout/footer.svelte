@@ -15,11 +15,13 @@
             </div>
 
             <p class="company-info">
-                company. Fiore / owner. 고정우
+                company. 피오레 아트앤엔터 / owner. 고정우
                 <br />
-                BRN. 443-02-03983 
+                BRN. 443-02-03983
                 <br />
-                Contact. (인터뷰, 연주회 참가 문의)
+                Tel. 010-3480-9451
+                <br />
+                Address. 서울특별시 효령로 52길 16, 지하 1층
                 <br />
                 instagram. @pianolife38 / mail. jwgo0311@gmail.com
             </p>
