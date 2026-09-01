@@ -210,6 +210,14 @@
                     {/each}
                 </div>
             </div>
+
+            <!-- 환불 규정 -->
+            {#if concert.refund_policy}
+                <div>
+                    <h3 class="underbar">환불 기준</h3>
+                    <p class="refund-policy">{concert.refund_policy}</p>
+                </div>
+            {/if}
         </div>
 
         <div class="view-count-footer">views {concert.view_count ?? 0}</div>
@@ -475,6 +483,16 @@
                 }
             }
         }
+    }
+
+    /* ── Refund Policy ─────────────── */
+    .refund-policy {
+        font-size: 0.85rem;
+        line-height: 1.7;
+        font-weight: 300;
+        color: #888;
+        white-space: pre-line;
+        margin: 0;
     }
 
     .intermission {

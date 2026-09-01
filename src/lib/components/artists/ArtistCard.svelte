@@ -107,12 +107,21 @@
     transform-origin: bottom left;
     transition: transform 0.4s ease;
 
+    @media (--tablet) {
+        padding: 0.9rem 0.8rem;
+    }
+
     .name-en {
         font-size: 1.4rem;
         font-weight: 100;
         letter-spacing: 0.08em;
         margin: 0 0 0.15rem;
         color: white;
+
+        @media (--tablet) {
+            font-size: 1.05rem;
+            margin: 0 0 0.05rem;
+        }
     }
 
     .name-kr {
@@ -120,6 +129,11 @@
         font-weight: 300;
         color: rgba(255, 255, 255, 0.4);
         margin: 0 0 0.5rem;
+
+        @media (--tablet) {
+            font-size: 0.9rem;
+            margin: 0 0 0.2rem;
+        }
     }
 
     .view-detail {
@@ -128,6 +142,10 @@
         letter-spacing: 0.1em;
         color: rgba(255, 255, 255, 0.6);
         text-transform: lowercase;
+
+        @media (--tablet) {
+            font-size: 0.7rem;
+        }
     }
 }
 </style>

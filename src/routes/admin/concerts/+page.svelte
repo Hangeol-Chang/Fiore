@@ -20,6 +20,7 @@
     brief_description: '',
     reserve_link: '',
     cost: '',
+    refund_policy: '',
     location: '',
     location_data: null,
     poster_media_id: null,
@@ -99,7 +100,7 @@
   // ── 폼 초기화 ──────────────────────────────
   function resetForm() {
     form = {
-      title: '', date: '', time: '', end_time: '', brief_description: '', reserve_link: '', cost: '',
+      title: '', date: '', time: '', end_time: '', brief_description: '', reserve_link: '', cost: '', refund_policy: '',
       location: '', location_data: null, poster_media_id: null, banner_image_media_id: null, program: [], image_list: [], artist_ids: [], is_active: true,
     };
     selectedPosterUrl = '';
@@ -151,6 +152,7 @@
       brief_description: concert.brief_description || '',
       reserve_link: concert.reserve_link || '',
       cost: concert.cost || '',
+      refund_policy: concert.refund_policy || '',
       location: concert.location || '',
       location_data: concert.location_data || null,
       poster_media_id: null,
@@ -470,6 +472,7 @@
     if (form.brief_description) formData.append('brief_description', form.brief_description);
     formData.append('reserve_link', form.reserve_link || '');
     formData.append('cost', form.cost || '');
+    formData.append('refund_policy', form.refund_policy || '');
     // 빈 값도 항상 전송 — 지운 경우 DB에서도 지워지도록
     formData.append('location', form.location || '');
     formData.append('location_data', form.location_data ? JSON.stringify(form.location_data) : '');
@@ -870,6 +873,15 @@
         <div class="form-section">
           <h3>티켓 가격</h3>
           <input type="text" bind:value={form.cost} placeholder="예) 전석 30,000원" />
+        </div>
+
+        <!-- 환불 규정 -->
+        <div class="form-section">
+          <h3>환불 규정</h3>
+          <p style="font-size: 0.8rem; color: #999; margin: -0.25rem 0 0.75rem;">
+            비워두면 기본 환불 규정 문구가 표시됩니다.
+          </p>
+          <textarea bind:value={form.refund_policy} rows="5" placeholder={'방문일 기준\n8일전 100% 환불\n7일전 90% 환불\n4-6일전 80% 환불\n1-3일전 70% 환불\n당일 환불 불가'}></textarea>
         </div>
 
         <!-- 프로그램 -->
