@@ -23,6 +23,7 @@
     button_text: '',
     button_url: '',
     is_active: true,
+    is_pinned: false,
   });
 
   // ── 이미지 상태 ──────────────────────────
@@ -61,7 +62,7 @@
 
   // ── 폼 초기화 ──────────────────────────────
   function resetForm() {
-    form = { title: '', content: '', image_media_id: null, image_width: DEFAULT_IMAGE_WIDTH, button_text: '', button_url: '', is_active: true };
+    form = { title: '', content: '', image_media_id: null, image_width: DEFAULT_IMAGE_WIDTH, button_text: '', button_url: '', is_active: true, is_pinned: false };
     selectedImageUrl = '';
     pendingImageFile = null;
     editing = null;
@@ -86,6 +87,7 @@
       button_text: item.button_text || '',
       button_url: item.button_url || '',
       is_active: item.is_active ?? true,
+      is_pinned: item.is_pinned ?? false,
     };
     selectedImageUrl = item.image_url || '';
     showForm = true;
@@ -150,6 +152,7 @@
     formData.append('button_url', form.button_url || '');
     if (editing && !form.button_text && !form.button_url) formData.append('clear_button', 'true');
     formData.append('is_active', String(form.is_active));
+    formData.append('is_pinned', String(form.is_pinned));
 
     try {
       const url = editing ? `${API}/api/notices/${editing.id}` : `${API}/api/notices`;
@@ -211,7 +214,7 @@
                   <div class="thumb-placeholder"></div>
                 {/if}
               </td>
-              <td class="name-cell">{item.title}</td>
+              <td class="name-cell">{#if item.is_pinned}<svg class="pin-mark" viewBox="0 0 24 24" width="13" height="13" aria-label="상단 고정"><title>상단 고정</title><path fill="currentColor" d="M14.15 2.85a1 1 0 0 1 1.41 0l5.59 5.59a1 1 0 0 1 0 1.41l-2.83 2.83a1 1 0 0 1-1.41 0l-.4-.4-3.06 3.06.7 3.51a1 1 0 0 1-.27.91l-1 1a1 1 0 0 1-1.41 0l-3.7-3.7-4.6 4.6a1 1 0 0 1-1.41-1.41l4.6-4.6-3.7-3.7a1 1 0 0 1 0-1.41l1-1a1 1 0 0 1 .91-.27l3.51.7 3.06-3.06-.4-.4a1 1 0 0 1 0-1.41z"/></svg>{/if}{item.title}</td>
               <td>{item.created_at ? new Date(item.created_at).toLocaleDateString() : '-'}</td>
               <td>
                 <span class="badge" class:active={item.is_active}>
@@ -262,6 +265,10 @@
           <label class="checkbox-label">
             <input type="checkbox" bind:checked={form.is_active} />
             활성 상태
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" bind:checked={form.is_pinned} />
+            상단 고정
           </label>
         </div>
 
@@ -420,6 +427,7 @@
   .thumb { width: 80px; height: 60px; border-radius: 6px; object-fit: cover; }
   .thumb-placeholder { width: 80px; height: 60px; border-radius: 6px; background: #eee; }
   .name-cell { font-weight: 600; color: #111; }
+  .pin-mark { margin-right: 0.4rem; color: #999; vertical-align: middle; }
 
   .badge {
     padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.8rem;

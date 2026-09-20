@@ -26,6 +26,12 @@
         return new Date(dateStr).toLocaleDateString();
     }
 
+    const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
+    function isNew(dateStr) {
+        if (!dateStr) return false;
+        return Date.now() - new Date(dateStr).getTime() < THREE_DAYS_MS;
+    }
+
     $effect(() => {
         fetch(`${API}/api/notices?active_only=true`)
             .then(r => r.json())
@@ -60,8 +66,15 @@
             {:else}
                 {#each pagedNotices as notice (notice.id)}
                     <a class="board-row" href="/about/notice/{notice.id}">
-                        <span class="col-num">{notice.id}</span>
-                        <span class="col-title">{notice.title}</span>
+                        <span class="col-num">
+                            {#if notice.is_pinned}
+                                <svg class="pin-icon" viewBox="0 0 24 24" width="14" height="14" aria-label="상단 고정"><title>상단 고정</title><path fill="currentColor" d="M14.15 2.85a1 1 0 0 1 1.41 0l5.59 5.59a1 1 0 0 1 0 1.41l-2.83 2.83a1 1 0 0 1-1.41 0l-.4-.4-3.06 3.06.7 3.51a1 1 0 0 1-.27.91l-1 1a1 1 0 0 1-1.41 0l-3.7-3.7-4.6 4.6a1 1 0 0 1-1.41-1.41l4.6-4.6-3.7-3.7a1 1 0 0 1 0-1.41l1-1a1 1 0 0 1 .91-.27l3.51.7 3.06-3.06-.4-.4a1 1 0 0 1 0-1.41z"/></svg>
+                            {:else}{notice.id}{/if}
+                        </span>
+                        <span class="col-title">
+                            <span class="title-text">{notice.title}</span>
+                            {#if isNew(notice.created_at)}<span class="new-badge">new</span>{/if}
+                        </span>
                         <span class="col-views">{notice.view_count ?? 0}</span>
                         <span class="col-date">{formatDate(notice.created_at)}</span>
                     </a>
@@ -150,9 +163,36 @@
     }
 
     .col-title {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
         overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        min-width: 0;
+
+        span {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+
+    .pin-icon {
+        color: #999;
+        vertical-align: middle;
+    }
+
+    .new-badge {
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        padding: 0.05rem 0.4rem;
+        border-radius: 3px;
+        background: #e53e3e;
+        color: #fff;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        line-height: 1;
     }
 
     .status-msg {
