@@ -114,6 +114,12 @@
         margin: 0 0 2rem;
         padding-bottom: 1.5rem;
         border-bottom: 1px solid #eee;
+
+        @media (--tablet) {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
     }
 
     .notice-title {
