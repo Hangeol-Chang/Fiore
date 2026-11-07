@@ -25,6 +25,7 @@
     group_artist_ids: [],
     description: '',
     career: [],
+    repertoire: [],
     videos: [],
     links: [],
     image_list: [],
@@ -130,6 +131,7 @@
       group_artist_ids: [],
       description: '',
       career: [],
+      repertoire: [],
       videos: [], links: [], image_list: [], notice: '', sort_order: 0, image_media_id: null, image_focus_y: 50, concert_ids: [],
     };
     selectedImageUrl = '';
@@ -159,6 +161,9 @@
       group_artist_ids: artist.group_artist_ids ? [...artist.group_artist_ids] : [],
       description: artist.description || '',
       career: artist.career ? artist.career.map(c => ({ ...c })) : [],
+      repertoire: (artist.repertoire || [])
+        .filter(s => Array.isArray(s.items))
+        .map(s => ({ section: s.section || '', items: s.items.map(it => ({ title: it.title || '', composer: it.composer || '', featured: !!it.featured })) })),
       videos: artist.videos ? [...artist.videos] : [],
       links: artist.links ? artist.links.map(l => ({ ...l })) : [],
       image_list: artist.image_list ? [...artist.image_list] : [],
@@ -181,6 +186,57 @@
 
   function removeCareer(idx) {
     form.career = form.career.filter((_, i) => i !== idx);
+  }
+
+  // ── Repertoire 관리 ────────────────────────
+  function addRepSection() {
+    form.repertoire = [...form.repertoire, { section: '', items: [] }];
+  }
+
+  function removeRepSection(si) {
+    form.repertoire = form.repertoire.filter((_, i) => i !== si);
+  }
+
+  function addRepItem(si) {
+    form.repertoire[si].items = [...form.repertoire[si].items, { title: '', composer: '', featured: false }];
+  }
+
+  function removeRepItem(si, ii) {
+    form.repertoire[si].items = form.repertoire[si].items.filter((_, i) => i !== ii);
+  }
+
+  // 드래그 앤 드롭: 섹션끼리, 같은 섹션 안의 곡끼리 순서 변경
+  let repDrag = $state(null); // { type: 'section'|'item', si, ii }
+
+  function moveInArray(arr, from, to) {
+    const next = [...arr];
+    const [moved] = next.splice(from, 1);
+    next.splice(to, 0, moved);
+    return next;
+  }
+
+  function repDragStart(e, drag) {
+    e.stopPropagation();
+    repDrag = drag;
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', ''); // Firefox 필수
+  }
+
+  function repDrop(e, target) {
+    e.stopPropagation();
+    e.preventDefault();
+    const d = repDrag;
+    repDrag = null;
+    if (!d || d.type !== target.type) return;
+    if (d.type === 'section') {
+      if (d.si !== target.si) form.repertoire = moveInArray(form.repertoire, d.si, target.si);
+    } else if (d.si === target.si && d.ii !== target.ii) {
+      form.repertoire[d.si].items = moveInArray(form.repertoire[d.si].items, d.ii, target.ii);
+    }
+  }
+
+  function repDragOver(e, type) {
+    if (repDrag?.type === type) e.preventDefault();
   }
 
   // ── Video 관리 ─────────────────────────────
@@ -381,6 +437,17 @@
     }
     if (form.description) formData.append('description', form.description);
     if (form.career.length > 0) formData.append('career', JSON.stringify(form.career));
+    // 항상 전송: 빈 배열이어야 전체 삭제가 서버에 반영됨
+    formData.append('repertoire', JSON.stringify(
+      form.repertoire
+        .map(s => ({
+          section: s.section.trim(),
+          items: s.items
+            .map(it => ({ title: it.title.trim(), composer: it.composer.trim(), featured: !!it.featured }))
+            .filter(it => it.title),
+        }))
+        .filter(s => s.section && s.items.length > 0)
+    ));
     if (form.videos.length > 0) formData.append('videos', JSON.stringify(form.videos));
     if (form.links.length > 0) formData.append('links', JSON.stringify(form.links));
     if (form.image_list.length > 0) formData.append('image_list', JSON.stringify(form.image_list));
@@ -672,6 +739,61 @@
             </div>
           {/each}
           <button type="button" class="btn-secondary btn-sm" onclick={addCareer}>+ 경력 추가</button>
+        </div>
+
+        <!-- 레퍼토리 -->
+        <div class="form-section">
+          <h3>레퍼토리 (Repertoire)</h3>
+          <p class="rep-hint">☰ 를 끌어서 순서 변경 · ★ 체크 = 대표곡</p>
+          {#each form.repertoire as sec, si (sec)}
+            <div
+              class="rep-section"
+              role="group"
+              ondragover={(e) => repDragOver(e, 'section')}
+              ondrop={(e) => repDrop(e, { type: 'section', si })}
+            >
+              <div class="rep-section-head">
+                <span
+                  class="rep-handle"
+                  role="button"
+                  tabindex="-1"
+                  aria-label="섹션 순서 변경"
+                  draggable="true"
+                  ondragstart={(e) => repDragStart(e, { type: 'section', si })}
+                  ondragend={() => (repDrag = null)}
+                >☰</span>
+                <input type="text" bind:value={sec.section} placeholder="섹션명 (Solo, Ensemble, Concerto ...)" />
+                <button type="button" class="btn-sm btn-delete" onclick={() => removeRepSection(si)}>×</button>
+              </div>
+
+              {#each sec.items as item, ii (item)}
+                <div
+                  class="rep-row"
+                  role="group"
+                  ondragover={(e) => repDragOver(e, 'item')}
+                  ondrop={(e) => repDrop(e, { type: 'item', si, ii })}
+                >
+                  <span
+                    class="rep-handle"
+                    role="button"
+                    tabindex="-1"
+                    aria-label="곡 순서 변경"
+                    draggable="true"
+                    ondragstart={(e) => repDragStart(e, { type: 'item', si, ii })}
+                    ondragend={() => (repDrag = null)}
+                  >☰</span>
+                  <input type="text" bind:value={item.composer} placeholder="작곡가" class="rep-composer-input" />
+                  <input type="text" bind:value={item.title} placeholder="곡명" />
+                  <label class="rep-featured" title="대표곡">
+                    <input type="checkbox" bind:checked={item.featured} /> ★
+                  </label>
+                  <button type="button" class="btn-sm btn-delete" onclick={() => removeRepItem(si, ii)}>×</button>
+                </div>
+              {/each}
+              <button type="button" class="btn-secondary btn-sm" onclick={() => addRepItem(si)}>+ 곡 추가</button>
+            </div>
+          {/each}
+          <button type="button" class="btn-secondary btn-sm" onclick={addRepSection}>+ 섹션 추가</button>
         </div>
 
         <!-- 공지 -->
@@ -1178,6 +1300,25 @@
     input { flex: 1; }
     .career-date { flex: 0 0 120px; }
   }
+
+  /* ── Repertoire ────────────────────── */
+  .rep-hint { font-size: 0.8rem; color: #888; margin: 0 0 0.5rem; }
+  .rep-section {
+    border: 1px solid #ddd;
+    padding: 0.6rem;
+    margin-bottom: 0.75rem;
+  }
+  .rep-section-head,
+  .rep-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    input[type='text'] { flex: 1; min-width: 0; }
+  }
+  .rep-row .rep-composer-input { flex: 0 0 160px; }
+  .rep-handle { cursor: grab; color: #888; user-select: none; padding: 0 0.25rem; }
+  .rep-featured { display: inline-flex; align-items: center; gap: 0.15rem; white-space: nowrap; cursor: pointer; }
 
   /* ── Link 행 ───────────────────────── */
   .link-row {

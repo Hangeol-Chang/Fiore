@@ -1,6 +1,7 @@
 <script>
     import ArtistCard from "$lib/components/artists/ArtistCard.svelte";
     import ArtistInlineDetail from "$lib/components/artists/ArtistInlineDetail.svelte";
+    import MoreButton from "@/components/common/moreButton.svelte";
     import { slide } from "svelte/transition";
 
     let { artist, subImages = [], subImagesLoading = false, albums = [], albumsLoading = false } = $props();
@@ -204,6 +205,51 @@
         return () => clearInterval(timer);
     });
 
+    // ── Repertoire: 기본은 대표곡만, More 로 전체 팝업 ──
+    const repertoire = $derived(
+        (Array.isArray(artist.repertoire) ? artist.repertoire : [])
+            .filter((s) => Array.isArray(s?.items))
+            .map((s) => ({ ...s, items: s.items.filter((it) => it?.title) }))
+            .filter((s) => s.section && s.items.length > 0)
+    );
+
+    // 연속된 같은 작곡가의 곡을 한 묶음으로 표시
+    function groupByComposer(items) {
+        const groups = [];
+        for (const it of items) {
+            const last = groups[groups.length - 1];
+            if (last && last.composer === (it.composer ?? '')) last.titles.push(it.title);
+            else groups.push({ composer: it.composer ?? '', titles: [it.title] });
+        }
+        return groups;
+    }
+    function buildRepView(featuredOnly) {
+        return repertoire
+            .map((s) => ({
+                section: s.section,
+                groups: groupByComposer(featuredOnly ? s.items.filter((it) => it.featured) : s.items),
+            }))
+            .filter((s) => s.groups.length > 0);
+    }
+    const featuredView = $derived(buildRepView(true));
+    const fullView = $derived(buildRepView(false));
+    const hasMoreRep = $derived(
+        repertoire.reduce((n, s) => n + s.items.length, 0) >
+            repertoire.reduce((n, s) => n + s.items.filter((it) => it.featured).length, 0)
+    );
+
+    let repModalOpen = $state(false);
+    $effect(() => {
+        const _ = artist.id ?? artist.name;
+        repModalOpen = false;
+    });
+    $effect(() => {
+        if (!repModalOpen) return;
+        const prev = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        return () => { document.body.style.overflow = prev; };
+    });
+
     // ── Albums 3D 캐러셀 ──
     let currentAlbumIndex = $state(0);
 
@@ -240,6 +286,7 @@
     const detailTabs = $derived([
         'profile',
         ...(isGroupArtist ? ['members'] : []),
+        ...(repertoire.length > 0 ? ['repertoire'] : []),
         ...(subImages.length > 0 ? ['photos'] : []),
         ...(albums.length > 0 ? ['albums'] : []),
         ...(videos.length > 0 ? ['video'] : []),
@@ -377,6 +424,29 @@
                     </div>
                 {:else}
                     <p class="members-empty">등록된 그룹 멤버가 없습니다.</p>
+                {/if}
+            </section>
+            {/if}
+
+            <!-- Repertoire -->
+            {#if repertoire.length > 0}
+            <section id="repertoire" class="detail-section">
+                <h3 class="section-header">Repertoire</h3>
+                {#each featuredView as sec}
+                    <div class="rep-block">
+                        <h4 class="rep-section-title">{sec.section}</h4>
+                        {#each sec.groups as g}
+                            <div class="rep-group">
+                                {#if g.composer}<span class="rep-composer">{g.composer}</span>{/if}
+                                <ul class="rep-titles">
+                                    {#each g.titles as t}<li>{t}</li>{/each}
+                                </ul>
+                            </div>
+                        {/each}
+                    </div>
+                {/each}
+                {#if hasMoreRep}
+                    <MoreButton onclick={() => (repModalOpen = true)} />
                 {/if}
             </section>
             {/if}
@@ -676,6 +746,35 @@
         </nav>
     </div>
 </div>
+
+<svelte:window onkeydown={(e) => { if (e.key === 'Escape') repModalOpen = false; }} />
+
+{#if repModalOpen}
+    <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
+    <div class="rep-modal-backdrop" onclick={(e) => { if (e.target === e.currentTarget) repModalOpen = false; }}>
+        <div class="rep-modal" role="dialog" aria-modal="true" aria-label="Repertoire">
+            <div class="rep-modal-head">
+                <h3>Repertoire</h3>
+                <button type="button" class="rep-modal-close" onclick={() => (repModalOpen = false)} aria-label="닫기">&times;</button>
+            </div>
+            <div class="rep-modal-body">
+                {#each fullView as sec}
+                    <div class="rep-block">
+                        <h4 class="rep-section-title">{sec.section}</h4>
+                        {#each sec.groups as g}
+                            <div class="rep-group">
+                                {#if g.composer}<span class="rep-composer">{g.composer}</span>{/if}
+                                <ul class="rep-titles">
+                                    {#each g.titles as t}<li>{t}</li>{/each}
+                                </ul>
+                            </div>
+                        {/each}
+                    </div>
+                {/each}
+            </div>
+        </div>
+    </div>
+{/if}
 
 <style lang="scss">
     /* globals.scss 의 h1~h6/p 전역 margin(clamp 들여쓰기)이 새어 들어오는 걸 차단해서
@@ -1000,6 +1099,92 @@
         color: #888;
         font-size: 0.9rem;
         font-weight: 300;
+    }
+
+    /* ── Repertoire ─────────────────────── */
+    .rep-block {
+        margin-bottom: 1.75rem;
+    }
+
+    .rep-section-title {
+        font-size: 1rem;
+        font-weight: 500;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: #111;
+        margin: 0 0 0.9rem;
+    }
+
+    .rep-group {
+        margin-bottom: 1.8rem;
+
+        .rep-composer {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 400;
+            color: #999;
+            margin-bottom: 0.2rem;
+        }
+
+        .rep-titles {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+
+            li {
+                font-size: 0.92rem;
+                font-weight: 300;
+                line-height: 1.7;
+                color: #222;
+            }
+        }
+    }
+
+    .rep-modal-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        background: rgba(0, 0, 0, 0.5);
+    }
+
+    .rep-modal {
+        display: flex;
+        flex-direction: column;
+        width: min(560px, 100%);
+        max-height: 80vh;
+        background: #fff;
+
+        .rep-modal-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #eee;
+
+            h3 {
+                font-size: 1.1rem;
+                font-weight: 600;
+                margin: 0;
+            }
+        }
+
+        .rep-modal-close {
+            background: none;
+            border: none;
+            font-size: 1.6rem;
+            line-height: 1;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .rep-modal-body {
+            overflow-y: auto;
+            padding: 1.5rem;
+        }
     }
 
     /* ── Video Carousel ─────────────────── */
