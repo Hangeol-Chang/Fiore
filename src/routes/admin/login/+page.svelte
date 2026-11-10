@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-  <title>Admin Login - Studio Pianolife</title>
+  <title>Admin Login - Fiore</title>
 </svelte:head>
 
 <div class="login-container">

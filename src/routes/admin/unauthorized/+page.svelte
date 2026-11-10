@@ -1,5 +1,5 @@
 <svelte:head>
-  <title>접근 불가 - Studio Pianolife</title>
+  <title>접근 불가 - Fiore</title>
 </svelte:head>
 
 <div class="unauthorized-container">
