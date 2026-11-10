@@ -1,0 +1,26 @@
+/* 라인아트 드로잉: svg(또는 부모)에 class="draw" 를 주면 재생. 윤곽선이 그려진 뒤 채움이 차오름 */
+.draw .letter {
+	fill-opacity: 0;
+	stroke: currentColor;
+	stroke-width: 1.5;
+	stroke-linejoin: round;
+	stroke-dasharray: 1;
+	stroke-dashoffset: 1;
+	animation:
+		logo-draw 2.2s ease-in-out var(--d, 0s) forwards,
+		logo-fill 0.8s ease calc(var(--d, 0s) + 2s) forwards;
+}
+.draw > svg:nth-child(2) { --d: 0.3s; }
+.draw > svg:nth-child(3) { --d: 0.6s; }
+.draw > svg:nth-child(4) { --d: 0.9s; }
+.draw > svg:nth-child(5) { --d: 1.2s; }
+
+@keyframes logo-draw { to { stroke-dashoffset: 0; } }
+@keyframes logo-fill { to { fill-opacity: 1; stroke-opacity: 0; } }
+
+/* 아이콘(라인): 한 획으로 그려짐 */
+.draw .reveal {
+	stroke-dasharray: 1;
+	stroke-dashoffset: 1;
+	animation: logo-draw 2.4s ease-in-out forwards;
+}
