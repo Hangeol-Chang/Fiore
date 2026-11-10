@@ -227,7 +227,7 @@ export default function ReserveForm({ concertInfo }) {
             <InputContainer k="신청 수량" name="ticketCount" hint="1" req={true}/>
 
             <ReferenceText>예매 신청 메일을 참조로 보내드립니다.</ReferenceText>
-            <InputContainer k="이메일" name="email" hint="studio-pianolife@example.com" req={false}/>
+            <InputContainer k="이메일" name="email" hint="fiore@example.com" req={false}/>
 
             <ReserveButton type="submit" onClick={() => handleSubmit()}>예매 요청</ReserveButton>
         </Form>

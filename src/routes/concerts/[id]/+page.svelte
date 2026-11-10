@@ -33,7 +33,7 @@
 </script>
 
 <svelte:head>
-    <title>{concert ? concert.title : 'Concert'} - Studio Pianolife</title>
+    <title>{concert ? concert.title : 'Concert'} - Fiore</title>
 </svelte:head>
 
 {#if loading}
