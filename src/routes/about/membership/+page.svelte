@@ -9,6 +9,9 @@
         <h1>Membership</h1>
     
         <div class="membership-description">
+            <p class="renewal-notice">현재 멤버쉽 리뉴얼중입니다. 더 좋은 모습으로 찾아뵙겠습니다.</p>
+
+            <!-- 멤버쉽 리뉴얼 종료 시 복구
             <h2>Benefits</h2>
             <ul>
                 <li>
@@ -32,6 +35,7 @@
             <div class="donate-wrapper">
                 <a href="https://forms.gle/a2AJGxrey9Sd6FdJ8" class="donate-btn">후원하기</a>
             </div>
+            -->
         </div>
     </section>
 </div>
