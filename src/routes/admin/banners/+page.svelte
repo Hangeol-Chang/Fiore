@@ -1,4 +1,7 @@
 <script>
+  import Button from '$lib/components/ui/Button.svelte';
+  import SlidePanel from '$lib/components/ui/SlidePanel.svelte';
+  import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
   import { PIANOLIFE_BACKEND_URL } from '$env/static/public';
 
   const API = PIANOLIFE_BACKEND_URL || 'http://localhost:8000';
@@ -97,6 +100,8 @@
   let addSubtitle = $state('');
   let addLinkUrl = $state('');
   let adding = $state(false);
+  let saveError = $state('');
+  let panelOpen = $state(false);
   let editingId = $state(null); // null이면 추가 모드, 아니면 해당 배너 id 수정 모드
 
   // Hero 타입 전용: 미디어 라이브러리에서 이미지 선택 (모달)
@@ -144,6 +149,18 @@
     addLinkUrl = '';
     pickedMedia = null;
     editingId = null;
+    saveError = '';
+    panelOpen = false;
+  }
+
+  function startAdd() {
+    resetAddForm();
+    addType = 'hero';
+    panelOpen = true;
+  }
+
+  function submit() {
+    return editingId ? saveEdit() : addBanner();
   }
 
   function startEdit(banner) {
@@ -155,19 +172,22 @@
     pickedMedia = banner.media_id
       ? { id: banner.media_id, url: banner.image_url, thumb_url: banner.image_url, original_filename: '현재 이미지' }
       : null;
+    saveError = '';
+    panelOpen = true;
   }
 
   async function addBanner() {
     if (addType === 'hero' && !pickedMedia) {
-      alert('배너에 사용할 이미지를 미디어 라이브러리에서 선택해주세요.');
+      saveError = '배너에 사용할 이미지가 없습니다. 이미지 선택에서 고른 뒤 저장해 주세요.';
       return;
     }
     if (REF_TYPES.includes(addType) && !addRefId) {
-      alert('노출할 항목을 선택해주세요.');
+      saveError = '노출할 항목이 선택되지 않았습니다. 목록에서 항목을 고른 뒤 저장해 주세요.';
       return;
     }
 
     adding = true;
+    saveError = '';
     try {
       const formData = new FormData();
       formData.append('item_type', addType);
@@ -186,18 +206,19 @@
       resetAddForm();
       await loadBanners();
     } catch (e) {
-      alert('추가 실패: ' + e.message);
+      saveError = '추가 실패: ' + e.message + '.';
     }
     adding = false;
   }
 
   async function saveEdit() {
     if (!pickedMedia) {
-      alert('배너에 사용할 이미지를 미디어 라이브러리에서 선택해주세요.');
+      saveError = '배너에 사용할 이미지가 없습니다. 이미지 선택에서 고른 뒤 저장해 주세요.';
       return;
     }
 
     adding = true;
+    saveError = '';
     try {
       const formData = new FormData();
       if (pickedMedia.id !== undefined) formData.append('media_id', String(pickedMedia.id));
@@ -210,7 +231,7 @@
       resetAddForm();
       await loadBanners();
     } catch (e) {
-      alert('수정 실패: ' + e.message);
+      saveError = '수정 실패: ' + e.message + '.';
     }
     adding = false;
   }
@@ -221,74 +242,87 @@
   });
 </script>
 
+<svelte:window onkeydown={(e) => { if (e.key === 'Escape' && pickerOpen) pickerOpen = false; }} />
+
 <svelte:head>
   <title>배너 관리 - Admin</title>
 </svelte:head>
 
 <div class="page">
   <header class="page-header">
-    <a href="/admin" class="back-link">← Admin</a>
-    <h1>배너 관리</h1>
+    <div class="header-left">
+      <a href="/admin" class="back-link">← Admin</a>
+      <h1>배너 관리</h1>
+    </div>
+    <Button onclick={startAdd}>+ 배너 추가</Button>
   </header>
 
-  <div class="layout">
-    <!-- ── 왼쪽: 현재 배너 순서 ───────────────────────── -->
-    <section class="banner-section">
-      <div class="section-head">
-        <h2>등록된 배너 <span class="count">({banners.length})</span></h2>
-        <p class="hint">위에서부터 순서대로 메인 페이지에 노출됩니다.</p>
-      </div>
+  <section class="banner-section">
+    <div class="section-head">
+      <h2>등록된 배너 <span class="count">({banners.length})</span></h2>
+      <p class="hint">위에서부터 순서대로 메인 페이지에 노출됩니다.</p>
+    </div>
 
-      {#if banersLoading}
-        <div class="state-msg">로딩 중...</div>
-      {:else if banners.length === 0}
-        <div class="state-msg empty">등록된 배너가 없습니다.<br/>오른쪽 패널에서 추가해주세요.</div>
-      {:else}
-        <ul class="banner-list">
-          {#each banners as banner, i}
-            {@const slide = resolvedById[banner.id]}
-            <li class="banner-row {banner.is_active ? '' : 'inactive'}">
-              <div class="row-order">
-                <button disabled={i === 0} onclick={() => move(i, -1)} aria-label="위로">▲</button>
-                <button disabled={i === banners.length - 1} onclick={() => move(i, 1)} aria-label="아래로">▼</button>
-              </div>
-              <div class="row-thumb">
-                {#if slide?.image}
-                  <img src={slide.image} alt="" loading="lazy" />
-                {:else}
-                  <div class="thumb-placeholder">?</div>
-                {/if}
-              </div>
-              <div class="row-info">
-                <span class="row-type">{TYPE_LABELS[banner.item_type] || banner.item_type}</span>
-                {#if REF_TYPES.includes(banner.item_type)}
-                  <span class="row-ref">{refTitle(banner.item_type, banner.ref_id)}</span>
-                {:else if banner.item_type === 'hero' && banner.title}
-                  <span class="row-ref">{banner.title}</span>
-                {/if}
-                {#if !slide && banner.is_active}
-                  <span class="row-warn">노출할 데이터 없음 (예: 예정된 공연/오디션 없음)</span>
-                {/if}
-              </div>
-              <div class="row-actions">
-                {#if banner.item_type === 'hero'}
-                  <button class="btn-toggle" onclick={() => startEdit(banner)}>수정</button>
-                {/if}
-                <button class="btn-toggle" onclick={() => toggleActive(banner)}>
-                  {banner.is_active ? '노출 중' : '숨김'}
-                </button>
-                <button class="btn-delete" onclick={() => deleteBanner(banner.id)} aria-label="삭제">✕</button>
-              </div>
-            </li>
-          {/each}
-        </ul>
-      {/if}
-    </section>
+    {#if banersLoading}
+      <div class="state-msg">로딩 중...</div>
+    {:else if banners.length === 0}
+      <div class="state-msg">등록된 배너가 없습니다. 배너 추가를 눌러 등록해 주세요.</div>
+    {:else}
+      <ul class="banner-list">
+        {#each banners as banner, i}
+          {@const slide = resolvedById[banner.id]}
+          <li class="banner-row" class:inactive={!banner.is_active}>
+            <div class="row-order">
+              <Button variant="secondary" class="sm" disabled={i === 0} onclick={() => move(i, -1)} aria-label="위로">▲</Button>
+              <Button variant="secondary" class="sm" disabled={i === banners.length - 1} onclick={() => move(i, 1)} aria-label="아래로">▼</Button>
+            </div>
+            <div class="row-thumb">
+              {#if slide?.image}
+                <ResponsiveImage src={slide.image} alt="" sizes="96px" />
+              {:else}
+                <div class="thumb-placeholder">?</div>
+              {/if}
+            </div>
+            <div class="row-info">
+              <span class="row-type">{TYPE_LABELS[banner.item_type] || banner.item_type}</span>
+              {#if REF_TYPES.includes(banner.item_type)}
+                <span class="row-ref">{refTitle(banner.item_type, banner.ref_id)}</span>
+              {:else if banner.item_type === 'hero' && banner.title}
+                <span class="row-ref">{banner.title}</span>
+              {/if}
+              {#if !slide && banner.is_active}
+                <span class="row-warn">노출할 데이터 없음 (예: 예정된 공연/오디션 없음)</span>
+              {/if}
+            </div>
+            <div class="row-actions">
+              {#if banner.item_type === 'hero'}
+                <Button variant="secondary" class="sm" onclick={() => startEdit(banner)}>수정</Button>
+              {/if}
+              <Button variant="secondary" class="sm" aria-pressed={banner.is_active} onclick={() => toggleActive(banner)}>
+                {banner.is_active ? '노출 중' : '숨김'}
+              </Button>
+              <Button variant="secondary" class="sm danger" onclick={() => deleteBanner(banner.id)} aria-label="삭제">삭제</Button>
+            </div>
+          </li>
+        {/each}
+      </ul>
+    {/if}
+  </section>
 
-    <!-- ── 오른쪽: 추가/수정 패널 ─────────────────────── -->
-    <aside class="add-panel">
-      <h2>{editingId ? '배너 수정' : '배너 추가'}</h2>
-
+  <SlidePanel
+    open={panelOpen}
+    title={editingId ? '배너 수정' : '배너 추가'}
+    sections={addType === 'hero' ? [{ id: 'target', label: '노출 대상' }, { id: 'text', label: '문구와 링크' }, { id: 'image', label: '이미지' }] : [{ id: 'target', label: '노출 대상' }]}
+    snapshot={() => [addType, addRefId, addTitle, addSubtitle, addLinkUrl, pickedMedia?.id]}
+    saving={adding}
+    error={saveError}
+    saveLabel={editingId ? '수정' : '추가'}
+    suspended={pickerOpen}
+    onsave={submit}
+    onclose={resetAddForm}
+  >
+    <div class="form-section" data-section="target">
+      <h3>노출 대상</h3>
       {#if editingId}
         <div class="field">
           노출 타입
@@ -297,7 +331,7 @@
       {:else}
         <label class="field">
           노출 타입
-          <select bind:value={addType} onchange={resetAddForm}>
+          <select bind:value={addType} onchange={() => { addRefId = ''; addTitle = ''; addSubtitle = ''; addLinkUrl = ''; pickedMedia = null; }}>
             {#each Object.entries(TYPE_LABELS) as [value, label]}
               <option {value}>{label}</option>
             {/each}
@@ -316,8 +350,11 @@
           </select>
         </label>
       {/if}
+    </div>
 
-      {#if addType === 'hero'}
+    {#if addType === 'hero'}
+      <div class="form-section" data-section="text">
+        <h3>문구와 링크</h3>
         <label class="field">
           제목 (선택)
           <input type="text" bind:value={addTitle} placeholder="예: 예술가들의 음악이 피어나는 곳" />
@@ -330,35 +367,25 @@
           링크 (선택)
           <input type="text" bind:value={addLinkUrl} placeholder="/concerts 등" />
         </label>
+      </div>
 
+      <div class="form-section" data-section="image">
+        <h3>이미지</h3>
         <div class="media-picker">
           {#if pickedMedia}
             <div class="picked-preview">
-              <img src={pickedMedia.thumb_url || pickedMedia.url} alt="" />
+              <ResponsiveImage src={pickedMedia.thumb_url || pickedMedia.url} alt="" sizes="64px" />
               <span class="picked-name">{pickedMedia.original_filename}</span>
-              <button class="btn-cancel-pick" onclick={() => pickedMedia = null}>✕</button>
+              <Button variant="secondary" class="sm" onclick={() => (pickedMedia = null)} aria-label="선택 취소">✕</Button>
             </div>
           {/if}
-          <button class="btn-open-picker" onclick={openPicker}>이미지 선택</button>
+          <Button variant="secondary" class="sm" onclick={openPicker}>이미지 선택</Button>
         </div>
-      {/if}
+      </div>
+    {/if}
+  </SlidePanel>
 
-      {#if editingId}
-        <div class="edit-actions">
-          <button class="btn-add" onclick={saveEdit} disabled={adding}>
-            {adding ? '저장 중...' : '수정 저장'}
-          </button>
-          <button class="btn-cancel-edit" onclick={resetAddForm} disabled={adding}>취소</button>
-        </div>
-      {:else}
-        <button class="btn-add" onclick={addBanner} disabled={adding}>
-          {adding ? '추가 중...' : '배너로 추가'}
-        </button>
-      {/if}
-    </aside>
-  </div>
-
-  <!-- ── 이미지 선택 모달 ─────────────────────────── -->
+<!-- ── 이미지 선택 모달 ─────────────────────────── -->
   {#if pickerOpen}
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <div class="picker-modal-overlay" onclick={() => pickerOpen = false} role="presentation">
@@ -366,7 +393,7 @@
       <div class="picker-modal" onclick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" tabindex="-1">
         <div class="picker-modal-header">
           <h2>이미지 선택</h2>
-          <button class="btn-modal-close" onclick={() => pickerOpen = false} aria-label="닫기">✕</button>
+          <Button variant="secondary" onclick={() => pickerOpen = false} aria-label="닫기">✕</Button>
         </div>
 
         <div class="picker-modal-controls">
@@ -376,7 +403,7 @@
             bind:value={mediaSearch}
             onkeydown={(e) => { if (e.key === 'Enter') { mediaPage = 0; loadMedia(); } }}
           />
-          <button class="btn-sm" onclick={() => { mediaPage = 0; loadMedia(); }}>검색</button>
+          <Button variant="secondary" class="sm" onclick={() => { mediaPage = 0; loadMedia(); }}>검색</Button>
         </div>
 
         <div class="picker-modal-body">
@@ -394,7 +421,7 @@
                   role="button"
                   tabindex="0"
                 >
-                  <img src={media.thumb_url || media.url} alt={media.alt_text || media.original_filename} loading="lazy" />
+                  <ResponsiveImage src={media.thumb_url || media.url} alt={media.alt_text || media.original_filename} sizes="120px" />
                   <span class="picker-modal-card-name">{media.original_filename}</span>
                 </div>
               {/each}
@@ -403,12 +430,14 @@
         </div>
 
         <div class="picker-modal-footer">
-          <button disabled={mediaPage === 0} onclick={() => { mediaPage--; loadMedia(); }}>← 이전</button>
+          <Button variant="secondary" class="sm" disabled={mediaPage === 0} onclick={() => { mediaPage--; loadMedia(); }}>← 이전</Button>
           <span>{mediaPage + 1} / {Math.max(1, Math.ceil(mediaTotal / MEDIA_PAGE_SIZE))}</span>
-          <button
+          <Button
+            variant="secondary"
+            class="sm"
             disabled={(mediaPage + 1) * MEDIA_PAGE_SIZE >= mediaTotal}
             onclick={() => { mediaPage++; loadMedia(); }}
-          >다음 →</button>
+          >다음 →</Button>
         </div>
       </div>
     </div>
@@ -416,414 +445,66 @@
 </div>
 
 <style lang="scss">
-  .page {
-    min-height: 100vh;
-    background: #fff;
-    color: #222;
-    padding: 2rem;
-    max-width: 1400px;
-    margin: 0 auto;
-  }
-
-  .page-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 2rem;
-
-    .back-link { color: #888; text-decoration: none; &:hover { color: #222; } }
-    h1 { margin: 0; font-size: 1.5rem; color: #111; }
-  }
-
-  .layout {
-    display: grid;
-    grid-template-columns: 1fr 380px;
-    gap: 2rem;
-    align-items: start;
-
-    @media (max-width: 900px) {
-      grid-template-columns: 1fr;
-    }
-  }
-
   .section-head {
-    margin-bottom: 1rem;
+    margin-bottom: var(--space-3);
+    h2 { margin: 0 0 var(--space-1); font-size: 18px; }
   }
+  .count { font-weight: 400; }
+  .hint { margin: 0; font-size: 13px; color: var(--color-green-700); }
+  .state-msg { padding: var(--space-4); text-align: center; color: var(--color-green-700); border: 1px dashed var(--color-border); border-radius: var(--radius); }
 
-  h2 {
-    margin: 0 0 0.25rem;
-    font-size: 1.15rem;
-    color: #111;
-    font-weight: 600;
-  }
-
-  .count { font-weight: 400; color: #888; font-size: 0.9rem; }
-  .hint { margin: 0; font-size: 0.8rem; color: #999; }
-
-  .state-msg {
-    text-align: center;
-    padding: 3rem 1rem;
-    color: #aaa;
-    font-size: 0.95rem;
-    &.empty { line-height: 1.7; }
-  }
-
-  /* ── 배너 목록 ── */
-  .banner-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-  }
-
+  .banner-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
   .banner-row {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    padding: 0.6rem;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    background: #fafafa;
-
-    &.inactive { opacity: 0.5; }
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    &.inactive { border-style: dashed; .row-info { opacity: 0.6; } }
   }
-
-  .row-order {
-    display: flex;
-    flex-direction: column;
-    gap: 0.15rem;
-
-    button {
-      width: 24px;
-      height: 20px;
-      border: 1px solid #d1d5db;
-      background: #fff;
-      border-radius: 4px;
-      font-size: 0.6rem;
-      cursor: pointer;
-      color: #555;
-      &:hover:not(:disabled) { background: #f3f4f6; }
-      &:disabled { opacity: 0.3; cursor: not-allowed; }
-    }
-  }
-
+  .row-order { display: flex; flex-direction: column; gap: var(--space-1); }
   .row-thumb {
-    width: 64px;
-    height: 40px;
-    flex-shrink: 0;
-    border-radius: 5px;
-    overflow: hidden;
-    background: #eee;
-
-    img { width: 100%; height: 100%; object-fit: cover; display: block; }
-
-    .thumb-placeholder {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #bbb;
-      font-size: 0.85rem;
-    }
+    flex: none; width: 96px; height: 54px; border-radius: var(--radius); overflow: hidden; background: var(--color-green-100);
+    :global(img) { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .thumb-placeholder { width: 100%; height: 100%; display: grid; place-items: center; }
   }
+  .row-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .row-type { font-size: 14px; font-weight: 500; }
+  .row-ref { font-size: 13px; color: var(--color-green-700); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .row-warn { font-size: 12px; color: var(--color-green-700); &::before { content: '! '; font-weight: 700; } }
+  .row-actions { display: flex; gap: var(--space-2); align-items: center; }
 
-  .row-info {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.15rem;
-  }
-
-  .row-type { font-size: 0.85rem; color: #222; font-weight: 500; }
-  .row-ref {
-    font-size: 0.78rem;
-    color: #666;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .row-warn { font-size: 0.72rem; color: #b45309; }
-
-  .row-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    flex-shrink: 0;
-  }
-
-  .btn-toggle {
-    padding: 0.3rem 0.6rem;
-    font-size: 0.75rem;
-    border: 1px solid #d1d5db;
-    border-radius: 5px;
-    background: #fff;
-    color: #444;
-    cursor: pointer;
-    white-space: nowrap;
-    &:hover { background: #f3f4f6; }
-  }
-
-  .btn-delete {
-    background: none;
-    border: none;
-    color: #bbb;
-    cursor: pointer;
-    font-size: 0.9rem;
-    &:hover { color: #dc3545; }
-  }
-
-  /* ── 추가 패널 ── */
-  .add-panel {
-    background: #f8f9fa;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    padding: 1.5rem;
-    position: sticky;
-    top: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.9rem;
-  }
-
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    font-size: 0.8rem;
-    color: #666;
-
-    input, select {
-      padding: 0.45rem 0.6rem;
-      background: #fff;
-      border: 1px solid #d1d5db;
-      border-radius: 5px;
-      color: #222;
-      font-size: 0.85rem;
-      &:focus { outline: none; border-color: #2563eb; }
-    }
-  }
-
-  .static-value {
-    padding: 0.45rem 0.6rem;
-    background: #f3f4f6;
-    border: 1px solid #e5e7eb;
-    border-radius: 5px;
-    color: #444;
-    font-size: 0.85rem;
-  }
-
-  .edit-actions {
-    display: flex;
-    gap: 0.5rem;
-
-    .btn-add { flex: 2; }
-  }
-
-  .btn-cancel-edit {
-    flex: 1;
-    padding: 0.75rem;
-    background: #fff;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    color: #444;
-    font-size: 0.9rem;
-    cursor: pointer;
-    &:hover:not(:disabled) { background: #f3f4f6; }
-    &:disabled { opacity: 0.45; cursor: not-allowed; }
-  }
-
-  .media-picker { display: flex; flex-direction: column; gap: 0.6rem; }
-
-  .btn-open-picker {
-    padding: 0.6rem;
-    background: #fff;
-    border: 1px dashed #9ca3af;
-    border-radius: 6px;
-    color: #444;
-    font-size: 0.85rem;
-    cursor: pointer;
-    &:hover { background: #f3f4f6; border-color: #6b7280; }
-  }
-
-  .btn-sm {
-    padding: 0.4rem 0.7rem;
-    background: #2563eb;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    font-size: 0.8rem;
-    cursor: pointer;
-    white-space: nowrap;
-    &:hover { background: #1d4ed8; }
-  }
-
+  .field { display: flex; flex-direction: column; gap: var(--space-1); margin-bottom: var(--space-3); font-size: 14px; }
+  .static-value { padding: var(--space-2) var(--space-3); border: 1px solid var(--color-green-200); border-radius: var(--radius); background: var(--color-green-50); }
+  .media-picker { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-2); }
   .picked-preview {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    padding: 0.5rem;
-    background: #eff6ff;
-    border: 1px solid #bfdbfe;
-    border-radius: 6px;
-
-    img { width: 44px; height: 44px; object-fit: cover; border-radius: 4px; }
-    .picked-name {
-      flex: 1;
-      min-width: 0;
-      font-size: 0.78rem;
-      color: #1e40af;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .btn-cancel-pick {
-      background: none;
-      border: none;
-      color: #93c5fd;
-      cursor: pointer;
-      font-size: 1rem;
-      flex-shrink: 0;
-      &:hover { color: #1e40af; }
-    }
+    display: flex; align-items: center; gap: var(--space-2); width: 100%;
+    padding: var(--space-2); border: 1px solid var(--color-border); border-radius: var(--radius);
+    :global(img) { width: 64px; height: 40px; object-fit: cover; border-radius: var(--radius); }
+    .picked-name { flex: 1; min-width: 0; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   }
 
-  /* ── 이미지 선택 모달 ── */
   .picker-modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.55);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    padding: 2rem;
+    position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; padding: var(--space-4);
+    background: color-mix(in srgb, var(--color-green-800) 45%, transparent);
   }
-
   .picker-modal {
-    background: #fff;
-    border-radius: 12px;
-    width: min(1000px, 100%);
-    max-height: 85vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    width: 100%; max-width: 860px; max-height: 90vh; display: flex; flex-direction: column;
+    background: var(--color-surface); color: var(--color-on-surface); border: 1px solid var(--color-border); border-radius: var(--radius);
   }
-
-  .picker-modal-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid #e5e7eb;
-
-    h2 { margin: 0; font-size: 1.1rem; color: #111; }
+  .picker-modal-header, .picker-modal-controls, .picker-modal-footer {
+    display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4);
   }
-
-  .btn-modal-close {
-    background: none;
-    border: none;
-    font-size: 1.1rem;
-    color: #888;
-    cursor: pointer;
-    &:hover { color: #222; }
-  }
-
-  .picker-modal-controls {
-    display: flex;
-    gap: 0.5rem;
-    padding: 1rem 1.5rem;
-    border-bottom: 1px solid #e5e7eb;
-
-    input {
-      flex: 1;
-      padding: 0.55rem 0.75rem;
-      background: #fff;
-      border: 1px solid #d1d5db;
-      border-radius: 6px;
-      color: #222;
-      font-size: 0.9rem;
-      &:focus { outline: none; border-color: #2563eb; }
-    }
-  }
-
-  .picker-modal-body {
-    flex: 1;
-    overflow-y: auto;
-    padding: 1.5rem;
-  }
-
-  .picker-modal-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 1rem;
-  }
-
+  .picker-modal-header { justify-content: space-between; border-bottom: 1px solid var(--color-green-200); h2 { margin: 0; font-size: 18px; } }
+  .picker-modal-controls input { flex: 1; }
+  .picker-modal-body { flex: 1; min-height: 0; overflow-y: auto; padding: 0 var(--space-4); }
+  .picker-modal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: var(--space-3); }
   .picker-modal-card {
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-    cursor: pointer;
-
-    img {
-      width: 100%;
-      aspect-ratio: 1;
-      object-fit: cover;
-      border-radius: 6px;
-      border: 2px solid transparent;
-      transition: border-color 0.15s, transform 0.15s;
-    }
-
-    &:hover img { border-color: #2563eb; transform: scale(1.02); }
+    cursor: pointer; border: 1px solid var(--color-border); border-radius: var(--radius); overflow: hidden;
+    &:hover { background: var(--color-green-100); }
+    :global(img) { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
   }
-
-  .picker-modal-card-name {
-    font-size: 0.72rem;
-    color: #666;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .picker-modal-footer {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem 1.5rem;
-    border-top: 1px solid #e5e7eb;
-
-    button {
-      padding: 0.4rem 0.9rem;
-      background: #fff;
-      border: 1px solid #d1d5db;
-      border-radius: 5px;
-      cursor: pointer;
-      color: #444;
-      font-size: 0.85rem;
-      &:hover { background: #f3f4f6; }
-      &:disabled { opacity: 0.35; cursor: not-allowed; }
-    }
-
-    span { font-size: 0.85rem; color: #888; }
-  }
-
-  .btn-add {
-    width: 100%;
-    padding: 0.75rem;
-    background: #111;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: background 0.2s;
-
-    &:hover:not(:disabled) { background: #374151; }
-    &:disabled { opacity: 0.45; cursor: not-allowed; }
-  }
+  .picker-modal-card-name { display: block; padding: var(--space-1); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .picker-modal-footer { justify-content: center; border-top: 1px solid var(--color-green-200); }
 </style>

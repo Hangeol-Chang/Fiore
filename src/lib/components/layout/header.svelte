@@ -95,7 +95,7 @@
     });
 </script>
 
-<div class="header-container" class:scrolled={isScrolled} class:nav-hovered={isNavHovered}>
+<div class="header-container" class:on-hero={$page.url.pathname === '/'} class:scrolled={isScrolled} class:nav-hovered={isNavHovered}>
     <div class="progress-container">
         <div class="progress-bar" style="width: {scrollProgress}%"></div>
     </div>
@@ -184,6 +184,20 @@
         background-color: rgba(255, 255, 255, 0.95);
         color: var(--color-on-surface);
         transition: background-color 0.3s ease, color 0.3s ease;
+
+        /* 홈 맨 위: 배경 없이 Hero 이미지가 헤더 뒤로 붙고 글자·로고는 흰색 */
+        &.on-hero:not(.scrolled):not(.nav-hovered) {
+            background-color: transparent;
+            color: var(--color-on-primary);
+
+            .line {
+                background-color: var(--color-surface);
+            }
+
+            :global(.logo-icon), :global(.logo-text), :global(.logo-text-small), :global(.logo-combined) {
+                filter: brightness(0) invert(1);
+            }
+        }
 
         /* 스크롤 시 검은 배경 */
         &.scrolled {

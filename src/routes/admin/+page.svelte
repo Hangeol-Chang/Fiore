@@ -1,4 +1,6 @@
 <script>
+    import Button from '$lib/components/ui/Button.svelte';
+    import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
     /** @type {{ data: import('./$types').PageData }} */
     let { data } = $props();
 </script>
@@ -12,11 +14,11 @@
         <h1>Admin Dashboard</h1>
         <div class="user-info">
             {#if data.user?.image}
-                <img src={data.user.image} alt="profile" class="profile-img" />
+                <ResponsiveImage src={data.user.image} alt="프로필 사진" class="profile-img" sizes="36px" />
             {/if}
             <span>{data.user?.name || data.user?.email}</span>
             <form method="POST" action="/admin/logout">
-                <button type="submit" class="logout-btn">로그아웃</button>
+                <Button type="submit" variant="secondary" class="sm">로그아웃</Button>
             </form>
         </div>
     </header>
@@ -87,100 +89,39 @@
 </div>
 
 <style lang="scss">
-    section {
-        margin: 1rem 0;
-        padding: 1rem;
-    }
-    .admin-container {
-        background: #ffffff;
-        color: #222;
-    }
+    section { margin: var(--space-3) 0; padding: var(--space-3); }
+    h2 { font-size: 20px; font-weight: 600; margin: 0 0 var(--space-3); }
 
     .admin-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 1rem 2rem;
-        border-bottom: 1px solid #e0e0e0;
+        padding: var(--space-3) var(--space-4);
+        border-bottom: 1px solid var(--color-border);
 
-        h1 {
-            margin: 0;
-            font-size: 1.5rem;
-            color: #111;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            color: #555;
-        }
-
-        .profile-img {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-        }
-
-        .logout-btn {
-            padding: 0.5rem 1rem;
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-
-            &:hover {
-                background-color: #c82333;
-            }
-        }
+        h1 { margin: 0; font-size: 24px; font-weight: 600; }
+        .user-info { display: flex; align-items: center; gap: var(--space-3); }
+        :global(.profile-img) { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
     }
 
-    .admin-main {
-        padding: 2rem;
-        max-width: 1200px;
-        margin: 0 auto;
-    }
-
-    .admin-cards {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        gap: 1rem;
-    }
+    .admin-main { padding: var(--space-4); max-width: var(--content-max); margin: 0 auto; }
+    .admin-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: var(--space-3); }
 
     .admin-card {
         display: block;
-        padding: 1.5rem;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
+        padding: var(--space-4);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius);
         text-decoration: none;
         color: inherit;
-        transition: transform 0.2s, box-shadow 0.2s;
-        background: #fff;
+        background: var(--color-surface);
+        transition: background-color var(--dur-fast);
 
-        &:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        }
-
-        h3 {
-            margin: 0 0 0.5rem;
-            font-size: 1.1rem;
-            color: #222;
-        }
-
-        p {
-            margin: 0;
-            font-size: 0.9rem;
-            color: #888;
-        }
+        &:hover { background: var(--color-green-100); }
+        &:focus-visible { outline: 2px solid var(--color-green-500); outline-offset: 2px; }
+        h3 { margin: 0 0 var(--space-2); font-size: 18px; font-weight: 600; }
+        p { margin: 0; font-size: 14px; color: var(--color-green-700); }
     }
 
-    .card-icon {
-        width: 24px;
-        height: 24px;
-        margin-bottom: 0.75rem;
-        color: #9ca3af;
-    }
+    .card-icon { width: 24px; height: 24px; margin-bottom: var(--space-3); color: var(--color-green-500); }
 </style>

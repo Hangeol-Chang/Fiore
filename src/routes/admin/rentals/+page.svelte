@@ -1,4 +1,6 @@
 <script>
+  import Button from '$lib/components/ui/Button.svelte';
+  import SlidePanel from '$lib/components/ui/SlidePanel.svelte';
   import { PIANOLIFE_BACKEND_URL } from '$env/static/public';
 
   const API = PIANOLIFE_BACKEND_URL || 'http://localhost:8000';
@@ -13,6 +15,8 @@
   let statusFilter = $state('all'); // all | pending | approved | rejected
   let editing = $state(null);
   let showForm = $state(false);
+  let saving = $state(false);
+  let saveError = $state('');
 
   let form = $state({
     date: '',
@@ -50,6 +54,8 @@
     };
     editing = null;
     showForm = false;
+    saving = false;
+    saveError = '';
   }
 
   function openCreate() {
@@ -75,13 +81,16 @@
 
   async function saveItem() {
     if (editing?.concert_id) {
-      alert('콘서트와 연동된 대관 일정입니다. 공연 관리 페이지에서 수정해주세요.');
+      saveError = '콘서트와 연동된 대관 일정이라 여기서 저장할 수 없습니다. 공연 관리 페이지에서 수정해 주세요.';
       return;
     }
     if (form.start_time && form.end_time && form.start_time >= form.end_time) {
-      alert('종료 시간은 시작 시간보다 늦어야 합니다.');
+      saveError = '종료 시간은 시작 시간보다 늦어야 합니다. 시간을 고쳐 주세요.';
       return;
     }
+    if (saving) return;
+    saving = true;
+    saveError = '';
 
     const formData = new FormData();
     formData.append('date', form.date);
@@ -102,7 +111,8 @@
       resetForm();
       await loadItems();
     } catch (e) {
-      alert('저장 실패: ' + e.message);
+      saving = false;
+      saveError = '저장 실패: ' + e.message + '.';
     }
   }
 
@@ -143,7 +153,7 @@
       <a href="/admin" class="back-link">← Admin</a>
       <h1>대관 관리</h1>
     </div>
-    <button class="btn-primary" onclick={openCreate}>+ 대관 계획 등록</button>
+    <Button onclick={openCreate}>+ 대관 계획 등록</Button>
   </header>
 
   <div class="filter-tabs">
@@ -152,6 +162,7 @@
         type="button"
         class="filter-tab"
         class:active={statusFilter === value}
+        aria-pressed={statusFilter === value}
         onclick={() => (statusFilter = value)}
       >
         {label}
@@ -202,14 +213,14 @@
               <td>
                 <div class="actions">
                   {#if item.concert_id}
-                    <a class="btn-sm btn-edit" href="/admin/concerts">공연 관리로 이동</a>
+                    <Button variant="secondary" class="sm" href="/admin/concerts">공연 관리로 이동</Button>
                   {:else}
                     {#if item.status === 'pending'}
-                      <button class="btn-sm btn-approve" onclick={() => setStatus(item, 'approved')}>승인</button>
-                      <button class="btn-sm btn-reject" onclick={() => setStatus(item, 'rejected')}>거절</button>
+                      <Button class="sm" onclick={() => setStatus(item, 'approved')}>승인</Button>
+                      <Button variant="secondary" class="sm danger" onclick={() => setStatus(item, 'rejected')}>거절</Button>
                     {/if}
-                    <button class="btn-sm btn-edit" onclick={() => openEdit(item)}>편집</button>
-                    <button class="btn-sm btn-delete" onclick={() => deleteItem(item)}>삭제</button>
+                    <Button variant="secondary" class="sm" onclick={() => openEdit(item)}>편집</Button>
+                    <Button variant="secondary" class="sm danger" onclick={() => deleteItem(item)}>삭제</Button>
                   {/if}
                 </div>
               </td>
@@ -224,20 +235,20 @@
   {/if}
 
   <!-- ── 편집 / 등록 폼 ──────────────────── -->
-  {#if showForm}
-    <div class="modal-overlay">
-      <div class="modal" role="none" onclick={(e) => e.stopPropagation()}>
-        <div class="modal-header-row">
-          <h2>{editing ? '대관 예약 편집' : '대관 계획 등록'}</h2>
-          <div class="modal-header-actions">
-            <button class="btn-primary btn-save-top" onclick={saveItem} disabled={!form.date || !form.start_time || !form.end_time}>
-              {editing ? '수정' : '등록'}
-            </button>
-            <button class="modal-close" onclick={resetForm}>✕</button>
-          </div>
-        </div>
-
-        <div class="form-section">
+  <SlidePanel
+    open={showForm}
+    title={editing ? '대관 예약 편집' : '대관 계획 등록'}
+    sections={[{ id: 'schedule', label: '일정' }, { id: 'applicant', label: '신청자 정보' }]}
+    snapshot={() => form}
+    {saving}
+    error={saveError}
+    canSave={!(!form.date || !form.start_time || !form.end_time)}
+    saveLabel={editing ? '수정' : '등록'}
+    suspended={false}
+    onsave={saveItem}
+    onclose={resetForm}
+  >
+<div class="form-section" data-section="schedule">
           <h3>일정</h3>
           <div class="row-3">
             <label>
@@ -271,7 +282,7 @@
           </label>
         </div>
 
-        <div class="form-section">
+        <div class="form-section" data-section="applicant">
           <h3>신청자 정보 (구두 신청 등, 선택 입력)</h3>
           <div class="row-2">
             <label>
@@ -292,161 +303,47 @@
             <textarea bind:value={form.memo} placeholder="전달받은 경로, 특이사항 등" style="min-height:80px"></textarea>
           </label>
         </div>
-
-        <div class="form-actions">
-          <button class="btn-primary" onclick={saveItem} disabled={!form.date || !form.start_time || !form.end_time}>
-            {editing ? '수정' : '등록'}
-          </button>
-          <button class="btn-secondary" onclick={resetForm}>취소</button>
-        </div>
-      </div>
-    </div>
-  {/if}
+  </SlidePanel>
+  
 </div>
 
 <style lang="scss">
-  .page {
-    min-height: 100vh;
-    background: #ffffff;
-    color: #222;
-    padding: 2rem;
-  }
-
-  .page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-    }
-    .back-link { color: #888; text-decoration: none; &:hover { color: #222; } }
-    h1 { margin: 0; font-size: 1.5rem; color: #111; }
-  }
-
-  .filter-tabs {
+.filter-tabs {
     display: flex;
     gap: 0.5rem;
     margin-bottom: 1.5rem;
   }
-  .filter-tab {
+
+.filter-tab {
     padding: 0.5rem 1rem;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--color-border);
     border-radius: 999px;
-    background: #fff;
-    color: #555;
+    background: var(--color-surface);
+    color: var(--color-green-700);
     font-size: 0.85rem;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 0.4rem;
 
-    &:hover { background: #f3f4f6; }
-    &.active { background: #2563eb; border-color: #2563eb; color: #fff; }
+    &:hover { background: var(--color-green-50); }
+    &.active { background: var(--color-green-500); border-color: var(--color-green-500); color: var(--color-surface); }
   }
-  .count {
+
+.count {
     font-size: 0.75rem;
     opacity: 0.8;
   }
 
-  .loading { text-align: center; color: #999; padding: 3rem; }
+.email-cell { color: var(--color-green-700); font-size: 0.8rem; }
 
-  .table-wrap { overflow-x: auto; }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    th, td { padding: 0.75rem 1rem; text-align: left; vertical-align: middle; border-bottom: 1px solid #eee; }
-    th { color: #888; font-weight: 500; font-size: 0.85rem; }
-    tbody tr:hover { background: #f8f9fa; }
-  }
+.badge.source { border-style: dashed; }
 
-  .name-cell { font-weight: 600; color: #111; }
-  .email-cell { color: #888; font-size: 0.8rem; }
+.badge.concert-linked { margin-left: 0.3rem; border-style: dotted; }
 
-  .badge {
-    padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.8rem;
-    background: #eee; color: #666;
-    display: inline-block;
-  }
-  .badge.source { background: #eef2ff; color: #4338ca; }
-  .badge.concert-linked { background: #f3e8ff; color: #7e22ce; margin-left: 0.3rem; }
-  .badge.status-pending { background: #fef3c7; color: #92400e; }
-  .badge.status-approved { background: #dcfce7; color: #166534; }
-  .badge.status-rejected { background: #fee2e2; color: #991b1b; }
+.badge.status-pending { border-style: dashed; }
 
-  .actions { display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; }
-  .empty { text-align: center; color: #999; padding: 2rem; }
+.badge.status-approved { background: var(--color-green-100); }
 
-  .btn-primary {
-    padding: 0.6rem 1.2rem; background: #2563eb; color: #fff;
-    border: none; border-radius: 6px; cursor: pointer;
-    &:hover { background: #1d4ed8; }
-    &:disabled { opacity: 0.5; cursor: not-allowed; }
-  }
-  .btn-secondary {
-    padding: 0.6rem 1.2rem; background: #f3f4f6; color: #444;
-    border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer;
-    &:hover { background: #e5e7eb; }
-  }
-  .btn-sm { padding: 0.3rem 0.7rem; font-size: 0.85rem; border-radius: 4px; border: none; cursor: pointer; display: inline-block; text-decoration: none; }
-  .btn-edit { background: #2563eb; color: #fff; &:hover { background: #1d4ed8; } }
-  .btn-delete { background: #dc3545; color: #fff; &:hover { background: #c82333; } }
-  .btn-approve { background: #16a34a; color: #fff; &:hover { background: #15803d; } }
-  .btn-reject { background: #ea580c; color: #fff; &:hover { background: #c2410c; } }
-
-  .modal-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.4);
-    display: flex; align-items: flex-start; justify-content: center;
-    padding: 2rem; overflow-y: auto; z-index: 1000;
-  }
-  .modal {
-    background: #fff; border: 1px solid #e0e0e0; border-radius: 12px;
-    padding: 2rem; width: 100%; max-width: 600px; max-height: 90vh;
-    overflow-y: auto; box-shadow: 0 8px 24px rgba(0,0,0,0.15); position: relative;
-    h2 { margin: 0; font-size: 1.3rem; color: #111; }
-  }
-  .modal-header-row {
-    position: sticky;
-    top: -2rem;
-    z-index: 2;
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 1rem;
-    margin: -2rem -2rem 1.5rem;
-    padding: 1.25rem 2rem 1rem;
-    background: #fff;
-    border-bottom: 1px solid #eee;
-  }
-  .modal-header-actions {
-    display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0;
-    .modal-close { position: static; }
-  }
-  .btn-save-top { flex-shrink: 0; padding: 0.45rem 1rem; font-size: 0.85rem; }
-  .modal-close {
-    position: absolute; top: 0.75rem; right: 0.75rem;
-    background: none; border: none; color: #888; font-size: 1.4rem; cursor: pointer; z-index: 1;
-    &:hover { color: #222; }
-  }
-
-  .form-section {
-    margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid #eee;
-    h3 { margin: 0 0 0.75rem; font-size: 1rem; color: #666; }
-    label { display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: #444; }
-    input[type="text"], input[type="date"], input[type="time"], input[type="tel"], input[type="email"], select, textarea {
-      display: block; width: 100%; margin-top: 0.25rem;
-      padding: 0.5rem 0.75rem; background: #fff; border: 1px solid #d1d5db;
-      border-radius: 6px; color: #222; font-size: 0.9rem;
-      &:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
-    }
-    textarea { resize: vertical; font-family: inherit; }
-  }
-
-  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-  .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
-
-  .form-actions {
-    display: flex; gap: 1rem; margin-top: 1.5rem; justify-content: flex-end;
-  }
+.badge.status-rejected { border: 3px double var(--color-green-700); }
 </style>

@@ -1,4 +1,8 @@
 <script>
+  import Button from '$lib/components/ui/Button.svelte';
+  import SlidePanel from '$lib/components/ui/SlidePanel.svelte';
+  import StatusMessage from '$lib/components/ui/StatusMessage.svelte';
+  import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
   import { PIANOLIFE_BACKEND_URL } from '$env/static/public';
 
   /** @type {{ data: import('../$types').PageData }} */
@@ -13,6 +17,25 @@
   let altText = $state('');
   let uploading = $state(false);
   let uploadResults = $state([]);
+  let uploadOpen = $state(false);
+  let uploadError = $state('');
+  // 상세 패널이 닫히는 동안에도 내용이 남도록 마지막 선택을 따로 기억한다
+  let shown = $state(null);
+  $effect(() => { if (selectedMedia) shown = selectedMedia; });
+
+  function openUpload() {
+    files = [];
+    uploadResults = [];
+    uploadError = '';
+    uploadOpen = true;
+  }
+
+  function closeUpload() {
+    uploadOpen = false;
+    files = [];
+    uploadResults = [];
+    uploadError = '';
+  }
 
   // ── 미디어 라이브러리 ─────────────────────
   let mediaList = $state([]);
@@ -71,6 +94,7 @@
     if (!files.length) return;
     uploading = true;
     uploadResults = [];
+    uploadError = '';
 
     // 중복 체크를 위해 전체 미디어 목록 조회
     let allMedia = [];
@@ -127,7 +151,15 @@
     }
 
     uploading = false;
-    files = [];
+    const failed = uploadResults.filter((x) => !x.success);
+    if (failed.length) {
+      // 성공한 파일은 빼서 다시 저장해도 중복 업로드되지 않게 한다
+      const ok = new Set(uploadResults.filter((x) => x.success).map((x) => x.name));
+      files = files.filter((f) => !ok.has(f.name));
+      uploadError = `${failed.length}개 파일을 올리지 못했습니다.`;
+    } else {
+      closeUpload();
+    }
     // 업로드 후 목록 새로고침
     await loadMedia();
   }
@@ -188,83 +220,12 @@
 
 <div class="page">
   <header class="page-header">
-    <a href="/admin" class="back-link">← Admin</a>
-    <h1>이미지 관리</h1>
+    <div class="header-left">
+      <a href="/admin" class="back-link">← Admin</a>
+      <h1>이미지 관리</h1>
+    </div>
+    <Button onclick={openUpload}>+ 이미지 업로드</Button>
   </header>
-
-  <!-- ── 업로드 섹션 ──────────────────────── -->
-  <section class="upload-section">
-    <h2>이미지 업로드</h2>
-
-    <div
-      class="drop-zone"
-      class:drag-over={false}
-      ondrop={handleDrop}
-      ondragover={(e) => e.preventDefault()}
-      role="button"
-      tabindex="0"
-    >
-      <p>파일을 드래그하거나 클릭하여 선택</p>
-      <input
-        type="file"
-        accept="image/*"
-        multiple
-        onchange={handleFileSelect}
-        class="file-input"
-      />
-    </div>
-
-    {#if files.length > 0}
-      <div class="upload-preview">
-        <p>{files.length}개 파일 선택됨</p>
-        <ul class="file-list">
-          {#each files as file}
-            <li>{file.name} ({formatSize(file.size)})</li>
-          {/each}
-        </ul>
-      </div>
-    {/if}
-
-    <div class="upload-options">
-      <label>
-        카테고리
-        <select bind:value={category}>
-          {#each categories as cat}
-            <option value={cat.value}>{cat.label}</option>
-          {/each}
-        </select>
-      </label>
-
-      <label>
-        태그 (쉼표 구분)
-        <input type="text" bind:value={tags} placeholder="프로필, 피아노, 2026" />
-      </label>
-
-      <label>
-        대체 텍스트
-        <input type="text" bind:value={altText} placeholder="이미지 설명" />
-      </label>
-    </div>
-
-    <button
-      class="btn-upload"
-      onclick={uploadFiles}
-      disabled={!files.length || uploading}
-    >
-      {uploading ? '업로드 중...' : `업로드 (${files.length})`}
-    </button>
-
-    {#if uploadResults.length > 0}
-      <div class="upload-results">
-        {#each uploadResults as result}
-          <div class="result-item" class:success={result.success} class:error={!result.success}>
-            {result.name}
-            {#if result.error} — {result.error}{/if}
-          </div>
-        {/each}
-      </div>
-    {/if}
-  </section>
 
   <!-- ── 미디어 라이브러리 ────────────────── -->
   <section class="library-section">
@@ -286,12 +247,12 @@
           onkeydown={(e) => { if (e.key === 'Enter') { currentPage = 0; loadMedia(); } }}
         />
 
-        <button class="btn-search" onclick={() => { currentPage = 0; loadMedia(); }}>검색</button>
+        <Button variant="secondary" class="sm" onclick={() => { currentPage = 0; loadMedia(); }}>검색</Button>
 
         {#if selectedIds.size > 0}
-          <button class="btn-delete-batch" onclick={deleteBatch}>
+          <Button variant="secondary" class="sm danger" onclick={deleteBatch}>
             {selectedIds.size}개 삭제
-          </button>
+          </Button>
         {/if}
       </div>
     </div>
@@ -303,475 +264,163 @@
     {:else}
       <div class="media-grid">
         {#each mediaList as media}
-          <div
-            class="media-card"
-            class:selected={selectedIds.has(media.id)}
-            onclick={() => selectedMedia = media}
-            role="button"
-            tabindex="0"
-          >
-            <div class="card-checkbox" onclick={(e) => { e.stopPropagation(); toggleSelect(media.id); }}>
-              <input type="checkbox" checked={selectedIds.has(media.id)} />
-            </div>
-            <div class="card-image">
-              <img src={media.thumb_url || media.url} alt={media.alt_text || media.original_filename} loading="lazy" />
-            </div>
-            <div class="card-info">
-              <span class="card-name" title={media.original_filename}>
-                {media.original_filename}
+          <div class="media-card" class:selected={selectedIds.has(media.id)}>
+            <label class="card-checkbox">
+              <input type="checkbox" checked={selectedIds.has(media.id)} onchange={() => toggleSelect(media.id)} aria-label="{media.original_filename} 선택" />
+            </label>
+            <button type="button" class="card-open" onclick={() => (selectedMedia = media)}>
+              <span class="card-image">
+                <ResponsiveImage src={media.url} thumb={media.thumb_url} alt={media.alt_text || media.original_filename} sizes="200px" />
               </span>
-              <span class="card-category">{media.category}</span>
-            </div>
+              <span class="card-info">
+                <span class="card-name" title={media.original_filename}>{media.original_filename}</span>
+                <span class="card-category">{media.category}</span>
+              </span>
+            </button>
           </div>
         {/each}
       </div>
 
-      <!-- 페이지네이션 -->
       <div class="pagination">
-        <button
-          disabled={currentPage === 0}
-          onclick={() => { currentPage--; loadMedia(); }}
-        >← 이전</button>
+        <Button variant="secondary" class="sm" disabled={currentPage === 0} onclick={() => { currentPage--; loadMedia(); }}>← 이전</Button>
         <span>{currentPage + 1} / {Math.ceil(mediaTotal / PAGE_SIZE)}</span>
-        <button
-          disabled={(currentPage + 1) * PAGE_SIZE >= mediaTotal}
-          onclick={() => { currentPage++; loadMedia(); }}
-        >다음 →</button>
+        <Button variant="secondary" class="sm" disabled={(currentPage + 1) * PAGE_SIZE >= mediaTotal} onclick={() => { currentPage++; loadMedia(); }}>다음 →</Button>
       </div>
     {/if}
   </section>
 
-  <!-- ── 상세 모달 ────────────────────────── -->
-  {#if selectedMedia}
-    <div class="modal-overlay" role="dialog">
-      <div class="modal" onclick={(e) => e.stopPropagation()} role="document">
-        <button class="modal-close" onclick={() => selectedMedia = null}>✕</button>
+  <!-- ── 업로드 패널 ──────────────────────── -->
+  <SlidePanel
+    open={uploadOpen}
+    title="이미지 업로드"
+    sections={[{ id: 'files', label: '파일' }, { id: 'meta', label: '분류와 설명' }]}
+    snapshot={() => [files.map((f) => f.name), category, tags, altText]}
+    saving={uploading}
+    error={uploadError}
+    canSave={files.length > 0}
+    saveLabel="업로드 ({files.length})"
+    onsave={uploadFiles}
+    onclose={closeUpload}
+  >
+    <div class="form-section" data-section="files">
+      <h3>파일</h3>
+      <div class="drop-zone" ondrop={handleDrop} ondragover={(e) => e.preventDefault()} role="button" tabindex="0">
+        <p class="drop-text">파일을 드래그하거나 클릭하여 선택</p>
+        <input type="file" accept="image/*" multiple onchange={handleFileSelect} class="file-input" aria-label="업로드할 이미지 파일" />
+      </div>
 
-        <div class="modal-content">
-          <div class="modal-image">
-            <img src={selectedMedia.thumb_url || selectedMedia.url} alt={selectedMedia.alt_text || ''} />
-          </div>
+      {#if files.length > 0}
+        <div class="upload-preview">
+          <p>{files.length}개 파일 선택됨</p>
+          <ul class="file-list">
+            {#each files as file}
+              <li>
+                <ResponsiveImage src={URL.createObjectURL(file)} alt="" class="file-thumb" sizes="40px" />
+                {file.name} ({formatSize(file.size)})
+              </li>
+            {/each}
+          </ul>
+        </div>
+      {/if}
 
-          <div class="modal-details">
-            <h3>상세 정보</h3>
-            <table>
-              <tbody>
-                <tr><th>ID</th><td>{selectedMedia.id}</td></tr>
-                <tr><th>원본 파일명</th><td>{selectedMedia.original_filename}</td></tr>
-                <tr><th>저장 파일명</th><td>{selectedMedia.stored_filename}</td></tr>
-                <tr><th>카테고리</th><td>{selectedMedia.category}</td></tr>
-                <tr><th>크기</th><td>{formatSize(selectedMedia.file_size)}</td></tr>
-                <tr><th>타입</th><td>{selectedMedia.content_type}</td></tr>
-                <tr><th>태그</th><td>{selectedMedia.tags || '-'}</td></tr>
-                <tr><th>대체 텍스트</th><td>{selectedMedia.alt_text || '-'}</td></tr>
-                <tr><th>업로드일</th><td>{new Date(selectedMedia.created_at).toLocaleString('ko-KR')}</td></tr>
-              </tbody>
-            </table>
+      {#if uploadResults.length > 0}
+        <div class="upload-results">
+          {#each uploadResults as result}
+            <StatusMessage kind={result.success ? 'success' : 'error'} message={result.name + (result.error ? ' — ' + result.error : ' 업로드 완료')} />
+          {/each}
+        </div>
+      {/if}
+    </div>
 
-            <div class="modal-url">
-              <label>URL</label>
-              <input type="text" readonly value={selectedMedia.url} onclick={(e) => e.target.select()} />
-            </div>
+    <div class="form-section" data-section="meta">
+      <h3>분류와 설명</h3>
+      <label>
+        카테고리
+        <select bind:value={category}>
+          {#each categories as cat}
+            <option value={cat.value}>{cat.label}</option>
+          {/each}
+        </select>
+      </label>
 
-            <div class="modal-actions">
-              <button class="btn-copy" onclick={() => navigator.clipboard.writeText(selectedMedia.url)}>
-                URL 복사
-              </button>
-              <button class="btn-delete" onclick={() => deleteMedia(selectedMedia.id)}>
-                삭제
-              </button>
-            </div>
-          </div>
+      <label>
+        태그 (쉼표 구분)
+        <input type="text" bind:value={tags} placeholder="프로필, 피아노, 2026" />
+      </label>
+
+      <label>
+        대체 텍스트
+        <input type="text" bind:value={altText} placeholder="이미지 설명" />
+      </label>
+    </div>
+  </SlidePanel>
+
+  <!-- ── 상세 패널 ────────────────────────── -->
+  <SlidePanel
+    open={!!selectedMedia}
+    title="이미지 상세"
+    sections={[{ id: 'preview', label: '미리보기' }, { id: 'detail', label: '상세 정보' }]}
+    onclose={() => (selectedMedia = null)}
+  >
+    {#if shown}
+      <div class="form-section" data-section="preview">
+        <h3>미리보기</h3>
+        <ResponsiveImage src={shown.url} thumb={shown.thumb_url} alt={shown.alt_text || shown.original_filename} sizes="50vw" class="detail-image" />
+      </div>
+
+      <div class="form-section" data-section="detail">
+        <h3>상세 정보</h3>
+        <table>
+          <tbody>
+            <tr><th>ID</th><td>{shown.id}</td></tr>
+            <tr><th>원본 파일명</th><td>{shown.original_filename}</td></tr>
+            <tr><th>저장 파일명</th><td>{shown.stored_filename}</td></tr>
+            <tr><th>카테고리</th><td>{shown.category}</td></tr>
+            <tr><th>크기</th><td>{formatSize(shown.file_size)}</td></tr>
+            <tr><th>타입</th><td>{shown.content_type}</td></tr>
+            <tr><th>태그</th><td>{shown.tags || '-'}</td></tr>
+            <tr><th>대체 텍스트</th><td>{shown.alt_text || '-'}</td></tr>
+            <tr><th>업로드일</th><td>{new Date(shown.created_at).toLocaleString('ko-KR')}</td></tr>
+          </tbody>
+        </table>
+
+        <label class="modal-url">
+          URL
+          <input type="text" readonly value={shown.url} onclick={(e) => e.target.select()} />
+        </label>
+
+        <div class="detail-actions">
+          <Button variant="secondary" onclick={() => navigator.clipboard.writeText(shown.url)}>URL 복사</Button>
+          <Button variant="secondary" class="danger" onclick={() => deleteMedia(shown.id)}>삭제</Button>
         </div>
       </div>
-    </div>
-  {/if}
+    {/if}
+  </SlidePanel>
 </div>
 
 <style lang="scss">
-  .page {
-    min-height: 100vh;
-    background: #ffffff;
-    color: #222;
-    padding: 2rem;
-    max-width: 1400px;
-    margin: 0 auto;
-  }
+  .library-header { display: flex; justify-content: space-between; align-items: center; gap: var(--space-3); flex-wrap: wrap; margin-bottom: var(--space-3); h2 { margin: 0; font-size: 18px; } }
+  .library-controls { display: flex; gap: var(--space-2); align-items: center; flex-wrap: wrap; select, input[type='text'] { width: auto; } }
 
-  .page-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 2rem;
-
-    .back-link {
-      color: #888;
-      text-decoration: none;
-      &:hover { color: #222; }
-    }
-
-    h1 { margin: 0; font-size: 1.5rem; color: #111; }
-  }
-
-  /* ── 업로드 섹션 ────────────────────── */
-  .upload-section {
-    background: #f8f9fa;
-    border: 1px solid #e0e0e0;
-    border-radius: 12px;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-
-    h2 { margin: 0 0 1rem; font-size: 1.2rem; color: #111; }
-  }
-
-  .drop-zone {
-    border: 2px dashed #d1d5db;
-    border-radius: 8px;
-    padding: 2rem;
-    text-align: center;
-    cursor: pointer;
-    position: relative;
-    transition: border-color 0.2s, background 0.2s;
-
-    &:hover, &.drag-over { border-color: #2563eb; background: #f0f4ff; }
-
-    p { margin: 0; color: #888; }
-
-    .file-input {
-      position: absolute;
-      inset: 0;
-      opacity: 0;
-      cursor: pointer;
-    }
-  }
-
-  .upload-preview {
-    margin-top: 1rem;
-    padding: 0.75rem;
-    background: #f3f4f6;
-    border: 1px solid #e5e7eb;
-    border-radius: 6px;
-
-    .file-list {
-      margin: 0.5rem 0 0;
-      padding-left: 1.5rem;
-      font-size: 0.85rem;
-      color: #666;
-    }
-  }
-
-  .upload-options {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    margin-top: 1rem;
-
-    label {
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-      font-size: 0.85rem;
-      color: #666;
-    }
-
-    select, input {
-      padding: 0.5rem;
-      background: #fff;
-      border: 1px solid #d1d5db;
-      border-radius: 4px;
-      color: #222;
-    }
-  }
-
-  .btn-upload {
-    margin-top: 1rem;
-    padding: 0.75rem 2rem;
-    background: #2563eb;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 1rem;
-    cursor: pointer;
-    &:hover:not(:disabled) { background: #1d4ed8; }
-    &:disabled { opacity: 0.5; cursor: not-allowed; }
-  }
-
-  .upload-results {
-    margin-top: 1rem;
-    .result-item {
-      padding: 0.4rem 0.75rem;
-      border-radius: 4px;
-      margin-bottom: 0.25rem;
-      font-size: 0.9rem;
-      &.success { background: rgba(34, 197, 94, 0.1); color: #166534; }
-      &.error { background: rgba(220, 53, 69, 0.1); color: #991b1b; }
-    }
-  }
-
-  /* ── 라이브러리 ─────────────────────── */
-  .library-section {
-    h2 { margin: 0; font-size: 1.2rem; color: #111; }
-  }
-
-  .library-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-bottom: 1rem;
-  }
-
-  .library-controls {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-    flex-wrap: wrap;
-
-    select, input {
-      padding: 0.4rem 0.6rem;
-      background: #fff;
-      border: 1px solid #d1d5db;
-      border-radius: 4px;
-      color: #222;
-      font-size: 0.85rem;
-    }
-  }
-
-  .btn-search {
-    padding: 0.4rem 0.8rem;
-    background: #2563eb;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    &:hover { background: #1d4ed8; }
-  }
-
-  .btn-delete-batch {
-    padding: 0.4rem 0.8rem;
-    background: #dc3545;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    &:hover { background: #c82333; }
-  }
-
-  .loading, .empty {
-    text-align: center;
-    padding: 3rem;
-    color: #999;
-    font-size: 1rem;
-  }
-
-  /* ── 이미지 그리드 ──────────────────── */
-  .media-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 0.75rem;
-  }
-
+  .media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: var(--space-3); max-height: none; overflow: visible; }
   .media-card {
-    position: relative;
-    background: #f9fafb;
-    border: 2px solid #e5e7eb;
-    border-radius: 8px;
-    overflow: hidden;
-    cursor: pointer;
-    transition: border-color 0.2s, transform 0.15s;
-
-    &:hover { border-color: #2563eb; transform: translateY(-1px); }
-    &.selected { border-color: #dc3545; }
-
-    .card-checkbox {
-      position: absolute;
-      top: 6px;
-      left: 6px;
-      z-index: 1;
-
-      input {
-        width: 16px;
-        height: 16px;
-        cursor: pointer;
-      }
-    }
-
-    .card-image {
-      aspect-ratio: 1;
-      overflow: hidden;
-
-      img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-    }
-
-    .card-info {
-      padding: 0.4rem 0.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.15rem;
-
-      .card-name {
-        font-size: 0.75rem;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        color: #333;
-      }
-
-      .card-category {
-        font-size: 0.65rem;
-        color: #888;
-        text-transform: uppercase;
-      }
-    }
+    position: relative; border: 1px solid var(--color-border); border-radius: var(--radius); overflow: hidden;
+    &.selected { border: 3px double var(--color-green-700); }
+    &:hover { background: var(--color-green-50); }
   }
+  .card-checkbox { position: absolute; top: var(--space-2); left: var(--space-2); z-index: 1; padding: var(--space-1); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); input { display: block; margin: 0; } }
+  .card-open { display: block; width: 100%; padding: 0; background: none; border: none; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+  .card-image { display: block; aspect-ratio: 1; background: var(--color-green-100); :global(img) { width: 100%; height: 100%; object-fit: cover; display: block; } }
+  .card-info { display: flex; flex-direction: column; padding: var(--space-2) var(--space-3); }
+  .card-name { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .card-category { font-size: 12px; color: var(--color-green-700); }
+  .pagination { display: flex; align-items: center; justify-content: center; gap: var(--space-3); margin-top: var(--space-4); font-size: 14px; }
 
-  /* ── 페이지네이션 ───────────────────── */
-  .pagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 1rem;
-    margin-top: 1.5rem;
+  .upload-preview p { margin: var(--space-3) 0 var(--space-2); font-size: 14px; }
+  .file-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); font-size: 14px; li { display: flex; align-items: center; gap: var(--space-2); } :global(.file-thumb) { width: 40px; height: 40px; object-fit: cover; border-radius: var(--radius); } }
+  .upload-results { display: flex; flex-direction: column; gap: var(--space-2); margin-top: var(--space-3); }
 
-    button {
-      padding: 0.4rem 0.8rem;
-      background: #fff;
-      color: #444;
-      border: 1px solid #d1d5db;
-      border-radius: 4px;
-      cursor: pointer;
-      &:hover { background: #f3f4f6; }
-      &:disabled { opacity: 0.4; cursor: not-allowed; }
-    }
-
-    span { font-size: 0.9rem; color: #888; }
-  }
-
-  /* ── 모달 ───────────────────────────── */
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.4);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    padding: 2rem;
-  }
-
-  .modal {
-    background: #fff;
-    border: 1px solid #e0e0e0;
-    border-radius: 12px;
-    max-width: 900px;
-    width: 100%;
-    max-height: 85vh;
-    overflow-y: auto;
-    position: relative;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-  }
-
-  .modal-close {
-    position: absolute;
-    top: 0.75rem;
-    right: 0.75rem;
-    background: none;
-    border: none;
-    color: #888;
-    font-size: 1.4rem;
-    cursor: pointer;
-    z-index: 1;
-    &:hover { color: #222; }
-  }
-
-  .modal-content {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-    padding: 1.5rem;
-
-    @media (max-width: 640px) {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  .modal-image {
-    border-radius: 8px;
-    overflow: hidden;
-    img {
-      width: 100%;
-      height: auto;
-      display: block;
-    }
-  }
-
-  .modal-details {
-    h3 { margin: 0 0 1rem; font-size: 1.1rem; color: #111; }
-
-    table {
-      width: 100%;
-      font-size: 0.85rem;
-      border-collapse: collapse;
-
-      th {
-        text-align: left;
-        color: #888;
-        padding: 0.3rem 0.5rem 0.3rem 0;
-        white-space: nowrap;
-        width: 100px;
-      }
-
-      td {
-        padding: 0.3rem 0;
-        word-break: break-all;
-        color: #333;
-      }
-    }
-  }
-
-  .modal-url {
-    margin-top: 1rem;
-    label { font-size: 0.85rem; color: #888; }
-    input {
-      width: 100%;
-      margin-top: 0.25rem;
-      padding: 0.4rem;
-      background: #f9fafb;
-      border: 1px solid #d1d5db;
-      border-radius: 4px;
-      color: #222;
-      font-size: 0.8rem;
-    }
-  }
-
-  .modal-actions {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: 1rem;
-
-    button {
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 0.85rem;
-    }
-
-    .btn-copy {
-      background: #2563eb;
-      color: #fff;
-      &:hover { background: #1d4ed8; }
-    }
-
-    .btn-delete {
-      background: #dc3545;
-      color: white;
-      &:hover { background: #c82333; }
-    }
-  }
+  :global(.detail-image) { display: block; max-width: 100%; max-height: 50vh; margin: 0 auto; border-radius: var(--radius); }
+  .modal-url { margin-top: var(--space-3); }
+  .detail-actions { display: flex; gap: var(--space-3); margin-top: var(--space-3); }
 </style>

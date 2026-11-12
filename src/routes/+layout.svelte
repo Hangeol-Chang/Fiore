@@ -12,6 +12,7 @@
 	import '@/styles/globals.scss';
 	import Header from '@/components/layout/header.svelte';
 	import Footer from '@/components/layout/footer.svelte';
+	import { page } from '$app/stores';
 	import favicon from '$lib/assets/favicon.svg';
 
 	let { children } = $props();
@@ -26,7 +27,7 @@
 
 <Loader active={!!navigating.to} overlay />
 <Header />
-<div class="content">
+<div class="content" class:home={$page.url.pathname === '/'}>
 	{@render children()}
 </div>
 <Footer />
@@ -37,6 +38,11 @@
 		margin: 60px 0;
 	}
 	
+	/* 홈은 Hero가 헤더 뒤까지 올라옴 */
+	.content.home {
+		margin-top: 0;
+	}
+
 	:global(body) {
 		padding: 0;
 		box-sizing: border-box;

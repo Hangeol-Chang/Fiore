@@ -120,22 +120,22 @@
   }
 
   .modal {
-    background: #fff;
+    background: var(--color-surface);
     border-radius: 12px;
     padding: 1.75rem;
     max-width: 90vw;
     max-height: 92vh;
     overflow-y: auto;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--color-border);
     position: relative;
 
-    h2 { margin: 0 0 0.4rem; font-size: 1.2rem; color: #111; }
+    h2 { margin: 0 0 0.4rem; font-size: 1.2rem; color: var(--color-on-surface); }
   }
 
   .hint {
     margin: 0 0 1rem;
     font-size: 0.85rem;
-    color: #666;
+    color: var(--color-green-700);
   }
 
   .modal-close {
@@ -144,10 +144,10 @@
     right: 0.75rem;
     background: none;
     border: none;
-    color: #888;
+    color: var(--color-green-700);
     font-size: 1.4rem;
     cursor: pointer;
-    &:hover { color: #222; }
+    &:hover { color: var(--color-on-surface); }
   }
 
   .ratio-toggle {
@@ -157,17 +157,17 @@
 
     button {
       padding: 0.35rem 0.9rem;
-      border: 1px solid #d1d5db;
-      background: #fff;
+      border: 1px solid var(--color-border);
+      background: var(--color-surface);
       border-radius: 6px;
       cursor: pointer;
       font-size: 0.85rem;
-      color: #444;
+      color: var(--color-on-surface);
 
       &.active {
-        background: #2563eb;
-        border-color: #2563eb;
-        color: #fff;
+        background: var(--color-green-500);
+        border-color: var(--color-green-500);
+        color: var(--color-surface);
       }
     }
   }
@@ -175,7 +175,7 @@
   .image-stage {
     position: relative;
     overflow: hidden;
-    background: #eee;
+    background: var(--color-green-200);
     border-radius: 8px;
     cursor: ns-resize;
     touch-action: none;
@@ -204,9 +204,10 @@
     position: absolute;
     left: 0;
     width: 100%;
-    border-top: 2px solid #fff;
-    border-bottom: 2px solid #fff;
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3) inset;
+    border-top: 2px solid var(--color-surface);
+    border-bottom: 2px solid var(--color-surface);
+    outline: 1px solid var(--color-on-surface);
+    outline-offset: -1px;
     pointer-events: none;
 
     .crop-label {
@@ -214,7 +215,7 @@
       top: 4px;
       left: 8px;
       font-size: 0.7rem;
-      color: #fff;
+      color: var(--color-surface);
       background: rgba(0, 0, 0, 0.5);
       padding: 0.1rem 0.4rem;
       border-radius: 4px;
@@ -226,7 +227,7 @@
     left: 0;
     width: 100%;
     height: 2px;
-    background: #ff3b30;
+    background: var(--color-green-700);
     pointer-events: none;
     transform: translateY(-1px);
   }
@@ -234,7 +235,7 @@
   .focus-readout {
     margin-top: 0.6rem;
     font-size: 0.8rem;
-    color: #666;
+    color: var(--color-green-700);
   }
 
   .form-actions {
@@ -246,20 +247,20 @@
 
   .btn-primary {
     padding: 0.55rem 1.1rem;
-    background: #2563eb;
-    color: #fff;
+    background: var(--color-green-500);
+    color: var(--color-surface);
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    &:hover { background: #1d4ed8; }
+    &:hover { background: var(--color-green-600); }
   }
   .btn-secondary {
     padding: 0.55rem 1.1rem;
-    background: #f3f4f6;
-    color: #444;
-    border: 1px solid #d1d5db;
+    background: var(--color-green-50);
+    color: var(--color-on-surface);
+    border: 1px solid var(--color-border);
     border-radius: 6px;
     cursor: pointer;
-    &:hover { background: #e5e7eb; }
+    &:hover { background: var(--color-green-200); }
   }
 </style>

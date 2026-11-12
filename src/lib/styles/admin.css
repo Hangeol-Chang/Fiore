@@ -1,0 +1,107 @@
+/* admin 공용 스타일. 색·간격·모서리는 tokens.css 변수만 쓴다. */
+.admin { color: var(--color-on-surface); background: var(--color-surface); font-family: Pretendard, sans-serif; }
+.admin .page { min-height: 100vh; padding: var(--space-4); max-width: 1400px; margin: 0 auto; }
+.admin .page-header { display: flex; justify-content: space-between; align-items: center; gap: var(--space-3); margin-bottom: var(--space-4); flex-wrap: wrap; }
+.admin .page-header h1 { margin: 0; font-size: 24px; font-weight: 600; }
+.admin .header-left, .admin .header-right { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+.admin .back-link { color: var(--color-green-700); text-decoration: underline; }
+.admin .back-link:hover { color: var(--color-green-500); }
+.admin .filter-label { display: flex; align-items: center; gap: var(--space-2); font-size: 14px; }
+.admin .loading, .admin .empty { text-align: center; color: var(--color-green-700); padding: var(--space-4); }
+
+/* 입력: border 상자 + 3px 모서리 (admin은 border를 없애지 않는다) */
+.admin input[type='text'], .admin input[type='number'], .admin input[type='date'], .admin input[type='time'],
+.admin input[type='url'], .admin input[type='email'], .admin input[type='tel'], .admin input[type='search'], .admin select, .admin textarea {
+	display: block; width: 100%; padding: var(--space-2) var(--space-3);
+	background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius);
+	color: var(--color-on-surface); font: inherit; font-size: 14px;
+}
+.admin .filter-label select { width: auto; }
+.admin textarea { resize: vertical; }
+.admin input::placeholder, .admin textarea::placeholder { color: var(--color-placeholder); opacity: 1; }
+.admin input:focus-visible, .admin select:focus-visible, .admin textarea:focus-visible,
+.admin summary:focus-visible, .admin [role='button']:focus-visible, .admin .media-item:focus-visible {
+	outline: 2px solid var(--color-green-500); outline-offset: 2px;
+}
+
+/* 버튼: Button 부품 위에 크기·위험 표시만 덧붙인다 */
+.admin .btn.sm { padding: 2px 14px; font-size: 13px; }
+.admin .btn.danger { border: 3px double var(--color-green-700); padding-top: 3px; padding-bottom: 3px; }
+.admin .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* 표 */
+.admin .table-wrap { overflow-x: auto; }
+.admin table { width: 100%; border-collapse: collapse; }
+.admin th, .admin td { padding: var(--space-2) var(--space-3); text-align: left; vertical-align: middle; border-bottom: 1px solid var(--color-green-200); }
+.admin th { font-weight: 500; font-size: 14px; color: var(--color-green-700); }
+.admin tbody tr:hover { background: var(--color-green-50); }
+.admin .thumb, .admin .thumb-placeholder { width: 48px; height: 48px; border-radius: var(--radius); object-fit: cover; background: var(--color-green-100); }
+.admin .name-cell { font-weight: 600; }
+.admin .badge { display: inline-block; padding: 2px var(--space-2); border: 1px solid var(--color-border); border-radius: var(--radius); font-size: 13px; }
+.admin .badge.active { background: var(--color-green-100); }
+.admin .badge.active::before { content: '✓ '; }
+.admin .actions { display: flex; gap: var(--space-2); align-items: center; }
+
+/* 패널 안 폼 */
+.admin .form-section { margin-bottom: var(--space-4); padding-bottom: var(--space-3); border-bottom: 1px solid var(--color-green-200); }
+.admin .form-section h3 { margin: 0 0 var(--space-3); font-size: 16px; font-weight: 600; color: var(--color-green-700); }
+.admin .form-section label { display: block; margin-bottom: var(--space-2); font-size: 14px; }
+.admin .form-section label input:not([type='checkbox']):not([type='radio']), .admin .form-section label select, .admin .form-section label textarea { margin-top: var(--space-1); }
+.admin .checkbox-label { display: flex !important; align-items: center; gap: var(--space-2); }
+.admin .checkbox-label input { width: auto; }
+.admin .row-2, .admin .row-3 { display: grid; gap: var(--space-3); grid-template-columns: 1fr 1fr; }
+.admin .row-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+/* 드롭존 */
+.admin .drop-zone { position: relative; border: 2px dashed var(--color-border); border-radius: var(--radius); padding: var(--space-4); text-align: center; cursor: pointer; }
+.admin .drop-zone:hover, .admin .drop-zone.drag-over { background: var(--color-green-50); border-style: solid; }
+.admin .drop-zone.has-image, .admin .drop-zone.sub-drop { padding: var(--space-3); }
+.admin .drop-text { margin: 0; }
+.admin .drop-hint { margin: var(--space-2) 0 0; font-size: 13px; color: var(--color-green-700); }
+.admin .file-input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
+.admin .preview-img { max-width: 160px; max-height: 160px; border-radius: var(--radius); object-fit: cover; display: block; margin: 0 auto; }
+.admin .profile-image-actions { display: flex; gap: var(--space-2); margin-top: var(--space-2); flex-wrap: wrap; }
+.admin .sub-image-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: var(--space-3); margin-bottom: var(--space-3); }
+.admin .sub-image-item { position: relative; aspect-ratio: 1; border: 1px solid var(--color-border); border-radius: var(--radius); overflow: hidden; }
+.admin .sub-image-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.admin .sub-image-item .remove-btn, .admin .sub-image-item .remove-sub-btn { position: absolute; top: var(--space-1); right: var(--space-1); }
+
+/* 반복 행 */
+.admin .video-row, .admin .career-row, .admin .link-row, .admin .track-row { display: flex; gap: var(--space-2); margin-bottom: var(--space-2); align-items: center; }
+.admin .video-row input, .admin .career-row input, .admin .link-row input, .admin .track-row input { flex: 1; min-width: 0; }
+.admin .career-row .career-date { flex: 0 0 120px; }
+.admin .link-row select { flex: 0 0 130px; width: auto; }
+.admin .track-num { flex: none; min-width: 2em; }
+.admin .concert-list { max-height: 200px; overflow-y: auto; padding: var(--space-2); border: 1px solid var(--color-border); border-radius: var(--radius); }
+.admin .concert-check { display: flex !important; align-items: center; gap: var(--space-2); padding: var(--space-1) 0; cursor: pointer; }
+.admin .concert-check input { width: auto; }
+.admin .search-row { display: flex; align-items: center; gap: var(--space-2); margin: var(--space-1) 0 var(--space-2); font-size: 14px; }
+.admin .inline-search-input { max-width: 260px; }
+
+/* 선택된 아티스트 태그 / 검색 드롭다운 */
+.admin .selected-artists { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-2); }
+.admin .artist-tag { display: inline-flex; align-items: center; gap: var(--space-1); padding: 2px var(--space-2); border: 1px solid var(--color-border); border-radius: var(--radius); font-size: 14px; background: var(--color-green-50); }
+.admin .tag-remove { background: none; border: none; cursor: pointer; font-size: 16px; line-height: 1; color: inherit; }
+.admin .artist-search-wrap, .admin .place-search-wrap { position: relative; }
+.admin .artist-dropdown, .admin .place-dropdown { position: absolute; z-index: 5; left: 0; right: 0; top: 100%; margin: 0; padding: 0; list-style: none; max-height: 220px; overflow-y: auto; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); }
+.admin .artist-dropdown li button { display: block; width: 100%; text-align: left; padding: var(--space-2) var(--space-3); background: none; border: none; font: inherit; cursor: pointer; }
+.admin .artist-dropdown li button:hover { background: var(--color-green-100); }
+.admin .no-result { padding: var(--space-2) var(--space-3); color: var(--color-green-700); }
+
+/* 이미지 선택창(패널 위에 한 단계 더 뜨는 선택용 대화상자). 단색 반투명 오버레이만 쓴다 */
+.admin .modal-overlay { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: flex-start; justify-content: center; padding: var(--space-4); overflow-y: auto; background: color-mix(in srgb, var(--color-green-800) 45%, transparent); }
+.admin .modal { position: relative; width: 100%; max-width: 700px; max-height: 90vh; overflow-y: auto; padding: var(--space-4); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); }
+.admin .modal h2 { margin: 0 0 var(--space-3); font-size: 20px; }
+.admin .modal-close { position: absolute; top: var(--space-2); right: var(--space-2); background: none; border: none; font-size: 20px; cursor: pointer; color: inherit; }
+.admin .media-picker { max-width: 800px; }
+.admin .media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: var(--space-3); margin-bottom: var(--space-3); max-height: 400px; overflow-y: auto; }
+.admin .media-item { padding: 0; overflow: hidden; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); cursor: pointer; }
+.admin .media-item:hover { background: var(--color-green-100); }
+.admin .media-item img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
+.admin .media-name { display: block; padding: var(--space-1); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* 가로 배너 드롭존·미리보기 */
+.admin .drop-zone.banner-drop { aspect-ratio: 16 / 5; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.admin .drop-zone.banner-drop.has-image { padding: var(--space-2); }
+.admin .banner-preview { max-width: 100%; max-height: 180px; }
+.admin .media-item.already-selected { opacity: 0.5; border-style: dashed; cursor: not-allowed; }

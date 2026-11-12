@@ -1,4 +1,7 @@
 <script>
+  import Button from '$lib/components/ui/Button.svelte';
+  import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
+  import SlidePanel from '$lib/components/ui/SlidePanel.svelte';
   import { PIANOLIFE_BACKEND_URL } from '$env/static/public';
   import { renderMarkdown } from '$lib/utils/markdown.js';
   import { uploadMediaFile, fetchWithRetry } from '$lib/utils/uploadMedia.js';
@@ -187,7 +190,7 @@
       <a href="/admin" class="back-link">← Admin</a>
       <h1>공지사항 관리</h1>
     </div>
-    <button class="btn-primary" onclick={openCreate}>+ 공지사항 추가</button>
+    <Button onclick={openCreate}>+ 공지사항 추가</Button>
   </header>
 
   {#if loading}
@@ -209,7 +212,7 @@
             <tr>
               <td>
                 {#if item.image_thumb_url || item.image_url}
-                  <img src={item.image_thumb_url || item.image_url} alt={item.title} class="thumb" />
+                  <ResponsiveImage src={item.image_thumb_url || item.image_url} alt={item.title} class="thumb" sizes="48px" />
                 {:else}
                   <div class="thumb-placeholder"></div>
                 {/if}
@@ -223,8 +226,8 @@
               </td>
               <td>
                 <div class="actions">
-                  <button class="btn-sm btn-edit" onclick={() => openEdit(item)}>편집</button>
-                  <button class="btn-sm btn-delete" onclick={() => deleteItem(item)}>삭제</button>
+                  <Button variant="secondary" class="sm" onclick={() => openEdit(item)}>편집</Button>
+                  <Button variant="secondary" class="sm danger" onclick={() => deleteItem(item)}>삭제</Button>
                 </div>
               </td>
             </tr>
@@ -238,25 +241,20 @@
   {/if}
 
   <!-- ── 편집 / 생성 폼 ──────────────────── -->
-  {#if showForm}
-    <div class="modal-overlay">
-      <div class="modal" role="none" onclick={(e) => e.stopPropagation()}>
-        <div class="modal-header-row">
-          <h2>{editing ? '공지사항 편집' : '새 공지사항'}</h2>
-          <div class="modal-header-actions">
-            <button class="btn-primary btn-save-top" onclick={saveItem} disabled={!form.title || saving}>
-              {saving ? '저장 중...' : (editing ? '수정' : '등록')}
-            </button>
-            <button class="modal-close" onclick={resetForm}>✕</button>
-          </div>
-        </div>
-
-        {#if saveError}
-          <p class="save-error">{saveError}</p>
-        {/if}
-
-        <!-- 기본 정보 -->
-        <div class="form-section">
+  <SlidePanel
+    open={showForm}
+    title={editing ? '공지사항 편집' : '새 공지사항'}
+    sections={[{ id: 'info', label: '기본 정보' }, { id: 'image', label: '대표 이미지' }, { id: 'content', label: '본문' }]}
+    snapshot={() => [form, selectedImageUrl]}
+    {saving}
+    error={saveError}
+    canSave={!(!form.title)}
+    saveLabel={editing ? '수정' : '등록'}
+    suspended={showMediaPicker}
+    onsave={saveItem}
+    onclose={resetForm}
+  >
+<div class="form-section" data-section="info">
           <h3>기본 정보</h3>
           <label>
             제목 *
@@ -273,7 +271,7 @@
         </div>
 
         <!-- 이미지 (페이지 상단에 표시, 1장) -->
-        <div class="form-section">
+        <div class="form-section" data-section="image">
           <h3>대표 이미지 (페이지 상단에 표시, 1장)</h3>
           <!-- svelte-ignore a11y_no_static_element_interactions -->
           <div
@@ -286,7 +284,7 @@
           >
             <input type="file" accept="image/*" class="file-input" onchange={handleImageFileSelect} />
             {#if selectedImageUrl}
-              <img src={selectedImageUrl} alt="notice preview" class="preview-img" />
+              <ResponsiveImage src={selectedImageUrl} alt="notice preview" class="preview-img" sizes="160px" />
               {#if pendingImageFile}
                 <p class="drop-hint pending-hint">저장 시 업로드됩니다</p>
               {/if}
@@ -296,9 +294,9 @@
             {/if}
           </div>
           <div style="display:flex; gap:0.5rem; margin-top:0.5rem;">
-            <button type="button" class="btn-secondary" onclick={openMediaPicker}>미디어에서 선택</button>
+            <Button variant="secondary" type="button" onclick={openMediaPicker}>미디어에서 선택</Button>
             {#if selectedImageUrl}
-              <button type="button" class="btn-secondary" onclick={() => { selectedImageUrl = ''; form.image_media_id = null; pendingImageFile = null; }}>제거</button>
+              <Button variant="secondary" type="button" onclick={() => { selectedImageUrl = ''; form.image_media_id = null; pendingImageFile = null; }}>제거</Button>
             {/if}
           </div>
 
@@ -328,12 +326,12 @@
         </div>
 
         <!-- 본문 (마크다운) -->
-        <div class="form-section">
+        <div class="form-section" data-section="content">
           <div class="content-header">
             <h3>본문 (마크다운 문법 지원)</h3>
-            <button type="button" class="btn-secondary btn-toggle-preview" onclick={() => (showPreview = !showPreview)}>
+            <Button variant="secondary" type="button" onclick={() => (showPreview = !showPreview)}>
               {showPreview ? '편집으로' : '미리보기'}
-            </button>
+            </Button>
           </div>
           {#if showPreview}
             <div class="markdown-preview markdown-body">
@@ -356,16 +354,8 @@
             <input type="text" bind:value={form.button_url} placeholder="https://..." />
           </label>
         </div>
-
-        <div class="form-actions">
-          <button class="btn-primary" onclick={saveItem} disabled={!form.title || saving}>
-            {saving ? '저장 중...' : (editing ? '수정' : '등록')}
-          </button>
-          <button class="btn-secondary" onclick={resetForm}>취소</button>
-        </div>
-      </div>
-    </div>
-  {/if}
+  </SlidePanel>
+  
 
   <!-- ── 미디어 피커 모달 ──────────── -->
   {#if showMediaPicker}
@@ -376,7 +366,7 @@
         <div class="media-grid">
           {#each mediaList as media}
             <button type="button" class="media-item" class:already-selected={form.image_media_id === media.id} onclick={() => selectMedia(media)}>
-              <img src={media.url} alt={media.original_filename} />
+              <ResponsiveImage src={media.url} alt={media.original_filename} sizes="120px" />
               <span class="media-name">{media.original_filename}</span>
             </button>
           {/each}
@@ -384,204 +374,51 @@
             <p class="empty">업로드된 이미지가 없습니다.</p>
           {/if}
         </div>
-        <button class="btn-secondary" onclick={() => (showMediaPicker = false)}>닫기</button>
+        <Button variant="secondary" onclick={() => (showMediaPicker = false)}>닫기</Button>
       </div>
     </div>
   {/if}
 </div>
 
 <style lang="scss">
-  .page {
-    min-height: 100vh;
-    background: #ffffff;
-    color: #222;
-    padding: 2rem;
-  }
+.pin-mark { margin-right: 0.4rem; color: var(--color-green-700); vertical-align: middle; }
 
-  .page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-    }
-    .back-link { color: #888; text-decoration: none; &:hover { color: #222; } }
-    h1 { margin: 0; font-size: 1.5rem; color: #111; }
-  }
-
-  .loading { text-align: center; color: #999; padding: 3rem; }
-
-  .table-wrap { overflow-x: auto; }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    th, td { padding: 0.75rem 1rem; text-align: left; vertical-align: middle; border-bottom: 1px solid #eee; }
-    th { color: #888; font-weight: 500; font-size: 0.85rem; }
-    tbody tr:hover { background: #f8f9fa; }
-  }
-
-  .thumb { width: 80px; height: 60px; border-radius: 6px; object-fit: cover; }
-  .thumb-placeholder { width: 80px; height: 60px; border-radius: 6px; background: #eee; }
-  .name-cell { font-weight: 600; color: #111; }
-  .pin-mark { margin-right: 0.4rem; color: #999; vertical-align: middle; }
-
-  .badge {
-    padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.8rem;
-    background: #eee; color: #666;
-    &.active { background: #dcfce7; color: #166534; }
-  }
-
-  .actions { display: flex; gap: 0.5rem; align-items: center; }
-  .empty { text-align: center; color: #999; padding: 2rem; }
-
-  .btn-primary {
-    padding: 0.6rem 1.2rem; background: #2563eb; color: #fff;
-    border: none; border-radius: 6px; cursor: pointer;
-    &:hover { background: #1d4ed8; }
-    &:disabled { opacity: 0.5; cursor: not-allowed; }
-  }
-  .btn-secondary {
-    padding: 0.6rem 1.2rem; background: #f3f4f6; color: #444;
-    border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer;
-    &:hover { background: #e5e7eb; }
-  }
-  .btn-sm { padding: 0.3rem 0.7rem; font-size: 0.85rem; border-radius: 4px; border: none; cursor: pointer; }
-  .btn-edit { background: #2563eb; color: #fff; &:hover { background: #1d4ed8; } }
-  .btn-delete { background: #dc3545; color: #fff; &:hover { background: #c82333; } }
-
-  .modal-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.4);
-    display: flex; align-items: flex-start; justify-content: center;
-    padding: 2rem; overflow-y: auto; z-index: 1000;
-  }
-  .modal {
-    background: #fff; border: 1px solid #e0e0e0; border-radius: 12px;
-    padding: 2rem; width: 100%; max-width: 700px; max-height: 90vh;
-    overflow-y: auto; box-shadow: 0 8px 24px rgba(0,0,0,0.15); position: relative;
-    h2 { margin: 0; font-size: 1.3rem; color: #111; }
-  }
-  .modal-header-row {
-    position: sticky;
-    top: -2rem;
-    z-index: 2;
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 1rem;
-    margin: -2rem -2rem 1.5rem;
-    padding: 1.25rem 2rem 1rem;
-    background: #fff;
-    border-bottom: 1px solid #eee;
-  }
-  .modal-header-actions {
-    display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0;
-    .modal-close { position: static; }
-  }
-  .btn-save-top { flex-shrink: 0; padding: 0.45rem 1rem; font-size: 0.85rem; }
-  .save-error {
-    background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca;
-    border-radius: 6px; padding: 0.6rem 0.9rem; margin: 0 0 1rem;
-    font-size: 0.85rem; white-space: pre-wrap;
-  }
-  .modal-close {
-    position: absolute; top: 0.75rem; right: 0.75rem;
-    background: none; border: none; color: #888; font-size: 1.4rem; cursor: pointer; z-index: 1;
-    &:hover { color: #222; }
-  }
-
-  .form-section {
-    margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid #eee;
-    h3 { margin: 0 0 0.75rem; font-size: 1rem; color: #666; }
-    label { display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: #444; }
-    input[type="text"], textarea {
-      display: block; width: 100%; margin-top: 0.25rem;
-      padding: 0.5rem 0.75rem; background: #fff; border: 1px solid #d1d5db;
-      border-radius: 6px; color: #222; font-size: 0.9rem;
-      &:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
-    }
-    textarea { resize: vertical; font-family: 'SFMono-Regular', Consolas, monospace; min-height: 260px; }
-  }
-
-  .content-header {
+.content-header {
     display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;
     h3 { margin: 0; }
   }
-  .btn-toggle-preview { padding: 0.35rem 0.8rem; font-size: 0.8rem; }
 
-  .markdown-preview {
-    min-height: 260px; padding: 1rem; border: 1px solid #d1d5db; border-radius: 6px;
-    background: #fafafa; color: #222; font-size: 0.9rem; line-height: 1.7;
+
+
+.markdown-preview {
+    min-height: 260px; padding: 1rem; border: 1px solid var(--color-border); border-radius: 6px;
+    background: var(--color-green-50); color: var(--color-on-surface); font-size: 0.9rem; line-height: 1.7;
     overflow-wrap: break-word;
 
     :global(p) { margin: 0 0 0.75em; }
     :global(img) { max-width: 100%; }
-    :global(a) { color: #2563eb; }
+    :global(a) { color: var(--color-green-500); }
     :global(ul), :global(ol) { padding-left: 1.5em; margin: 0 0 0.75em; }
     :global(table) {
       width: 100%; margin: 0 0 1em; border-collapse: collapse; text-align: center;
     }
     :global(th), :global(td) {
-      border: 1px solid #ddd; padding: 0.25rem 0.5rem; text-align: center;
+      border: 1px solid var(--color-green-200); padding: 0.25rem 0.5rem; text-align: center;
     }
     :global(th) { font-weight: 700; }
   }
 
-  .checkbox-label {
-    display: flex !important; align-items: center; gap: 0.5rem; cursor: pointer;
-    input { width: auto; margin: 0; cursor: pointer; }
-  }
-
-  .drop-zone {
-    border: 2px dashed #d1d5db; border-radius: 8px; padding: 2rem;
-    text-align: center; cursor: pointer; position: relative;
-    transition: border-color 0.2s, background 0.2s;
-    &:hover, &.drag-over { border-color: #2563eb; background: #f0f4ff; }
-    &.has-image { padding: 1rem; }
-    .drop-text { margin: 0; color: #888; }
-    .drop-hint { margin: 0.5rem 0 0; font-size: 0.8rem; color: #aaa; }
-    .pending-hint { color: #f59e0b; font-weight: 500; }
-    .file-input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-    .preview-img {
-      max-width: 100%; max-height: 240px; border-radius: 8px;
-      object-fit: contain; display: block; margin: 0 auto;
-    }
-  }
-
-  .width-control {
+.width-control {
     margin-top: 0.75rem;
-    label { display: block; margin-bottom: 0.4rem; font-size: 0.85rem; color: #444; }
+    label { display: block; margin-bottom: 0.4rem; font-size: 0.85rem; color: var(--color-on-surface); }
   }
-  .width-control-row {
+
+.width-control-row {
     display: flex; align-items: center; gap: 0.75rem;
     input[type="range"] { flex: 1; }
     .width-number {
-      width: 90px; padding: 0.4rem 0.5rem; border: 1px solid #d1d5db;
-      border-radius: 6px; color: #222; font-size: 0.85rem;
+      width: 90px; padding: 0.4rem 0.5rem; border: 1px solid var(--color-border);
+      border-radius: 6px; color: var(--color-on-surface); font-size: 0.85rem;
     }
   }
-
-  .form-actions {
-    display: flex; gap: 1rem; margin-top: 1.5rem; justify-content: flex-end;
-  }
-
-  .media-picker { max-width: 800px; }
-  .media-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 0.75rem; margin-bottom: 1rem; max-height: 400px; overflow-y: auto;
-  }
-  .media-item {
-    background: #f9fafb; border: 2px solid #e5e7eb; border-radius: 8px;
-    cursor: pointer; padding: 0; overflow: hidden; transition: border-color 0.2s;
-    &:hover { border-color: #2563eb; }
-    &.already-selected { border-color: #2563eb; opacity: 0.6; cursor: default; }
-    img { width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block; }
-    .media-name {
-      display: block; padding: 0.3rem; font-size: 0.7rem; color: #888;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-  }
-
-  .empty { color: #999; text-align: center; padding: 1rem; }
 </style>

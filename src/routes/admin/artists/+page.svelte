@@ -1,4 +1,7 @@
 <script>
+  import Button from '$lib/components/ui/Button.svelte';
+  import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
+  import SlidePanel from '$lib/components/ui/SlidePanel.svelte';
   import { PIANOLIFE_BACKEND_URL } from '$env/static/public';
   import FocusPointModal from '$lib/components/artists/FocusPointModal.svelte';
   import { uploadMediaFile, fetchWithRetry } from '$lib/utils/uploadMedia.js';
@@ -522,7 +525,7 @@
           {/each}
         </select>
       </label>
-      <button class="btn-primary" onclick={openCreate}>+ 아티스트 추가</button>
+      <Button onclick={openCreate}>+ 아티스트 추가</Button>
     </div>
   </header>
 
@@ -549,7 +552,7 @@
               <td>{artist.sort_order}</td>
               <td>
                 {#if artist.thumb_url || artist.image_url}
-                  <img src={artist.thumb_url || artist.image_url} alt={artist.name} class="thumb" />
+                  <ResponsiveImage src={artist.thumb_url || artist.image_url} alt={artist.name} class="thumb" sizes="48px" />
                 {:else}
                   <div class="thumb-placeholder"></div>
                 {/if}
@@ -564,8 +567,8 @@
               <td>{(artist.concerts || []).length}개</td>
               <td>
                 <div class="actions">
-                  <button class="btn-sm btn-edit" onclick={() => openEdit(artist)}>편집</button>
-                  <button class="btn-sm btn-delete" onclick={() => deleteArtist(artist)}>삭제</button>
+                  <Button variant="secondary" class="sm" onclick={() => openEdit(artist)}>편집</Button>
+                  <Button variant="secondary" class="sm danger" onclick={() => deleteArtist(artist)}>삭제</Button>
                 </div>
               </td>
             </tr>
@@ -576,26 +579,20 @@
   {/if}
 
   <!-- ── 편집 / 생성 폼 ───────────────────── -->
-  {#if showForm}
-    <div class="modal-overlay">
-      <!-- svelte-ignore a11y_click_events_have_key_events -->
-      <div class="modal" role="none" onclick={(e) => e.stopPropagation()}>
-        <div class="modal-header-row">
-          <h2>{editing ? '아티스트 편집' : '새 아티스트'}</h2>
-          <div class="modal-header-actions">
-            <button class="btn-primary btn-save-top" onclick={saveArtist} disabled={!form.name || saving}>
-              {saving ? '저장 중...' : (editing ? '수정' : '등록')}
-            </button>
-            <button class="modal-close" onclick={resetForm}>✕</button>
-          </div>
-        </div>
-
-        {#if saveError}
-          <p class="save-error">{saveError}</p>
-        {/if}
-
-        <!-- 기본 정보 -->
-        <div class="form-section">
+  <SlidePanel
+    open={showForm}
+    title={editing ? '아티스트 편집' : '새 아티스트'}
+    sections={[{ id: 'info', label: '기본 정보' }, { id: 'images', label: '이미지' }, { id: 'inst', label: '악기와 역할' }, { id: 'concerts', label: '연결된 콘서트' }]}
+    snapshot={() => [form, selectedImageUrl]}
+    {saving}
+    error={saveError}
+    canSave={!(!form.name)}
+    saveLabel={editing ? '수정' : '등록'}
+    suspended={showMediaPicker || showSubMediaPicker || showFocusModal}
+    onsave={saveArtist}
+    onclose={resetForm}
+  >
+<div class="form-section" data-section="info">
           <h3>기본 정보</h3>
           <label>
             이름 (한글) *
@@ -662,7 +659,7 @@
                   <p class="empty">검색 결과가 없습니다.</p>
                 {/if}
               </div>
-              <small style="display:block;margin-top:0.35rem;color:#666;">
+              <small style="display:block;margin-top:0.35rem;color:var(--color-green-700);">
                 artist / performer / group_artist 모두 추가할 수 있습니다.
               </small>
             </label>
@@ -675,7 +672,7 @@
         </div>
 
         <!-- 프로필 이미지 -->
-        <div class="form-section">
+        <div class="form-section" data-section="images">
           <h3>프로필 이미지</h3>
           <div
             class="drop-zone"
@@ -690,7 +687,7 @@
             {#if imageUploading}
               <p class="drop-text">업로드 중...</p>
             {:else if selectedImageUrl}
-              <img src={selectedImageUrl} alt="preview" class="preview-img" />
+              <ResponsiveImage src={selectedImageUrl} alt="preview" class="preview-img" sizes="160px" />
               {#if pendingProfileFile}
                 <p class="drop-hint pending-hint">저장 시 업로드됩니다</p>
               {:else}
@@ -708,22 +705,17 @@
             />
           </div>
           <div class="profile-image-actions">
-            <button type="button" class="btn-secondary btn-sm" onclick={openMediaPicker}>
+            <Button variant="secondary" class="sm" type="button" onclick={openMediaPicker}>
               미디어 라이브러리에서 선택
-            </button>
-            <button
-              type="button"
-              class="btn-secondary btn-sm"
-              disabled={!selectedImageUrl}
-              onclick={() => (showFocusModal = true)}
-            >
+            </Button>
+            <Button variant="secondary" class="sm" type="button" disabled={!selectedImageUrl} onclick={() => (showFocusModal = true)}>
               가로 배너 위치 설정 ({form.image_focus_y ?? 50}%)
-            </button>
+            </Button>
           </div>
         </div>
 
         <!-- 소개 -->
-        <div class="form-section">
+        <div class="form-section" data-section="inst">
           <h3>소개 (Description)</h3>
           <textarea bind:value={form.description} rows="4" placeholder="아티스트 소개"></textarea>
         </div>
@@ -735,10 +727,10 @@
             <div class="career-row">
               <input type="text" bind:value={item.date} placeholder="YYYY.MM" class="career-date" />
               <input type="text" bind:value={item.content} placeholder="경력 내용" />
-              <button class="btn-sm btn-delete" onclick={() => removeCareer(i)}>×</button>
+              <Button variant="secondary" class="sm danger" onclick={() => removeCareer(i)}>×</Button>
             </div>
           {/each}
-          <button type="button" class="btn-secondary btn-sm" onclick={addCareer}>+ 경력 추가</button>
+          <Button variant="secondary" class="sm" type="button" onclick={addCareer}>+ 경력 추가</Button>
         </div>
 
         <!-- 레퍼토리 -->
@@ -763,7 +755,7 @@
                   ondragend={() => (repDrag = null)}
                 >☰</span>
                 <input type="text" bind:value={sec.section} placeholder="섹션명 (Solo, Ensemble, Concerto ...)" />
-                <button type="button" class="btn-sm btn-delete" onclick={() => removeRepSection(si)}>×</button>
+                <Button variant="secondary" class="sm danger" type="button" onclick={() => removeRepSection(si)}>×</Button>
               </div>
 
               {#each sec.items as item, ii (item)}
@@ -787,13 +779,13 @@
                   <label class="rep-featured" title="대표곡">
                     <input type="checkbox" bind:checked={item.featured} /> ★
                   </label>
-                  <button type="button" class="btn-sm btn-delete" onclick={() => removeRepItem(si, ii)}>×</button>
+                  <Button variant="secondary" class="sm danger" type="button" onclick={() => removeRepItem(si, ii)}>×</Button>
                 </div>
               {/each}
-              <button type="button" class="btn-secondary btn-sm" onclick={() => addRepItem(si)}>+ 곡 추가</button>
+              <Button variant="secondary" class="sm" type="button" onclick={() => addRepItem(si)}>+ 곡 추가</Button>
             </div>
           {/each}
-          <button type="button" class="btn-secondary btn-sm" onclick={addRepSection}>+ 섹션 추가</button>
+          <Button variant="secondary" class="sm" type="button" onclick={addRepSection}>+ 섹션 추가</Button>
         </div>
 
         <!-- 공지 -->
@@ -809,10 +801,10 @@
             <div class="video-row">
               <input type="text" bind:value={video.id} placeholder="YouTube ID 또는 영상 URL" />
               <input type="text" bind:value={video.description} placeholder="설명" />
-              <button class="btn-sm btn-delete" onclick={() => removeVideo(i)}>×</button>
+              <Button variant="secondary" class="sm danger" onclick={() => removeVideo(i)}>×</Button>
             </div>
           {/each}
-          <button type="button" class="btn-secondary btn-sm" onclick={addVideo}>+ 동영상 추가</button>
+          <Button variant="secondary" class="sm" type="button" onclick={addVideo}>+ 동영상 추가</Button>
         </div>
 
         <!-- 링크 (SNS 등) -->
@@ -827,23 +819,23 @@
               </select>
               <input type="text" bind:value={link.label} placeholder="표시 이름 (예: Instagram)" />
               <input type="text" bind:value={link.link} placeholder="https://..." />
-              <button class="btn-sm btn-delete" onclick={() => removeLink(i)}>×</button>
+              <Button variant="secondary" class="sm danger" onclick={() => removeLink(i)}>×</Button>
             </div>
           {/each}
-          <button type="button" class="btn-secondary btn-sm" onclick={addLink}>+ 링크 추가</button>
+          <Button variant="secondary" class="sm" type="button" onclick={addLink}>+ 링크 추가</Button>
         </div>
 
         <!-- 서브 이미지 목록 -->
         <div class="form-section">
           <h3>서브 이미지 목록 (Image List)</h3>
-          <p style="font-size: 0.85rem; color: #666; margin-bottom: 0.75rem;">프로필 이미지 외 추가 이미지를 등록할 수 있습니다.</p>
+          <p style="font-size: 0.85rem; color: var(--color-green-700); margin-bottom: 0.75rem;">프로필 이미지 외 추가 이미지를 등록할 수 있습니다.</p>
           
           {#if form.image_list.length > 0}
             <div class="sub-image-list">
               {#each form.image_list as img, i}
                 <div class="sub-image-item">
-                  <img src={img.url} alt="서브 이미지 {i + 1}" />
-                  <button class="btn-sm btn-delete remove-btn" onclick={() => removeSubImage(i)}>×</button>
+                  <ResponsiveImage src={img.url} alt="서브 이미지 {i + 1}" sizes="120px" />
+                  <Button variant="secondary" class="sm danger" onclick={() => removeSubImage(i)}>×</Button>
                 </div>
               {/each}
             </div>
@@ -871,13 +863,13 @@
               class="file-input"
             />
           </div>
-          <button type="button" class="btn-secondary btn-sm" style="margin-top:0.5rem" onclick={openSubMediaPicker}>
+          <Button variant="secondary" class="sm" type="button" style="margin-top:0.5rem" onclick={openSubMediaPicker}>
             미디어에서 선택
-          </button>
+          </Button>
         </div>
 
         <!-- 콘서트 연결 -->
-        <div class="form-section">
+        <div class="form-section" data-section="concerts">
           <h3>연결된 콘서트</h3>
           <div class="search-row">
             <span>검색</span>
@@ -904,16 +896,8 @@
             {/if}
           </div>
         </div>
-
-        <div class="form-actions">
-          <button class="btn-primary" onclick={saveArtist} disabled={!form.name || saving}>
-            {saving ? '저장 중...' : (editing ? '수정' : '생성')}
-          </button>
-          <button class="btn-secondary" onclick={resetForm}>취소</button>
-        </div>
-      </div>
-    </div>
-  {/if}
+  </SlidePanel>
+  
 
   <!-- ── 가로 배너 위치 설정 모달 ──────────── -->
   {#if showFocusModal && selectedImageUrl}
@@ -934,7 +918,7 @@
         <div class="media-grid">
           {#each mediaList as media}
             <button class="media-item" onclick={() => selectSubMedia(media)}>
-              <img src={media.thumb_url || media.url} alt={media.alt_text || media.original_filename} />
+              <ResponsiveImage src={media.thumb_url || media.url} alt={media.alt_text || media.original_filename} sizes="120px" />
               <span class="media-name">{media.original_filename}</span>
             </button>
           {/each}
@@ -942,7 +926,7 @@
             <p class="empty">업로드된 아티스트 이미지가 없습니다.</p>
           {/if}
         </div>
-        <button class="btn-secondary" onclick={() => (showSubMediaPicker = false)}>닫기</button>
+        <Button variant="secondary" onclick={() => (showSubMediaPicker = false)}>닫기</Button>
       </div>
     </div>
   {/if}
@@ -956,7 +940,7 @@
         <div class="media-grid">
           {#each mediaList as media}
             <button class="media-item" onclick={() => selectMedia(media)}>
-              <img src={media.thumb_url || media.url} alt={media.alt_text || media.original_filename} />
+              <ResponsiveImage src={media.thumb_url || media.url} alt={media.alt_text || media.original_filename} sizes="120px" />
               <span class="media-name">{media.original_filename}</span>
             </button>
           {/each}
@@ -964,351 +948,22 @@
             <p class="empty">업로드된 아티스트 이미지가 없습니다.</p>
           {/if}
         </div>
-        <button class="btn-secondary" onclick={() => (showMediaPicker = false)}>닫기</button>
+        <Button variant="secondary" onclick={() => (showMediaPicker = false)}>닫기</Button>
       </div>
     </div>
   {/if}
 </div>
 
 <style lang="scss">
-  .page {
-    min-height: 100vh;
-    background: #ffffff;
-    color: #222;
-    padding: 2rem;
-  }
+.rep-hint { font-size: 0.8rem; color: var(--color-green-700); margin: 0 0 0.5rem; }
 
-  .page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-    }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .back-link {
-      color: #888;
-      text-decoration: none;
-      &:hover { color: #222; }
-    }
-
-    h1 { margin: 0; font-size: 1.5rem; color: #111; }
-  }
-
-  .filter-label {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.9rem;
-    color: #666;
-  }
-
-  .filter-select {
-    padding: 0.4rem 0.8rem;
-    background: #fff;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    color: #222;
-    font-size: 0.9rem;
-    cursor: pointer;
-    &:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
-  }
-
-  .loading { text-align: center; color: #999; padding: 3rem; }
-
-  /* ── 테이블 ─────────────────────────── */
-  .table-wrap { overflow-x: auto; }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    th, td {
-      padding: 0.75rem 1rem;
-      text-align: left;
-      vertical-align: middle;
-      border-bottom: 1px solid #eee;
-    }
-    th { color: #888; font-weight: 500; font-size: 0.85rem; }
-    tbody tr:hover { background: #f8f9fa; }
-  }
-
-  .thumb {
-    width: 48px; height: 48px;
-    border-radius: 8px;
-    object-fit: cover;
-  }
-  .thumb-placeholder {
-    width: 48px; height: 48px;
-    border-radius: 8px;
-    background: #eee;
-  }
-
-  .name-cell { font-weight: 600; color: #111; }
-
-  .badge {
-    padding: 0.2rem 0.6rem;
-    border-radius: 12px;
-    font-size: 0.8rem;
-    background: #eee;
-    color: #666;
-    &.active { background: #dcfce7; color: #166534; }
-  }
-
-  .actions { display: flex; gap: 0.5rem; align-items: center; }
-
-  /* ── 버튼 ──────────────────────────── */
-  .btn-primary {
-    padding: 0.6rem 1.2rem;
-    background: #2563eb;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    &:hover { background: #1d4ed8; }
-    &:disabled { opacity: 0.5; cursor: not-allowed; }
-  }
-  .btn-secondary {
-    padding: 0.6rem 1.2rem;
-    background: #f3f4f6;
-    color: #444;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    cursor: pointer;
-    &:hover { background: #e5e7eb; }
-  }
-  .btn-sm { padding: 0.3rem 0.7rem; font-size: 0.85rem; }
-  .btn-edit { background: #2563eb; color: #fff; border: none; border-radius: 4px; cursor: pointer; &:hover { background: #1d4ed8; } }
-  .btn-delete { background: #dc3545; color: #fff; border: none; border-radius: 4px; cursor: pointer; &:hover { background: #c82333; } }
-
-  /* ── 모달 ──────────────────────────── */
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.4);
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 2rem;
-    overflow-y: auto;
-    z-index: 1000;
-  }
-  .modal {
-    background: #fff;
-    border: 1px solid #e0e0e0;
-    border-radius: 12px;
-    padding: 2rem;
-    width: 100%;
-    max-width: 700px;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-    position: relative;
-
-    h2 { margin: 0; font-size: 1.3rem; color: #111; }
-  }
-
-  .modal-header-row {
-    position: sticky;
-    top: -2rem;
-    z-index: 2;
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 1rem;
-    margin: -2rem -2rem 1.5rem;
-    padding: 1.25rem 2rem 1rem;
-    background: #fff;
-    border-bottom: 1px solid #eee;
-  }
-  .modal-header-actions {
-    display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0;
-    .modal-close { position: static; }
-  }
-  .btn-save-top { flex-shrink: 0; padding: 0.45rem 1rem; font-size: 0.85rem; }
-
-  .save-error {
-    background: #fef2f2;
-    color: #b91c1c;
-    border: 1px solid #fecaca;
-    border-radius: 6px;
-    padding: 0.6rem 0.9rem;
-    margin: 0 0 1rem;
-    font-size: 0.85rem;
-    white-space: pre-wrap;
-  }
-
-  .modal-close {
-    position: absolute;
-    top: 0.75rem;
-    right: 0.75rem;
-    background: none;
-    border: none;
-    color: #888;
-    font-size: 1.4rem;
-    cursor: pointer;
-    z-index: 1;
-    &:hover { color: #222; }
-  }
-
-  .form-section {
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #eee;
-
-    h3 { margin: 0 0 0.75rem; font-size: 1rem; color: #666; }
-
-    label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-size: 0.9rem;
-      color: #444;
-    }
-
-    input[type="text"],
-    input[type="number"],
-    select,
-    textarea {
-      display: block;
-      width: 100%;
-      margin-top: 0.25rem;
-      padding: 0.5rem 0.75rem;
-      background: #fff;
-      border: 1px solid #d1d5db;
-      border-radius: 6px;
-      color: #222;
-      font-size: 0.9rem;
-      &:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
-    }
-    textarea { resize: vertical; font-family: inherit; }
-  }
-
-  /* ── 드래그 앤 드롭 ────────────────── */
-  .drop-zone {
-    border: 2px dashed #d1d5db;
-    border-radius: 8px;
-    padding: 2rem;
-    text-align: center;
-    cursor: pointer;
-    position: relative;
-    transition: border-color 0.2s, background 0.2s;
-
-    &:hover, &.drag-over {
-      border-color: #2563eb;
-      background: #f0f4ff;
-    }
-
-    &.has-image {
-      padding: 1rem;
-    }
-
-    &.sub-drop {
-      padding: 1rem;
-      border-style: dashed;
-      background: #fafbfc;
-    }
-
-    .drop-text { margin: 0; color: #888; }
-
-    .drop-hint {
-      margin: 0.5rem 0 0;
-      font-size: 0.8rem;
-      color: #aaa;
-    }
-
-    .file-input {
-      position: absolute;
-      inset: 0;
-      opacity: 0;
-      cursor: pointer;
-    }
-
-    .preview-img {
-      max-width: 160px;
-      max-height: 160px;
-      border-radius: 8px;
-      object-fit: cover;
-      display: block;
-      margin: 0 auto;
-    }
-  }
-
-  .profile-image-actions {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
-    flex-wrap: wrap;
-  }
-
-  /* ── 서브 이미지 목록 ───────────────── */
-  .sub-image-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    gap: 0.75rem;
-    margin-bottom: 1rem;
-  }
-
-  .sub-image-item {
-    position: relative;
-    aspect-ratio: 1;
-    border-radius: 8px;
-    overflow: hidden;
-    border: 2px solid #e5e7eb;
-
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    .remove-btn {
-      position: absolute;
-      top: 0.25rem;
-      right: 0.25rem;
-      width: 24px;
-      height: 24px;
-      padding: 0;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1rem;
-      line-height: 1;
-    }
-  }
-
-  /* ── Video 행 ──────────────────────── */
-  .video-row {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
-    input { flex: 1; }
-  }
-
-  /* ── Career 행 ─────────────────────── */
-  .career-row {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
-    input { flex: 1; }
-    .career-date { flex: 0 0 120px; }
-  }
-
-  /* ── Repertoire ────────────────────── */
-  .rep-hint { font-size: 0.8rem; color: #888; margin: 0 0 0.5rem; }
-  .rep-section {
-    border: 1px solid #ddd;
+.rep-section {
+    border: 1px solid var(--color-green-200);
     padding: 0.6rem;
     margin-bottom: 0.75rem;
   }
-  .rep-section-head,
+
+.rep-section-head,
   .rep-row {
     display: flex;
     align-items: center;
@@ -1316,94 +971,10 @@
     margin-bottom: 0.5rem;
     input[type='text'] { flex: 1; min-width: 0; }
   }
-  .rep-row .rep-composer-input { flex: 0 0 160px; }
-  .rep-handle { cursor: grab; color: #888; user-select: none; padding: 0 0.25rem; }
-  .rep-featured { display: inline-flex; align-items: center; gap: 0.15rem; white-space: nowrap; cursor: pointer; }
 
-  /* ── Link 행 ───────────────────────── */
-  .link-row {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
-    select { flex: 0 0 130px; }
-    input { flex: 1; }
-  }
+.rep-row .rep-composer-input { flex: 0 0 160px; }
 
-  /* ── 콘서트 체크박스 ───────────────── */
-  .concert-list {
-    max-height: 200px;
-    overflow-y: auto;
-    padding: 0.5rem;
-    background: #f9fafb;
-    border-radius: 6px;
-    border: 1px solid #e5e7eb;
-  }
+.rep-handle { cursor: grab; color: var(--color-green-700); user-select: none; padding: 0 0.25rem; }
 
-  .search-row {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin: 0.35rem 0 0.4rem;
-    font-size: 0.85rem;
-    color: #666;
-  }
-
-  .inline-search-input {
-    max-width: 260px;
-    padding: 0.35rem 0.55rem;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    font-size: 0.82rem;
-    background: #fff;
-    color: #333;
-  }
-  .concert-check {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.3rem 0;
-    cursor: pointer;
-    color: #333;
-    input { cursor: pointer; }
-  }
-
-  .form-actions {
-    display: flex;
-    gap: 1rem;
-    margin-top: 1.5rem;
-    justify-content: flex-end;
-  }
-
-  /* ── 미디어 피커 ───────────────────── */
-  .media-picker { max-width: 800px; }
-  .media-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 0.75rem;
-    margin-bottom: 1rem;
-    max-height: 400px;
-    overflow-y: auto;
-  }
-  .media-item {
-    background: #f9fafb;
-    border: 2px solid #e5e7eb;
-    border-radius: 8px;
-    cursor: pointer;
-    padding: 0;
-    overflow: hidden;
-    transition: border-color 0.2s;
-    &:hover { border-color: #2563eb; }
-    img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
-    .media-name {
-      display: block;
-      padding: 0.3rem;
-      font-size: 0.7rem;
-      color: #888;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-  }
-
-  .empty { color: #999; text-align: center; padding: 1rem; }
+.rep-featured { display: inline-flex; align-items: center; gap: 0.15rem; white-space: nowrap; cursor: pointer; }
 </style>

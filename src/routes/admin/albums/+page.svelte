@@ -1,4 +1,7 @@
 <script>
+  import Button from '$lib/components/ui/Button.svelte';
+  import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
+  import SlidePanel from '$lib/components/ui/SlidePanel.svelte';
   import { PIANOLIFE_BACKEND_URL } from '$env/static/public';
   import { uploadMediaFile, fetchWithRetry } from '$lib/utils/uploadMedia.js';
 
@@ -278,7 +281,7 @@
       <a href="/admin" class="back-link">← Admin</a>
       <h1>앨범 관리</h1>
     </div>
-    <button class="btn-primary" onclick={openCreate}>+ 앨범 추가</button>
+    <Button onclick={openCreate}>+ 앨범 추가</Button>
   </header>
 
   <!-- ── 앨범 목록 ─────────────────────── -->
@@ -303,7 +306,7 @@
             <tr>
               <td>
                 {#if album.cover_thumb_url || album.cover_url}
-                  <img src={album.cover_thumb_url || album.cover_url} alt={album.title} class="thumb" loading="lazy" />
+                  <ResponsiveImage src={album.cover_thumb_url || album.cover_url} alt={album.title} class="thumb" loading="lazy" sizes="48px" />
                 {:else}
                   <div class="thumb-placeholder"></div>
                 {/if}
@@ -319,8 +322,8 @@
               </td>
               <td>
                 <div class="actions">
-                  <button class="btn-sm btn-edit" onclick={() => openEdit(album)}>편집</button>
-                  <button class="btn-sm btn-delete" onclick={() => deleteAlbum(album)}>삭제</button>
+                  <Button variant="secondary" class="sm" onclick={() => openEdit(album)}>편집</Button>
+                  <Button variant="secondary" class="sm danger" onclick={() => deleteAlbum(album)}>삭제</Button>
                 </div>
               </td>
             </tr>
@@ -331,25 +334,20 @@
   {/if}
 
   <!-- ── 편집 / 생성 폼 ──────────────────── -->
-  {#if showForm}
-    <div class="modal-overlay">
-      <div class="modal" role="none" onclick={(e) => e.stopPropagation()}>
-        <div class="modal-header-row">
-          <h2>{editing ? '앨범 편집' : '새 앨범'}</h2>
-          <div class="modal-header-actions">
-            <button class="btn-primary btn-save-top" onclick={saveAlbum} disabled={!form.title || saving}>
-              {saving ? '저장 중...' : (editing ? '수정' : '등록')}
-            </button>
-            <button class="modal-close" onclick={resetForm}>✕</button>
-          </div>
-        </div>
-
-        {#if saveError}
-          <p class="save-error">{saveError}</p>
-        {/if}
-
-        <!-- 기본 정보 -->
-        <div class="form-section">
+  <SlidePanel
+    open={showForm}
+    title={editing ? '앨범 편집' : '새 앨범'}
+    sections={[{ id: 'info', label: '기본 정보' }, { id: 'cover', label: '앨범아트' }, { id: 'tracks', label: '수록곡과 링크' }, { id: 'artists', label: '연결 아티스트' }]}
+    snapshot={() => [form, selectedCoverUrl]}
+    {saving}
+    error={saveError}
+    canSave={!(!form.title)}
+    saveLabel={editing ? '수정' : '등록'}
+    suspended={showMediaPicker}
+    onsave={saveAlbum}
+    onclose={resetForm}
+  >
+<div class="form-section" data-section="info">
           <h3>기본 정보</h3>
           <label>
             앨범명 *
@@ -366,7 +364,7 @@
         </div>
 
         <!-- 앨범아트 -->
-        <div class="form-section">
+        <div class="form-section" data-section="cover">
           <h3>앨범아트</h3>
           <!-- svelte-ignore a11y_no_static_element_interactions -->
           <div
@@ -379,7 +377,7 @@
           >
             <input type="file" accept="image/*" class="file-input" onchange={handleCoverFileSelect} />
             {#if selectedCoverUrl}
-              <img src={selectedCoverUrl} alt="cover preview" class="preview-img" />
+              <ResponsiveImage src={selectedCoverUrl} alt="cover preview" class="preview-img" sizes="160px" />
               {#if pendingCoverFile}
                 <p class="drop-hint pending-hint">저장 시 업로드됩니다</p>
               {/if}
@@ -388,13 +386,13 @@
               <p class="drop-hint">저장 버튼을 누를 때 업로드됩니다</p>
             {/if}
           </div>
-          <button type="button" class="btn-secondary" style="margin-top:0.5rem" onclick={openMediaPicker}>
+          <Button variant="secondary" type="button" style="margin-top:0.5rem" onclick={openMediaPicker}>
             미디어에서 선택
-          </button>
+          </Button>
         </div>
 
         <!-- 수록곡 목록 -->
-        <div class="form-section">
+        <div class="form-section" data-section="tracks">
           <h3>수록곡 목록</h3>
           {#each form.tracklist as track, i}
             <div class="track-row">
@@ -405,10 +403,10 @@
                 oninput={e => { form.tracklist[i] = e.target.value; form.tracklist = [...form.tracklist]; }}
                 placeholder="곡명"
               />
-              <button type="button" class="btn-sm btn-delete" onclick={() => removeTrack(i)}>×</button>
+              <Button variant="secondary" class="sm danger" type="button" onclick={() => removeTrack(i)}>×</Button>
             </div>
           {/each}
-          <button type="button" class="btn-secondary btn-sm" style="margin-top:0.5rem" onclick={addTrack}>+ 곡 추가</button>
+          <Button variant="secondary" class="sm" type="button" style="margin-top:0.5rem" onclick={addTrack}>+ 곡 추가</Button>
         </div>
 
         <!-- 링크 -->
@@ -422,14 +420,14 @@
                 {/each}
               </select>
               <input type="url" bind:value={link.value} placeholder="https://..." />
-              <button type="button" class="btn-sm btn-delete" onclick={() => removeLink(i)}>×</button>
+              <Button variant="secondary" class="sm danger" type="button" onclick={() => removeLink(i)}>×</Button>
             </div>
           {/each}
-          <button type="button" class="btn-secondary btn-sm" style="margin-top:0.5rem" onclick={addLink} disabled={availableLinkKeys.length === 0}>+ 링크 추가</button>
+          <Button variant="secondary" class="sm" type="button" style="margin-top:0.5rem" onclick={addLink} disabled={availableLinkKeys.length === 0}>+ 링크 추가</Button>
         </div>
 
         <!-- 연결 아티스트 -->
-        <div class="form-section">
+        <div class="form-section" data-section="artists">
           <h3>연결 아티스트</h3>
           {#if selectedArtists.length > 0}
             <div class="selected-artists">
@@ -467,16 +465,8 @@
             {/if}
           </div>
         </div>
-
-        <div class="form-actions">
-          <button class="btn-primary" onclick={saveAlbum} disabled={!form.title || saving}>
-            {saving ? '저장 중...' : (editing ? '수정' : '생성')}
-          </button>
-          <button class="btn-secondary" onclick={resetForm}>취소</button>
-        </div>
-      </div>
-    </div>
-  {/if}
+  </SlidePanel>
+  
 
   <!-- ── 미디어 피커 모달 ─────────────────── -->
   {#if showMediaPicker}
@@ -487,7 +477,7 @@
         <div class="media-grid">
           {#each mediaList as media}
             <button class="media-item" onclick={() => selectMedia(media)}>
-              <img src={media.thumb_url || media.url} alt={media.alt_text || media.original_filename} />
+              <ResponsiveImage src={media.thumb_url || media.url} alt={media.alt_text || media.original_filename} sizes="120px" />
               <span class="media-name">{media.original_filename}</span>
             </button>
           {/each}
@@ -495,358 +485,10 @@
             <p class="empty">업로드된 이미지가 없습니다.</p>
           {/if}
         </div>
-        <button class="btn-secondary" onclick={() => (showMediaPicker = false)}>닫기</button>
+        <Button variant="secondary" onclick={() => (showMediaPicker = false)}>닫기</Button>
       </div>
     </div>
   {/if}
 </div>
 
-<style lang="scss">
-  .page {
-    min-height: 100vh;
-    background: #ffffff;
-    color: #222;
-    padding: 2rem;
-  }
 
-  .page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-    }
-
-    .back-link {
-      color: #888;
-      text-decoration: none;
-      &:hover { color: #222; }
-    }
-
-    h1 { margin: 0; font-size: 1.5rem; color: #111; }
-  }
-
-  .loading { text-align: center; color: #999; padding: 3rem; }
-
-  /* ── 테이블 ─────────────────────────── */
-  .table-wrap { overflow-x: auto; }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    th, td {
-      padding: 0.75rem 1rem;
-      text-align: left;
-      vertical-align: middle;
-      border-bottom: 1px solid #eee;
-    }
-    th { color: #888; font-weight: 500; font-size: 0.85rem; }
-    tbody tr:hover { background: #f8f9fa; }
-  }
-
-  .thumb {
-    width: 60px; height: 60px;
-    border-radius: 6px;
-    object-fit: cover;
-  }
-  .thumb-placeholder {
-    width: 60px; height: 60px;
-    border-radius: 6px;
-    background: #eee;
-  }
-
-  .name-cell { font-weight: 600; color: #111; }
-
-  .badge {
-    padding: 0.2rem 0.6rem;
-    border-radius: 12px;
-    font-size: 0.8rem;
-    background: #eee;
-    color: #666;
-    &.active { background: #dcfce7; color: #166534; }
-  }
-
-  .actions { display: flex; gap: 0.5rem; align-items: center; }
-
-  /* ── 버튼 ──────────────────────────── */
-  .btn-primary {
-    padding: 0.6rem 1.2rem;
-    background: #2563eb;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    &:hover { background: #1d4ed8; }
-    &:disabled { opacity: 0.5; cursor: not-allowed; }
-  }
-  .btn-secondary {
-    padding: 0.6rem 1.2rem;
-    background: #f3f4f6;
-    color: #444;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    cursor: pointer;
-    &:hover { background: #e5e7eb; }
-  }
-  .btn-sm { padding: 0.3rem 0.7rem; font-size: 0.85rem; }
-  .btn-edit { background: #2563eb; color: #fff; border: none; border-radius: 4px; cursor: pointer; &:hover { background: #1d4ed8; } }
-  .btn-delete { background: #dc3545; color: #fff; border: none; border-radius: 4px; cursor: pointer; &:hover { background: #c82333; } }
-
-  /* ── 모달 ──────────────────────────── */
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.4);
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 2rem;
-    overflow-y: auto;
-    z-index: 1000;
-  }
-  .modal {
-    background: #fff;
-    border: 1px solid #e0e0e0;
-    border-radius: 12px;
-    padding: 2rem;
-    width: 100%;
-    max-width: 700px;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-    position: relative;
-
-    h2 { margin: 0; font-size: 1.3rem; color: #111; }
-  }
-
-  .modal-header-row {
-    position: sticky;
-    top: -2rem;
-    z-index: 2;
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 1rem;
-    margin: -2rem -2rem 1.5rem;
-    padding: 1.25rem 2rem 1rem;
-    background: #fff;
-    border-bottom: 1px solid #eee;
-  }
-  .modal-header-actions {
-    display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0;
-    .modal-close { position: static; }
-  }
-  .btn-save-top { flex-shrink: 0; padding: 0.45rem 1rem; font-size: 0.85rem; }
-
-  .save-error {
-    background: #fef2f2;
-    color: #b91c1c;
-    border: 1px solid #fecaca;
-    border-radius: 6px;
-    padding: 0.6rem 0.9rem;
-    margin: 0 0 1rem;
-    font-size: 0.85rem;
-    white-space: pre-wrap;
-  }
-
-  .modal-close {
-    position: absolute;
-    top: 0.75rem;
-    right: 0.75rem;
-    background: none;
-    border: none;
-    color: #888;
-    font-size: 1.4rem;
-    cursor: pointer;
-    z-index: 1;
-    &:hover { color: #222; }
-  }
-
-  .form-section {
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #eee;
-
-    h3 { margin: 0 0 0.75rem; font-size: 1rem; color: #666; }
-
-    label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-size: 0.9rem;
-      color: #444;
-    }
-
-    input[type="text"],
-    input[type="date"],
-    input[type="url"],
-    select,
-    textarea {
-      display: block;
-      width: 100%;
-      margin-top: 0.25rem;
-      padding: 0.5rem 0.75rem;
-      background: #fff;
-      border: 1px solid #d1d5db;
-      border-radius: 6px;
-      color: #222;
-      font-size: 0.9rem;
-      &:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
-    }
-  }
-
-  .checkbox-label {
-    display: flex !important;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-    input { width: auto; margin: 0; cursor: pointer; }
-  }
-
-  /* ── 드래그 앤 드롭 ────────────────── */
-  .drop-zone {
-    border: 2px dashed #d1d5db;
-    border-radius: 8px;
-    padding: 2rem;
-    text-align: center;
-    cursor: pointer;
-    position: relative;
-    transition: border-color 0.2s, background 0.2s;
-
-    &:hover, &.drag-over {
-      border-color: #2563eb;
-      background: #f0f4ff;
-    }
-
-    &.has-image { padding: 1rem; }
-
-    .drop-text { margin: 0; color: #888; }
-    .drop-hint { margin: 0.5rem 0 0; font-size: 0.8rem; color: #aaa; }
-    .pending-hint { color: #f59e0b; font-weight: 500; }
-
-    .file-input {
-      position: absolute;
-      inset: 0;
-      opacity: 0;
-      cursor: pointer;
-    }
-
-    .preview-img {
-      max-width: 200px;
-      max-height: 200px;
-      border-radius: 8px;
-      object-fit: contain;
-      display: block;
-      margin: 0 auto;
-    }
-  }
-
-  /* ── 수록곡 목록 ────────────────────── */
-  .track-row {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
-
-    .track-num { color: #999; font-size: 0.85rem; width: 1.5rem; text-align: right; flex-shrink: 0; }
-    input { flex: 1; margin-top: 0; }
-  }
-
-  .link-row {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
-
-    select {
-      flex-shrink: 0;
-      width: auto;
-      padding: 0.5rem 0.6rem;
-      background: #fff;
-      border: 1px solid #d1d5db;
-      border-radius: 6px;
-      color: #222;
-      font-size: 0.9rem;
-    }
-    input { flex: 1; margin-top: 0; }
-  }
-
-  .form-actions {
-    display: flex;
-    gap: 1rem;
-    margin-top: 1.5rem;
-    justify-content: flex-end;
-  }
-
-  /* ── 미디어 피커 ───────────────────── */
-  .media-picker { max-width: 800px; }
-  .media-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 0.75rem;
-    margin-bottom: 1rem;
-    max-height: 400px;
-    overflow-y: auto;
-  }
-  .media-item {
-    background: #f9fafb;
-    border: 2px solid #e5e7eb;
-    border-radius: 8px;
-    cursor: pointer;
-    padding: 0;
-    overflow: hidden;
-    transition: border-color 0.2s;
-    &:hover { border-color: #2563eb; }
-    img { width: 100%; aspect-ratio: 1/1; object-fit: cover; display: block; }
-    .media-name {
-      display: block;
-      padding: 0.3rem;
-      font-size: 0.7rem;
-      color: #888;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-  }
-
-  .empty { color: #999; text-align: center; padding: 1rem; }
-
-  /* ── 아티스트 선택 ─────────────────── */
-  .selected-artists {
-    display: flex; flex-wrap: wrap; gap: 0.4rem;
-    margin-bottom: 0.5rem;
-  }
-  .artist-tag {
-    display: inline-flex; align-items: center; gap: 0.3rem;
-    background: #e0edff; color: #1a5276;
-    padding: 0.25rem 0.5rem; border-radius: 20px;
-    font-size: 0.85rem;
-    small { color: #5b8fad; margin-left: 0.1rem; }
-  }
-  .tag-remove {
-    background: none; border: none; cursor: pointer;
-    font-size: 1rem; color: #888; padding: 0 0.15rem;
-    line-height: 1;
-    &:hover { color: #c0392b; }
-  }
-  .artist-search-wrap {
-    position: relative;
-    input { width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; }
-  }
-  .artist-dropdown {
-    position: absolute; top: 100%; left: 0; right: 0;
-    background: #fff; border: 1px solid #ddd; border-top: none;
-    border-radius: 0 0 6px 6px;
-    max-height: 180px; overflow-y: auto;
-    list-style: none; margin: 0; padding: 0;
-    z-index: 20; box-shadow: 0 4px 8px rgba(0,0,0,0.08);
-    li button {
-      display: block; width: 100%; text-align: left;
-      padding: 0.5rem 0.75rem; border: none; background: none;
-      cursor: pointer; font-size: 0.9rem;
-      small { color: #888; }
-      &:hover { background: #f0f4ff; }
-    }
-    .no-result { padding: 0.5rem 0.75rem; color: #999; font-size: 0.85rem; }
-  }
-</style>
