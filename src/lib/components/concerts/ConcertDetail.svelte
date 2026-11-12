@@ -2,6 +2,7 @@
     import { Calendar, Clock, DollarSign, MapPin, Watch } from "lucide-svelte";
     import HeroSection from "../common/HeroSection.svelte";
     import ArtistCard from "../artists/ArtistCard.svelte";
+    import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
 
     let { concert } = $props();
     let activeTab = $state('info');
@@ -104,9 +105,9 @@
     <section class="main-content-section">
         <div class="main-poster">
             {#if concert.poster_url}
-                <img class="main-poster-image" src={concert.poster_url} alt={concert.title}
-                    use:inView={{ threshold: 1.0 }}
-                />
+                <div class="main-poster-image" use:inView={{ threshold: 1.0 }}>
+                    <ResponsiveImage src={concert.poster_url} thumb={concert.poster_thumb_url} mid={concert.poster_mid_url} large={concert.poster_large_url} width={concert.poster_width} height={concert.poster_height} sizes="(max-width: 768px) 360px, 400px" alt={concert.title} />
+                </div>
             {:else}
                 <div class="poster-placeholder"></div>
             {/if}
@@ -260,7 +261,12 @@
 
             .main-poster-image {
                 width: 100%;
-                height: auto;
+
+                :global(img) {
+                    display: block;
+                    width: 100%;
+                    height: auto;
+                }
 
                 opacity: 0;
                 transform: translateY(16px);

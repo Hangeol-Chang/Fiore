@@ -1,4 +1,5 @@
 <script>
+    import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
     import ArtistCard from "$lib/components/artists/ArtistCard.svelte";
     import ArtistInlineDetail from "$lib/components/artists/ArtistInlineDetail.svelte";
     import { slide } from "svelte/transition";
@@ -203,9 +204,11 @@
 
 <div class="artist-detail-page">
     <!-- 이름 헤더 -->
-    <img
+    <ResponsiveImage
         class="hero-background-blured"
         src={artist.image_url}
+        thumb={artist.thumb_url} mid={artist.mid_url} large={artist.large_url} width={artist.width} height={artist.height}
+        sizes="240px"
         alt={artist.name}
         style="object-position: center {focusY}%;"
     />
@@ -217,9 +220,12 @@
 
     <section class="hero-section">
         <div class="artist-hero-image">
-            <img
+            <ResponsiveImage
                 class="hero-image"
                 src={artist.image_url}
+                thumb={artist.thumb_url} mid={artist.mid_url} large={artist.large_url} width={artist.width} height={artist.height}
+                sizes="(max-width: 700px) 100vw, 700px"
+                loading="eager"
                 alt={artist.name}
                 onload={(e) => extractGradientFromImg(e.currentTarget)}
                 style="--scroll-y: {scrollY}; object-position: center {focusY}%;"
@@ -237,8 +243,10 @@
         <!-- 좌: 이미지 (PC 고정) -->
         <aside class="left-sidebar" style="--bg-gradient: {gradientStyle}">
             <div class="sidebar-image" use:inView={{ threshold: 1.0 }}>
-                <img
-                    src={artist.mid_url}
+                <ResponsiveImage
+                    src={artist.image_url}
+                    thumb={artist.thumb_url} mid={artist.mid_url} large={artist.large_url} width={artist.width} height={artist.height}
+                    sizes="320px"
                     alt={artist.name}
                 />
                 <div class="hero-image-overlay"></div>
@@ -346,7 +354,7 @@
                         <a href="/concerts/{c.id}" class="concert-card">
                             <div class="concert-poster">
                                 {#if c.poster_url}
-                                    <img src={c.poster_url} alt={c.title} />
+                                    <ResponsiveImage src={c.poster_url} sizes="(max-width: 768px) 50vw, 240px" alt={c.title} />
                                 {:else}
                                     <div class="concert-poster-placeholder"></div>
                                 {/if}
@@ -442,7 +450,7 @@
         padding-top: 0;
     }
 
-    .hero-background-blured {
+    .artist-detail-page :global(.hero-background-blured) {
         position: absolute;
         top: 0; left: 50%;
         transform: translateX(-50%) scale(1.2);
@@ -498,7 +506,7 @@
             max-height: 1400px;
             aspect-ratio: 3/4;
 
-            .hero-image { 
+            :global(.hero-image) { 
                 position: absolute;
                 top: 50px; left: 50%;
                 transform: translateX(-50%) translateY(calc(var(--scroll-y) * 0.5px));
@@ -624,7 +632,7 @@
                 transform: translateY(0);
             }
 
-            img { 
+            :global(img) {
                 width: 100%; 
                 height: 100%; 
                 object-fit: cover; 
@@ -889,7 +897,7 @@
             overflow: hidden;
             background: #111;
 
-            img {
+            :global(img) {
                 width: 100%;
                 height: 100%;
                 object-fit: cover;

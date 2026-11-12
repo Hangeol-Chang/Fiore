@@ -3,6 +3,7 @@
     import { onMount, onDestroy } from 'svelte';
     import { PIANOLIFE_BACKEND_URL } from '$env/static/public';
     import MoreButton from '@/components/common/moreButton.svelte';
+    import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
 
     const API = PIANOLIFE_BACKEND_URL || 'http://localhost:8000';
 
@@ -136,13 +137,11 @@
                     <a href="/concerts/{concert.id}" class="concert-link">
                         <div class="concert-image">
                             {#if concert.poster_thumb_url || concert.poster_mid_url || concert.poster_url}
-                                <img
-                                    src={i === 1
-                                        ? (concert.poster_mid_url || concert.poster_thumb_url || concert.poster_url)
-                                        : (concert.poster_thumb_url || concert.poster_mid_url || concert.poster_url)}
+                                <ResponsiveImage
+                                    src={concert.poster_url}
+                                    thumb={concert.poster_thumb_url} mid={concert.poster_mid_url} large={concert.poster_large_url} width={concert.poster_width} height={concert.poster_height}
+                                    sizes={i === 1 ? '(max-width: 768px) 40vw, 450px' : '300px'}
                                     alt={concert.title}
-                                    loading="lazy"
-                                    decoding="async"
                                 />
                             {:else}
                                 <div class="poster-placeholder"></div>
@@ -321,9 +320,12 @@
         overflow: hidden;
         position: relative;
         
-        img {
+        :global(img) {
+            display: block;
             width: 100%;
+            aspect-ratio: 2 / 3;
             object-fit: cover;
+            object-position: center;
             transition: transform 0.5s ease;
         }
     }

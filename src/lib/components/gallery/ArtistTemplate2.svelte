@@ -1,5 +1,6 @@
 <!-- Template 2: Text + thumbnail column left, large main image right -->
 <script>
+    import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
     let { item, reversed = false } = $props();
 </script>
 
@@ -19,7 +20,7 @@
                 {#each item.thumbnails.slice(0, 3) as thumb}
                     <div class="thumb-item">
                         {#if thumb}
-                            <img src={thumb} alt="" />
+                            <ResponsiveImage src={thumb} sizes="160px" alt="" />
                         {:else}
                             <div class="placeholder"></div>
                         {/if}
@@ -31,7 +32,7 @@
         <!-- Right: large main image -->
         <div class="main-image">
             {#if item.mainImage}
-                <img src={item.mainImage} alt={item.title} loading="lazy" />
+                <ResponsiveImage src={item.mainImage} {...item.mainVariants} sizes="(max-width: 768px) 60vw, 500px" alt={item.title} />
             {:else}
                 <div class="placeholder"></div>
             {/if}
@@ -126,7 +127,7 @@
             aspect-ratio: 1;
         }
 
-        img {
+        :global(img) {
             width: 100%;
             height: 100%;
             object-fit: cover;
@@ -148,7 +149,7 @@
             flex: unset;
         }
 
-        img {
+        :global(img) {
             width: 100%;
             height: 100%;
             object-fit: cover;

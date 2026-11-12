@@ -112,3 +112,31 @@ test('상태: 네 종류가 서로 다르게 렌더링되고 알 수 없는 kind
 	assert.doesNotMatch(out.empty, /<svg/);
 	for (const k of ['success', 'warning', 'error']) assert.match(out[k], /<svg/);
 });
+
+test('ResponsiveImage: 변형이 모두 있으면 srcset에 240/600/1200/원본 너비가 들어간다', async () => {
+	const ResponsiveImage = await load('/src/lib/components/ui/ResponsiveImage.svelte');
+	const out = html(ResponsiveImage, {
+		src: 'o.jpg', thumb: 't.jpg', mid: 'm.jpg', large: 'l.jpg', width: 2000, height: 3000, sizes: '50vw', alt: '사진'
+	});
+	assert.match(out, /srcset="t\.jpg 240w, m\.jpg 600w, l\.jpg 1200w, o\.jpg 2000w"/);
+	assert.match(out, /sizes="50vw"/);
+	assert.match(out, /alt="사진"/);
+	assert.match(out, /width="2000"/);
+	assert.doesNotMatch(out, /resize/);
+});
+
+test('ResponsiveImage: null 변형은 빠지고, 모두 null이고 width도 모르면 srcset 없이 원본만', async () => {
+	const ResponsiveImage = await load('/src/lib/components/ui/ResponsiveImage.svelte');
+	const part = html(ResponsiveImage, { src: 'o.jpg', thumb: 't.jpg', mid: null, large: 'l.jpg', width: 800, alt: '' });
+	assert.match(part, /srcset="t\.jpg 240w, l\.jpg 1200w, o\.jpg 800w"/);
+	const none = html(ResponsiveImage, { src: 'o.jpg', alt: '' });
+	assert.doesNotMatch(none, /srcset/);
+	assert.match(none, /src="o\.jpg"/);
+});
+
+test('ResponsiveImage: width를 모르면 원본은 srcset에서 빠지고 src로만 쓰인다', async () => {
+	const ResponsiveImage = await load('/src/lib/components/ui/ResponsiveImage.svelte');
+	const out = html(ResponsiveImage, { src: 'o.jpg', thumb: 't.jpg', mid: 'm.jpg', width: null, alt: '' });
+	assert.match(out, /srcset="t\.jpg 240w, m\.jpg 600w"/);
+	assert.doesNotMatch(out, /o\.jpg \d+w/);
+});

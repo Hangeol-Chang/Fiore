@@ -1,5 +1,6 @@
 <!-- Template 0: Portrait left + vertical title right + horizontal thumbnail strip -->
 <script>
+    import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
     let { item, reversed = false } = $props();
 </script>
 
@@ -8,7 +9,7 @@
         <!-- Main portrait left -->
         <div class="main-image">
             {#if item.mainImage}
-                <img src={item.mainImage} alt={item.title} loading="lazy" />
+                <ResponsiveImage src={item.mainImage} {...item.mainVariants} sizes="(max-width: 768px) 60vw, 500px" alt={item.title} />
             {:else}
                 <div class="placeholder"></div>
             {/if}
@@ -29,7 +30,7 @@
         {#each item.thumbnails as thumb}
             <div class="thumb-item">
                 {#if thumb}
-                    <img src={thumb} alt="" />
+                    <ResponsiveImage src={thumb} sizes="160px" alt="" />
                 {:else}
                     <div class="placeholder"></div>
                 {/if}
@@ -59,7 +60,7 @@
         overflow: hidden;
         background: #e8e8e8;
 
-        img {
+        :global(img) {
             width: 100%;
             height: 100%;
             object-fit: cover;
@@ -124,7 +125,7 @@
             flex: 0 0 55vw;
         }
 
-        img {
+        :global(img) {
             width: 100%;
             height: 100%;
             object-fit: cover;

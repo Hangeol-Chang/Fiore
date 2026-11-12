@@ -1,35 +1,35 @@
 <script>
-    import { onMount } from 'svelte';
-    import { getSizedImage } from '@/utils/getSizedImage';
-    import { PIANOLIFE_BACKEND_URL } from '$env/static/public';
+	import { buildSrcset } from '../../utils/imageSrcset.js';
 
-    export let path;
-    export let name;
-    export let alt = '';
-    export let className = '';
-    export let style = '';
+	// alt는 필수(장식용이면 명시적 빈 문자열). sizes는 사용처가 자리 너비로 선언한다.
+	let {
+		src = '',
+		thumb = null,
+		mid = null,
+		large = null,
+		width = null,
+		height = null,
+		sizes = '100vw',
+		alt,
+		class: className = '',
+		loading = 'lazy',
+		...rest
+	} = $props();
 
-    let src = '';
-    
-    // Initial src for SSR/hydration
-    const baseName = name.substring(0, name.lastIndexOf('.'));
-    const ext = "webp";
-    // src = `${path}/resized/${baseName}_320.${ext}`;
-    // Update initial src to use backend URL
-    const backendUrl = PIANOLIFE_BACKEND_URL || '';
-    const staticPath = '/static';
-    src = `${backendUrl}${staticPath}${path}/resized/${baseName}_320.${ext}`;
-
-    onMount(() => {
-        const updateSrc = () => {
-            src = getSizedImage(path, name);
-        };
-        updateSrc();
-        window.addEventListener('resize', updateSrc);
-        return () => {
-            window.removeEventListener('resize', updateSrc);
-        };
-    });
+	const srcset = $derived(buildSrcset({ thumb, mid, large, src, width }));
+	// srcset을 못 쓰는 브라우저용 기본 주소: 너무 크지 않은 변형부터
+	const fallback = $derived(mid || large || thumb || src);
 </script>
 
-<img {src} {alt} class={className} {style} {...$$restProps} />
+<img
+	src={fallback}
+	srcset={srcset || undefined}
+	{sizes}
+	{alt}
+	width={width && height ? width : undefined}
+	height={width && height ? height : undefined}
+	class={className}
+	{loading}
+	decoding="async"
+	{...rest}
+/>

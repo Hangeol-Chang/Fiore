@@ -1,6 +1,7 @@
 <script>
     import { PIANOLIFE_BACKEND_URL } from '$env/static/public';
     import MoreButton from '@/components/common/moreButton.svelte';
+    import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
 
     const API = PIANOLIFE_BACKEND_URL || 'http://localhost:8000';
 
@@ -24,8 +25,8 @@
                 <a class="artist-card" href="/artists/{artist.id}">
                     <div class="profile-image" class:no-image={!artist.image_url}>
                         {#if artist.thumb_url || artist.mid_url || artist.image_url}
-                            <img src={artist.thumb_url || artist.mid_url || artist.image_url} alt={artist.name_en ?? artist.name}
-                                loading="lazy" decoding="async"
+                            <ResponsiveImage src={artist.image_url} thumb={artist.thumb_url} mid={artist.mid_url} large={artist.large_url} width={artist.width} height={artist.height}
+                                sizes="(max-width: 768px) 42vw, 20vw" alt={artist.name_en ?? artist.name}
                                 onerror={(e) => { e.currentTarget.style.display='none'; e.currentTarget.parentNode.classList.add('no-image'); }}/>
                         {/if}
                     </div>
@@ -99,7 +100,7 @@
             transition: all 0.3s ease; 
             cursor: pointer;
 
-            img { 
+            :global(img) { 
                 width: 100%;
                 height: 100%;
                 aspect-ratio: 3/4;

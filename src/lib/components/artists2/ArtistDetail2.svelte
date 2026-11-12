@@ -1,4 +1,5 @@
 <script>
+    import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
     import ArtistCard from "$lib/components/artists/ArtistCard.svelte";
     import ArtistInlineDetail from "$lib/components/artists/ArtistInlineDetail.svelte";
     import MoreButton from "@/components/common/moreButton.svelte";
@@ -319,8 +320,11 @@
     <!-- 히어로: 좌우 분할 – 텍스트와 이미지를 명확히 분리해 그라데이션 마스크 없이 구성 -->
     <section class="hero">
         <div class="hero-media">
-            <img
-                src={artist.mid_url || artist.image_url}
+            <ResponsiveImage
+                src={artist.image_url}
+                thumb={artist.thumb_url} mid={artist.mid_url} large={artist.large_url} width={artist.width} height={artist.height}
+                sizes="(max-width: 768px) 100vw, 680px"
+                loading="eager"
                 alt={artist.name}
                 onerror={hideBrokenImage}
                 style="object-position: center {focusY}%;"
@@ -482,7 +486,7 @@
                             {#each subImages as img}
                                 <div class="photo-slide">
                                     <div class="photo-wrap">
-                                        <img src={img.url} alt="{artist.name} 사진" loading="lazy" decoding="async" onerror={hideBrokenImage} />
+                                        <ResponsiveImage src={img.image_url ?? img.url} thumb={img.thumb_url} mid={img.mid_url} large={img.large_url} width={img.width} height={img.height} sizes="(max-width: 768px) 80vw, 900px" alt="{artist.name} 사진" onerror={hideBrokenImage} />
                                     </div>
                                 </div>
                             {/each}
@@ -560,7 +564,7 @@
                                     aria-current={offset === 0}
                                 >
                                     {#if album.cover_thumb_url || album.cover_url}
-                                        <img src={album.cover_mid_url || album.cover_url} alt={album.title} onerror={hideBrokenImage} />
+                                        <ResponsiveImage src={album.cover_url} thumb={album.cover_thumb_url} mid={album.cover_mid_url} large={album.cover_large_url} width={album.cover_width} height={album.cover_height} sizes="(max-width: 450px) 170px, 280px" alt={album.title} onerror={hideBrokenImage} />
                                     {:else}
                                         <div class="album-cover-placeholder"></div>
                                     {/if}
@@ -704,7 +708,7 @@
                         <a href="/concerts/{c.id}" class="concert-card">
                             <div class="concert-poster">
                                 {#if c.poster_url}
-                                    <img src={c.poster_url} alt={c.title} onerror={hideBrokenImage} />
+                                    <ResponsiveImage src={c.poster_url} sizes="(max-width: 768px) 50vw, 240px" alt={c.title} onerror={hideBrokenImage} />
                                 {:else}
                                     <div class="concert-poster-placeholder"></div>
                                 {/if}
@@ -822,7 +826,7 @@
             aspect-ratio: 18 / 9;
         }
 
-        img {
+        :global(img) {
             width: 100%;
             height: 100%;
             object-fit: cover;
@@ -1288,7 +1292,7 @@
         overflow: hidden;
         transition: padding-top 0.45s ease;
 
-        img {
+        :global(img) {
             position: absolute;
             inset: 0;
             width: 100%;
@@ -1309,7 +1313,7 @@
         }
     }
 
-    .carousel-viewport.dragging .photo-wrap img {
+    .carousel-viewport.dragging .photo-wrap :global(img) {
         pointer-events: none;
     }
 
@@ -1417,7 +1421,7 @@
             cursor: default;
         }
 
-        img {
+        :global(img) {
             width: 100%;
             height: 100%;
             object-fit: cover;
@@ -1559,7 +1563,7 @@
             overflow: hidden;
             background: #111;
 
-            img {
+            :global(img) {
                 width: 100%;
                 height: 100%;
                 object-fit: cover;

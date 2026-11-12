@@ -1,5 +1,6 @@
 <!-- Concours Template 1: Info left + 2-col thumb grid right -->
 <script>
+    import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
     let { item } = $props();
 </script>
 
@@ -17,7 +18,7 @@
             {#each item.thumbnails as thumb}
                 <div class="thumb-item">
                     {#if thumb}
-                        <img src={thumb} alt="" loading="lazy" />
+                        <ResponsiveImage src={thumb} sizes="160px" alt="" />
                     {:else}
                         <div class="placeholder"></div>
                     {/if}
@@ -85,7 +86,7 @@
         overflow: hidden;
         background: #e8e8e8;
 
-        img {
+        :global(img) {
             width: 100%;
             height: 100%;
             object-fit: cover;

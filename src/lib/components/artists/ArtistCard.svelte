@@ -1,4 +1,5 @@
 <script>
+    import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
     let { artist } = $props();
 </script>
 
@@ -6,7 +7,7 @@
 <a href="/artists/{artist.id}" class="artist-card">
     <div class="card-image-wrapper">
         {#if artist.thumb_url || artist.mid_url || artist.image_url}
-            <img src={artist.thumb_url || artist.mid_url || artist.image_url} alt={artist.name} class="card-image" loading="lazy" decoding="async" />
+            <ResponsiveImage src={artist.image_url} thumb={artist.thumb_url} mid={artist.mid_url} large={artist.large_url} width={artist.width} height={artist.height} sizes="(max-width: 768px) 50vw, 25vw" alt={artist.name} class="card-image" />
         {:else}
             <div class="card-image-placeholder"></div>
         {/if}
@@ -23,7 +24,7 @@
 <div class="artist-card no-link">
     <div class="card-image-wrapper">
         {#if artist.thumb_url || artist.mid_url || artist.image_url}
-            <img src={artist.thumb_url || artist.mid_url || artist.image_url} alt={artist.name} class="card-image" loading="lazy" decoding="async" />
+            <ResponsiveImage src={artist.image_url} thumb={artist.thumb_url} mid={artist.mid_url} large={artist.large_url} width={artist.width} height={artist.height} sizes="(max-width: 768px) 50vw, 25vw" alt={artist.name} class="card-image" />
         {:else}
             <div class="card-image-placeholder"></div>
         {/if}
@@ -51,7 +52,7 @@
     }
 
     &:not(.no-link):hover {
-        .card-image {
+        :global(.card-image) {
             transform: scale(1.05);
         }
         .card-overlay {
@@ -73,7 +74,7 @@
     inset: 0;
 }
 
-.card-image {
+.card-image-wrapper :global(.card-image) {
     width: 100%;
     height: 100%;
     object-fit: cover;

@@ -1,5 +1,6 @@
 <script>
     import { Clock, MapPin, Calendar } from 'lucide-svelte';
+    import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
     let { concert } = $props();
     let imageLoaded = $state(false);
 
@@ -42,11 +43,11 @@
             <a href="/concerts/{concert.id}">
                 <div class="poster-shell" class:is-loaded={imageLoaded}>
                     <div class="poster-placeholder"></div>
-                    <img
-                        src={posterSrc}
+                    <ResponsiveImage
+                        src={concert.poster_url}
+                        thumb={concert.poster_thumb_url} mid={concert.poster_mid_url} large={concert.poster_large_url} width={concert.poster_width} height={concert.poster_height}
+                        sizes="160px"
                         alt={concert.title}
-                        loading="lazy"
-                        decoding="async"
                         onload={() => { imageLoaded = true; }}
                     />
                 </div>
@@ -140,7 +141,7 @@ a {
             transition: opacity 0.25s ease;
         }
 
-        img {
+        :global(img) {
             position: relative;
             width: 100%;
             height: 100%;
@@ -160,7 +161,7 @@ a {
                 opacity: 0;
             }
 
-            img {
+            :global(img) {
                 opacity: 1;
             }
         }

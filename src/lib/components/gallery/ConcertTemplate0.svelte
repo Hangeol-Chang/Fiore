@@ -1,5 +1,6 @@
 <!-- Concert Template 0: sticky info col + sticky-stacked image col -->
 <script>
+    import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
     let { item, reversed = false } = $props();
 </script>
 
@@ -17,7 +18,7 @@
             {#each item.thumbnails as thumb, i}
                 <div class="thumb-item" style:z-index={i + 1}>
                     {#if thumb}
-                        <img src={thumb} alt="" loading="lazy" />
+                        <ResponsiveImage src={thumb} sizes="160px" alt="" />
                     {:else}
                         <div class="placeholder"></div>
                     {/if}
@@ -113,7 +114,7 @@
         background: #e8e8e8;
         box-shadow: 0 -3px 12px rgba(0, 0, 0, 0.12);
 
-        img {
+        :global(img) {
             width: 100%;
             height: 100%;
             object-fit: cover;

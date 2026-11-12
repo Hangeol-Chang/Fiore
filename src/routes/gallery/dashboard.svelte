@@ -1,6 +1,7 @@
 <script>
     import { onMount, onDestroy } from 'svelte';
     import { PIANOLIFE_BACKEND_URL } from '$env/static/public';
+    import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
 
     const API = PIANOLIFE_BACKEND_URL || 'http://localhost:8000';
     const PAGE_SIZE = 3;   // 한 페이지에 보여줄 이미지 수
@@ -105,7 +106,7 @@
                                     class="gallery-item {idx === 0 ? 'large' : ''}"
                                     aria-label={img.title || '갤러리 이미지'}
                                 >
-                                    <img src={img.image_url} alt={img.title || ''} loading="lazy" />
+                                    <ResponsiveImage src={img.image_url} thumb={img.thumb_url} mid={img.mid_url} large={img.large_url} width={img.width} height={img.height} sizes={idx === 0 ? '(max-width: 768px) 100vw, 800px' : '(max-width: 768px) 100vw, 400px'} alt={img.title || ''} />
                                     {#if img.title}
                                         <span class="img-title">{img.title}</span>
                                     {/if}
@@ -203,10 +204,10 @@
         text-decoration: none;
         cursor: pointer;
 
-        &:hover img { transform: scale(1.04); }
+        &:hover :global(img) { transform: scale(1.04); }
         &:hover .img-title { opacity: 1; }
 
-        img {
+        :global(img) {
             width: 100%;
             height: 100%;
             object-fit: cover;

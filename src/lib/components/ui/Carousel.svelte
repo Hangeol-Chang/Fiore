@@ -39,20 +39,11 @@
         <div class="carousel-track" style="transform: translateX(calc(-1 * {nowIndex} * (var(--image-width) + var(--image-gap))));">
             {#each imageList as image, i}
                 <div class="carousel-item" class:active={i === nowIndex}>
-                    <!-- Assuming image object has path and name, or is just a string path? 
-                         Looking at usage in React code: imageList={carouselItems} where carouselItems is mapped from thumbnails.
-                         Let's assume image is an object { path, name } or similar.
-                         Wait, in React code: `const posterImageList = mediaInfos.map(info => info.src);`
-                         It seems it might be just a path string or object.
-                         Let's handle object {path, name} as per ResponsiveImage.
-                    -->
-                    {#if typeof image === 'object' && image.path && image.name}
-                        <ResponsiveImage path={image.path} name={image.name} alt="carousel-image-{i}" />
+                    {#if image && typeof image === 'object' && image.src}
+                        <ResponsiveImage {...image} alt={image.alt ?? `carousel-image-${i}`} />
                     {:else if typeof image === 'string'}
-                         <img src={image} alt="carousel-image-{i}" />
+                         <ResponsiveImage src={image} alt="carousel-image-{i}" />
                     {:else}
-                        <!-- Fallback or custom component passed as slot? React code was complex. -->
-                        <!-- For now, let's assume it's compatible with ResponsiveImage props -->
                         <div class="placeholder">Image {i}</div>
                     {/if}
                 </div>
@@ -106,7 +97,7 @@
             z-index: 10;
         }
 
-        img, :global(img) {
+        :global(img) {
             width: 100%;
             height: auto;
             border-radius: 8px;

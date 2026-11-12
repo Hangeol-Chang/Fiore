@@ -1,4 +1,5 @@
 <script>
+	import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
 	let { artist } = $props();
 
 	const careerItems = $derived.by(() => {
@@ -31,7 +32,7 @@
 	<div class="inline-header">
 		{#if displayImage}
 			<div class="inline-image-wrap">
-				<img src={displayImage} alt={artist.name} class="inline-image" />
+				<ResponsiveImage src={artist.image_url} thumb={artist.thumb_url} mid={artist.mid_url} large={artist.large_url} width={artist.width} height={artist.height} sizes="(max-width: 768px) 100vw, 400px" alt={artist.name} class="inline-image" />
 			</div>
 		{/if}
 
@@ -140,7 +141,7 @@
 		background: #111;
 	}
 
-	.inline-image {
+	.inline-image-wrap :global(.inline-image) {
 		width: 100%;
 		height: 100%;
 		object-fit: cover;

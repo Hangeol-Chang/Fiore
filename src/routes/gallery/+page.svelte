@@ -26,6 +26,7 @@
             title:      a.name,
             subTitle:   a.name_en ?? '',
             mainImage:  a.image_url || '',
+            mainVariants: { thumb: a.thumb_url, mid: a.mid_url, large: a.large_url, width: a.width, height: a.height },
             thumbnails: (a.image_list ?? []).map(img => img.url).filter(Boolean),
         };
     }
