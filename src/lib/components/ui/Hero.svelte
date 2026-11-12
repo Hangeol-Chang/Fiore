@@ -5,6 +5,23 @@
 	import bg from '$lib/assets/images/home/main_bg.png';
 </script>
 
+<!-- 음각 효과: 위·왼쪽 안쪽 가장자리에 회색 띠 (렌더 폭 ~480px 기준 2px ≈ 1.5 단위) -->
+<svg width="0" height="0" aria-hidden="true" style="position:absolute">
+	<filter id="hero-engrave" x="-5%" y="-5%" width="110%" height="110%">
+		<feOffset in="SourceAlpha" dx="2" dy="2" result="shifted" />
+		<feComposite in="SourceAlpha" in2="shifted" operator="out" result="edge" />
+		<feGaussianBlur in="edge" stdDeviation="1.6" result="soft" />
+		<feFlood flood-color="#8a8a8a" result="gray" />
+		<feComposite in="gray" in2="soft" operator="in" result="blurred" />
+		<!-- 번진 띠가 글자 밖으로 새지 않게 원래 모양 안으로 자름 -->
+		<feComposite in="blurred" in2="SourceAlpha" operator="in" result="band" />
+		<feMerge>
+			<feMergeNode in="SourceGraphic" />
+			<feMergeNode in="band" />
+		</feMerge>
+	</filter>
+</svg>
+
 <section class="hero">
 	<img src={bg} alt="" fetchpriority="high" />
 	<h1 class="logo" aria-label="Fiore">
@@ -38,6 +55,10 @@
 		aspect-ratio: 369.87 / 323.06;
 		margin: 0;
 		color: #fff; /* 전역 h1 색이 상속을 덮어씀 */
+		opacity: 0.9; /* 배경 질감이 비치게 */
+	}
+	.logo > :global(svg) {
+		filter: url(#hero-engrave);
 	}
 	.logo :global(svg) {
 		position: absolute;
