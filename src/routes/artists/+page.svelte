@@ -2,7 +2,6 @@
     import StatusMessage from '$lib/components/ui/StatusMessage.svelte';
     import { PIANOLIFE_BACKEND_URL } from "$env/static/public";
     import ArtistCard from "@/components/artists/ArtistCard.svelte";
-    import artistImage from "@/assets/images/white.png";
     import NavSection from "@/components/common/NavSection.svelte";
 
     const API = PIANOLIFE_BACKEND_URL || "http://localhost:8000";
@@ -47,7 +46,6 @@
     <NavSection
         title="Artists"
         subtitle="오늘의 신예, 내일의 거장"
-        image={artistImage}
     />
 
     <section class="artists-section">

@@ -9,6 +9,7 @@
 	import LetterR from '$lib/components/logo/LetterR.svelte';
 	import LetterE from '$lib/components/logo/LetterE.svelte';
 
+	import ShowcaseSample from './ShowcaseSample.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
 	import TextField from '$lib/components/ui/TextField.svelte';
 	import StatusMessage from '$lib/components/ui/StatusMessage.svelte';
@@ -80,6 +81,7 @@
 			</div>
 		{/key}
 	</section>
+	<ShowcaseSample />
 </main>
 
 <style>

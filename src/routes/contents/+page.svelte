@@ -42,13 +42,9 @@
 <div>
     <NavSection
         title="Contents"
-        image={subData[activeFilter].image}
         {filters}
         {activeFilter}
         onFilter={(f) => { activeFilter = f; }}
-        heroTitle={subData[activeFilter].title}
-        heroSubtitle={subData[activeFilter].subtitle}
-        scrollAction={false}
     />
 
     <section class="contents-section">

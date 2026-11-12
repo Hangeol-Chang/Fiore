@@ -1,7 +1,7 @@
 <script>
+    import { ChevronLeft, ChevronRight } from 'lucide-svelte';
     import StatusMessage from '$lib/components/ui/StatusMessage.svelte';
-    import { flip } from 'svelte/animate';
-    import { onMount, onDestroy } from 'svelte';
+    import { onMount } from 'svelte';
     import { PIANOLIFE_BACKEND_URL } from '$env/static/public';
     import MoreButton from '@/components/common/moreButton.svelte';
     import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
@@ -43,57 +43,22 @@
             })
     );
 
-    // 캐러셀용: 마지막 아이템을 앞에 배치 (왼쪽 버퍼)
-    let concerts = $state([]);
+    // ── 캐러셀: 한 번에 한 공연, 화살표/점/자동 넘김 ─────
+    const AUTO_MS = 5000;
+    let index = $state(0);
+    let paused = $state(false);
+    const count = $derived(upcomingConcerts.length);
+    const current = $derived(upcomingConcerts[index] ?? null);
+
+    const go = (i) => { index = count ? (i + count) % count : 0; };
+
+    // index가 바뀔 때마다 타이머를 새로 걸어 수동 조작 후 다시 5초를 센다
     $effect(() => {
-        const list = upcomingConcerts;
-        if (list.length === 0) { concerts = []; return; }
-
-        // 5개 미만이면 반복해서 최소 5개 확보 (flip key 충돌 방지를 위해 _key 부여)
-        let padded = list.map((c, i) => ({ ...c, _key: `${c.id}_0_${i}` }));
-        let cycle = 1;
-        while (padded.length < 5) {
-            padded = [...padded, ...list.map((c, i) => ({ ...c, _key: `${c.id}_${cycle}_${i}` }))];
-            cycle++;
-        }
-
-        concerts = [padded[padded.length - 1], ...padded.slice(0, padded.length - 1)];
+        index;
+        if (paused || count < 2) return;
+        const t = setTimeout(() => go(index + 1), AUTO_MS);
+        return () => clearTimeout(t);
     });
-
-    let intervalId;
-    let progressIntervalId;
-    let progress = $state(0);
-    const SCROLL_DURATION = 5000;
-
-    function rotateNext() {
-        if (!concerts.length) return;
-        concerts = [...concerts.slice(1), concerts[0]];
-    }
-    function rotatePrev() {
-        if (!concerts.length) return;
-        concerts = [concerts[concerts.length - 1], ...concerts.slice(0, -1)];
-    }
-
-    function startAutoRotation() {
-        clearInterval(intervalId);
-        clearInterval(progressIntervalId);
-        let startTime = Date.now();
-        progress = 0;
-        intervalId = setInterval(() => {
-            rotateNext();
-            startTime = Date.now();
-            progress = 0;
-        }, SCROLL_DURATION);
-        progressIntervalId = setInterval(() => {
-            progress = Math.min(((Date.now() - startTime) / SCROLL_DURATION) * 100, 100);
-        }, 20);
-    }
-
-    function stopAutoRotation() {
-        clearInterval(intervalId);
-        clearInterval(progressIntervalId);
-        progress = 0;
-    }
 
     onMount(async () => {
         try {
@@ -105,234 +70,201 @@
         } finally {
             loading = false;
         }
-        startAutoRotation();
     });
-    onDestroy(() => { stopAutoRotation(); });
 </script>
 
 <section>
     <h1 class="section-title-center">Concerts</h1>
-    <MoreButton href="/concerts" />    
+    <MoreButton href="/concerts" />
 
-    <!-- Desktop Grid View -->
-    <div class="grid-wrapper">
+    <div class="show-wrapper">
         {#if loading}
-            <div class="skeleton-row">
-                {#each { length: 3 } as _}
-                    <div class="card-skeleton"></div>
-                {/each}
-            </div>
-        {:else if concerts.length === 0}
+            <div class="card-skeleton"></div>
+        {:else if !current}
             <StatusMessage kind="empty" message="예정된 공연이 없습니다." />
         {:else}
-        <div class="concerts-grid-container" 
-            role="region" aria-label="Concert Carousel"
-        >
-            {#each concerts.slice(0, 5) as concert, i (concert._key)} 
-                <div 
-                    class="concert-item-grid" 
-                    class:main-poster={i === 1}
-                    class:buffer-item={i === 0 || i === 4}
-                    animate:flip={{duration: 500}}
-                >
-                    <a href="/concerts/{concert.id}" class="concert-link">
-                        <div class="concert-image">
-                            {#if concert.poster_thumb_url || concert.poster_mid_url || concert.poster_url}
-                                <ResponsiveImage
-                                    src={concert.poster_url}
-                                    thumb={concert.poster_thumb_url} mid={concert.poster_mid_url} large={concert.poster_large_url} width={concert.poster_width} height={concert.poster_height}
-                                    sizes={i === 1 ? '(max-width: 768px) 40vw, 450px' : '300px'}
-                                    alt={concert.title}
-                                />
-                            {:else}
-                                <div class="poster-placeholder"></div>
-                            {/if}
-                            <!-- Overlay for non-active items -->
-                            {#if i !== 1}
-                            <button
-                                class="inactive-overlay"
-                                aria-label="다음 공연 보기"
-                                onclick={(e) => {
-                                    e.preventDefault();
-                                    rotateNext();
-                                    startAutoRotation();
-                                }}
-                            ></button>
-                            {/if}
-                        </div>
-                    </a>
-                    
-                    {#if i === 1}
-                        <div class="progress-bar-container">
-                            <div class="progress-bar" style="width: {progress}%;"></div>
-                        </div>
-                    {/if}
-
-                    <div class="concert-info">
-                        <h3>{concert.title}</h3>
+            <div
+                class="carousel"
+                role="region"
+                aria-roledescription="carousel"
+                aria-label="Concert Carousel"
+                onmouseenter={() => (paused = true)}
+                onmouseleave={() => (paused = false)}
+                onfocusin={() => (paused = true)}
+                onfocusout={() => (paused = false)}
+            >
+                <div class="viewport">
+                    <div class="track" style="transform: translateX(-{index * 100}%)">
+                        {#each upcomingConcerts as c, i (c.id)}
+                            <div class="slide" aria-hidden={i !== index} inert={i !== index}>
+                                <div class="concert-show">
+                                    <a class="poster" href="/concerts/{c.id}" aria-label={c.title}>
+                                        {#if c.poster_thumb_url || c.poster_mid_url || c.poster_url}
+                                            <ResponsiveImage
+                                                src={c.poster_url}
+                                                thumb={c.poster_thumb_url} mid={c.poster_mid_url} large={c.poster_large_url}
+                                                width={c.poster_width} height={c.poster_height}
+                                                sizes="(max-width: 768px) 80vw, 360px"
+                                                alt={c.title}
+                                            />
+                                        {:else}
+                                            <div class="poster-placeholder"></div>
+                                        {/if}
+                                    </a>
+                                    <div class="info">
+                                        <p class="idx">{String(i + 1).padStart(2, '0')} / {String(count).padStart(2, '0')}</p>
+                                        <h3>{c.title}</h3>
+                                        <p class="date">{c.date}</p>
+                                        {#if c.location}<p class="loc">{c.location}</p>{/if}
+                                        <a class="view-detail" href="/concerts/{c.id}">view detail +</a>
+                                    </div>
+                                </div>
+                            </div>
+                        {/each}
                     </div>
                 </div>
-            {/each}
-        </div>
+
+                {#if count > 1}
+                    <div class="controls">
+                        <button class="arrow" onclick={() => go(index - 1)} aria-label="이전 공연">
+                            <ChevronLeft size={22} />
+                        </button>
+                        <div class="dots">
+                            {#each upcomingConcerts as c, i (c.id)}
+                                <button class:on={i === index} onclick={() => go(i)} aria-label="{i + 1}번째 공연" aria-current={i === index}></button>
+                            {/each}
+                        </div>
+                        <button class="arrow" onclick={() => go(index + 1)} aria-label="다음 공연">
+                            <ChevronRight size={22} />
+                        </button>
+                    </div>
+                {/if}
+            </div>
         {/if}
     </div>
-
 </section>
 
 <style lang="scss">
-    .grid-wrapper {
-        max-width: 1280px;
-        margin: 3rem auto 0 auto;
-        overflow: hidden;
+    .show-wrapper {
+        max-width: var(--content-max);
+        margin: 3rem auto 0;
+        padding: 0 5vw;
     }
 
-    .concerts-grid-container {
+    .viewport { overflow: hidden; }
+
+    .track {
+        display: flex;
+        transition: transform var(--dur-slow) ease;
+    }
+
+    .slide { flex: 0 0 100%; min-width: 0; }
+
+    .concert-show {
         display: grid;
-        width: calc(100% + 600px + 4rem);
-        margin-left: calc(-300px - 2rem);
-        
-        grid-template-columns: 300px 2fr 1.5fr 1.5fr 300px; 
+        grid-template-columns: minmax(200px, 360px) 1fr;
+        gap: var(--space-5);
         align-items: start;
-        
+
         @media (--tablet) {
-            grid-template-columns: 300px 2fr 1.5fr 300px 0px;
+            grid-template-columns: 1fr;
+            gap: var(--space-4);
         }
     }
 
-    .concert-item-grid {
-        width: 100%;
+    .poster {
+        display: block;
+
+        :global(img),
+        .poster-placeholder {
+            display: block;
+            width: 100%;
+            aspect-ratio: 3 / 4;
+            object-fit: cover;
+            background: var(--color-green-100);
+        }
+
+        @media (--tablet) {
+            max-width: 360px;
+            margin: 0 auto;
+            width: 100%;
+        }
+    }
+
+    .info {
         display: flex;
         flex-direction: column;
-        transition: all 0.5s ease;
-        position: relative;
-        padding: 2rem;
 
-        @media (--tablet) {
-            padding: 1rem;
-        }
+        p { margin: 0 0 var(--space-1); }
 
-        &.buffer-item {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .concert-image {
-            width: 100%;
-            height: auto;
-            transition: all 0.5s ease;
-            cursor: pointer;
-            transform-origin: top center;
-
-        }
-        
         h3 {
-            font-size: 1rem;
-            opacity: 0.6;
-            transition: all 0.5s ease;
-            text-align: center;
+            font-weight: 100;
+            font-size: clamp(28px, 4vw, 48px);
+            line-height: 1.15;
+            margin: var(--space-2) 0;
+            text-align: left;
         }
 
-        &.main-poster {
-            .concert-image {
-                opacity: 1;
-                cursor: default;
-            }
-            
-            h3 {
-                font-size: 1.4rem;
-                opacity: 1;
-                font-weight: 500;
-            }
-        }
+        .idx { font-size: 13px; letter-spacing: 0.2em; color: var(--color-green-500); }
+        .date { font-size: 20px; font-weight: 200; }
+        .loc { color: var(--color-placeholder); }
     }
 
-    .progress-bar-container {
-        width: 100%;
-        height: 2px;
-        background-color: var(--color-green-100);
-        margin-top: 1rem;
-        margin-bottom: 1rem;
-        border-radius: var(--radius);
-        overflow: hidden;
+    .view-detail {
+        align-self: flex-end;
+        margin-top: var(--space-3);
+        font-size: 0.85rem;
+        font-weight: 300;
+        letter-spacing: 0.1em;
+        text-transform: lowercase;
+        color: var(--color-green-700);
+        text-decoration: none;
     }
 
-    .progress-bar {
-        height: 100%;
-        background-color: var(--color-green-800);
-        width: 0%;
-        transition: width 0.05s linear;
-    }
-
-    .inactive-overlay {
-        position: absolute;
-        top: 0; left: 0; width: 100%; height: 100%;
-        z-index: 10;
-        background: none;
-        border: none;
-        padding: 0;
-        cursor: pointer;
-    }
-
-    .poster-placeholder {
-        width: 100%;
-        aspect-ratio: 2/3;
-        background: var(--color-green-100);
-    }
-
-    .skeleton-row {
+    .controls {
         display: flex;
-        gap: 2rem;
+        align-items: center;
         justify-content: center;
-        padding: 2rem;
+        gap: var(--space-3);
+        margin-top: var(--space-5);
+    }
+
+    .arrow {
+        display: grid;
+        place-items: center;
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        border: 0;
+        background: none;
+        color: var(--color-green-700);
+        cursor: pointer;
+
+        &:hover { color: var(--color-green-500); }
+    }
+
+    .dots {
+        display: flex;
+        gap: var(--space-2);
+
+        button {
+            width: 8px;
+            height: 8px;
+            padding: 0;
+            border: 0;
+            border-radius: 50%;
+            background: var(--color-green-200);
+            cursor: pointer;
+            transition: background var(--dur-fast);
+
+            &.on { background: var(--color-green-500); }
+        }
     }
 
     .card-skeleton {
-        flex: 0 0 220px;
-        aspect-ratio: 2/3;
-        background: var(--color-green-100);
-        animation: shimmer 1.4s infinite;
-    }
-
-    @keyframes shimmer {
-        50% { opacity: 0.5; }
-    }
-
-    .empty-message {
-        text-align: center;
-        color: var(--color-green-600);
-        font-size: 0.9rem;
-        font-weight: 300;
-        padding: 4rem 0;
-    }
-
-    .concert-link {
-        display: block;
-        text-decoration: none;
-        color: inherit;
-    }
-
-    .concert-image {
         width: 100%;
-        background-color: var(--color-green-100);
-        overflow: hidden;
-        position: relative;
-        
-        :global(img) {
-            display: block;
-            width: 100%;
-            aspect-ratio: 2 / 3;
-            object-fit: cover;
-            object-position: center;
-            transition: transform 0.5s ease;
-        }
-    }
-
-    .concert-info {
-        h3 {
-            color: var(--color-on-surface);
-            margin: 0;
-            line-height: 1.4;
-            text-align: left;
-        }
+        max-width: 360px;
+        aspect-ratio: 3 / 4;
+        background: var(--color-green-100);
     }
 </style>

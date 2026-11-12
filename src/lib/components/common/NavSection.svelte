@@ -1,5 +1,6 @@
 <script>
     import HeroSection from './HeroSection.svelte';
+    import LogoDivider from '$lib/components/ui/LogoDivider.svelte';
 
     let {
         title = '',
@@ -28,6 +29,9 @@
 <section class="nav-section" class:has-image={image}>
     <h1>{title}</h1>
     <h3>{subtitle}</h3>
+    {#if !image}
+        <LogoDivider />
+    {/if}
 
     {#if filters.length > 0}
         <nav class="filter-nav">
@@ -58,6 +62,12 @@
 </section>
 
 <style lang="scss">
+    .nav-section:not(.has-image) {
+        min-height: 560px;
+        padding-top: 9rem;
+        padding-bottom: 3rem;
+    }
+
     .nav-section {
         position: relative;
         width: 100%;

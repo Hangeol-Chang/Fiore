@@ -3,7 +3,12 @@
 	import LogoLine from '$lib/components/logo/LogoLine.svelte';
 	import LogoText from '$lib/components/logo/LogoText.svelte';
 	import bg from '$lib/assets/images/home/main_bg.png';
+
+	let scrolled = $state(false);
+	const next = () => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
 </script>
+
+<svelte:window onscroll={() => (scrolled = window.scrollY > 40)} />
 
 <!-- 음각 효과: 위·왼쪽 안쪽 가장자리에 회색 띠 (렌더 폭 ~480px 기준 2px ≈ 1.5 단위) -->
 <svg width="0" height="0" aria-hidden="true" style="position:absolute">
@@ -29,6 +34,9 @@
 		<LogoLine class="draw" />
 		<LogoText class="draw" />
 	</h1>
+	<button class="scroll-cue" class:hidden={scrolled} onclick={next} aria-label="아래로 스크롤">
+		<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
+	</button>
 </section>
 
 <style>
@@ -66,5 +74,28 @@
 		inset: 0;
 		width: 100%;
 		height: 100%;
+	}
+	.scroll-cue {
+		position: absolute;
+		bottom: var(--space-5);
+		left: 50%;
+		translate: -50% 0;
+		display: grid;
+		place-items: center;
+		width: 48px;
+		height: 48px;
+		padding: 0;
+		border: 0;
+		background: none;
+		color: #fff;
+		cursor: pointer;
+		opacity: 0;
+		animation: cue-in var(--dur-slow) ease calc(var(--dur-slow) * 5.3) forwards, cue-bob 3s ease-in-out calc(var(--dur-slow) * 6.3) infinite;
+	}
+	.scroll-cue.hidden { visibility: hidden; opacity: 0; animation: none; }
+	@keyframes cue-in { to { opacity: 1; } }
+	@keyframes cue-bob {
+		0%, 100% { transform: translateY(0); }
+		50% { transform: translateY(10px); }
 	}
 </style>

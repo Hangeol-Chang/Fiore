@@ -114,10 +114,6 @@
 <div>   
     <NavSection
         title="Concerts"
-        image={heroImage}
-        bgAnchor="center center"
-        aspectRatio="16/9"
-        scrollAction={true}
     />
 
     <section class="description-section">
