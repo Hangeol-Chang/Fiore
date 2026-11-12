@@ -86,6 +86,7 @@
       aria-valuenow={focusY}
       tabindex="0"
     >
+      <!-- 예외: 원본 비율 그대로 보며 focus 지점을 찍는 도구라 srcset 변형을 쓰지 않음 -->
       <img src={imageUrl} alt="" onload={handleImgLoad} draggable="false" />
 
       {#if displayHeight > 0}

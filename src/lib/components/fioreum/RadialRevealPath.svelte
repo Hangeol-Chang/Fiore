@@ -22,6 +22,7 @@
 </script>
 
 <defs>
+    <!-- 예외: 장식이 아니라 공개 애니메이션의 마스크 동작 부품 -->
     <radialGradient id={uid} gradientUnits="userSpaceOnUse" cx="295" cy="275" r="350">
         <stop offset="{$progress}" stop-color={fill} />
         <stop offset="{$progress}" stop-color="transparent" stop-opacity="0" />

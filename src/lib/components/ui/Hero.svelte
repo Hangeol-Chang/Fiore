@@ -23,6 +23,7 @@
 </svg>
 
 <section class="hero">
+	<!-- 예외: LCP 이미지라 fetchpriority 직접 지정, 정적 import 자산 -->
 	<img src={bg} alt="" fetchpriority="high" />
 	<h1 class="logo" aria-label="Fiore">
 		<LogoLine class="draw" />

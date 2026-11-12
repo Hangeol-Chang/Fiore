@@ -2,67 +2,10 @@
 
 // Pretendard font is loaded via CDN in +layout.svelte
 
-// 캘리그래피용 글씨체
-@font-face {
-    font-family: 'Cafe24Lovingu';
-    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/2405-3@1.1/Cafe24Lovingu.woff2') format('woff2');
-    font-weight: normal;
-    font-style: normal;
-}
-
-@font-face {
-    font-family: 'LeferiPoint-SpecialItalicA';
-    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2201-2@1.0/LeferiPoint-SpecialItalicA.woff') format('woff');
-    font-weight: normal;
-    font-style: normal;
-}
-
 @font-face {
     font-family: 'YesMyungjo';
     src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_13@1.0/YESMyoungjo-Regular.woff') format('woff');
     font-weight: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'KccImKwonTaek';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2202@1.0/KCCImkwontaek.woff') format('woff');
-    font-weight: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'MuseumCulturalFoundationClassic';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_twelve@1.0/국립박물관문화재단클래식L.woff') format('woff');
-    font-weight: 300;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'MuseumCulturalFoundationClassic';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_twelve@1.0/국립박물관문화재단클래식M.woff') format('woff');
-    font-weight: 500;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'MuseumCulturalFoundationClassic';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_twelve@1.0/국립박물관문화재단클래식B.woff') format('woff');
-    font-weight: 700;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'GounBatang';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/GowunBatang-Regular.woff') format('woff');
-    font-weight: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'GounBatang';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/GowunBatang-Bold.woff') format('woff');
-    font-weight: 700;
     font-display: swap;
 }
 
@@ -78,25 +21,6 @@ optgroup,
 select,
 textarea {
     font-family: inherit;
-}
-
-@media (prefers-color-scheme: dark) {
-    :root {
-        --foreground-rgb: 255, 255, 255;
-        --background-start-rgb: 0, 0, 0;
-        --background-end-rgb: 0, 0, 0;
-
-        --primary-glow: radial-gradient(rgba(1, 65, 255, 0.4), rgba(1, 65, 255, 0));
-        --secondary-glow: linear-gradient(
-        to bottom right,
-        rgba(1, 65, 255, 0),
-        rgba(1, 65, 255, 0),
-        rgba(1, 65, 255, 0.3)
-        );
-
-        --tile-start-rgb: 2, 13, 46;
-        --tile-end-rgb: 2, 5, 19;
-    }
 }
 
 * {
@@ -161,12 +85,12 @@ div { font-size: 18px; }
 
 h1, h2, h3, h4, h5, h6{
     font-weight: 600;
-    color: $black1;
+    color: var(--color-on-surface);
     margin: 12px clamp(0px, 5vw, 38.4px);
 }
 p {
     font-weight: 300;
-    color: $black2;
+    color: var(--color-on-surface);
     margin: 12px clamp(0px, 5vw, 38.4px);
     line-height: 2.0;
 }
@@ -183,7 +107,7 @@ li {
 hr {
     border: 0;
     height: 1px;
-    background: $gray1;
+    background: var(--color-green-200);
     margin: 3px clamp(0px, 5vw, 38.4px) 8px clamp(0px, 5vw, 38.4px);
 }
 
@@ -211,7 +135,7 @@ section {
     text-align: center;
     letter-spacing: 0.05em;
     margin-top: 0.5rem;
-    color: $gray3;
+    color: var(--color-placeholder);
 }
 
 .section-title-left {
@@ -225,7 +149,7 @@ section {
     text-align: left;
     letter-spacing: 0.05em;
     margin-top: 0.5rem;
-    color: $gray3;
+    color: var(--color-placeholder);
 }
 
 // 소제목 + 밑줄 (예: 신청 페이지 섹션 타이틀)
@@ -263,7 +187,6 @@ bold {
     border: 1px solid rgba(0, 0, 0, 0.08);
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.85);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -272,11 +195,10 @@ bold {
     line-height: 1;
     color: #444;
     cursor: pointer;
-    transition: background 0.2s, opacity 0.2s, box-shadow 0.2s;
+    transition: background 0.2s, opacity 0.2s;
 
     &:hover:not(:disabled) {
         background: #fff;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.14);
     }
 
     &:disabled {
