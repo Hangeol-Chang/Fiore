@@ -1,4 +1,5 @@
 <script>
+    import StatusMessage from '$lib/components/ui/StatusMessage.svelte';
     import { PIANOLIFE_BACKEND_URL } from "$env/static/public";
     import ArtistCard from "@/components/artists/ArtistCard.svelte";
     import artistImage from "@/assets/images/white.png";
@@ -74,7 +75,7 @@
             {:else if error}
                 <p class="error-message">{error}</p>
             {:else if artists.length === 0}
-                <p class="empty-message">등록된 아티스트가 없습니다.</p>
+                <StatusMessage kind="empty" message="등록된 아티스트가 없습니다." />
             {:else}
                 {#each artists as artist (artist.id)}
                     <ArtistCard {artist} />

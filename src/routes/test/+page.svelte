@@ -60,6 +60,26 @@
 		<StatusMessage kind="error" message="전송에 실패했습니다. 잠시 후 다시 시도해 주세요." />
 		<StatusMessage kind="empty" message="등록된 항목이 없습니다. 새 항목을 추가해 주세요." />
 	</section>
+	<section class="motif">
+		<h2>3.6 모티프 후보 샘플</h2>
+
+		<h3>A. 구분선 — 가운데에 로고 라인</h3>
+		<div class="m-divider"><span></span><LogoLine class="m-mark" /><span></span></div>
+
+		<h3>B. 이미지 테두리 — 모서리에 로고 라인 (사진 위, 일부만 보임)</h3>
+		<div class="m-frame">
+			<div class="m-photo"></div>
+			<LogoLine class="m-corner" />
+		</div>
+
+		<h3>C. 빈 상태 일러스트 — 그려지는 로고 라인 + 문구</h3>
+		{#key run}
+			<div class="m-empty">
+				<LogoLine class="draw m-empty-mark" />
+				<p>아직 등록된 항목이 없어요</p>
+			</div>
+		{/key}
+	</section>
 </main>
 
 <style>
@@ -91,4 +111,16 @@
 		width: 160px;
 		outline: 1px dashed #ccc;
 	}
+
+	.motif { margin-top: 48px; color: var(--color-green-500); }
+	.motif h3 { font-size: 14px; margin: 24px 0 8px; color: #333; }
+	.m-divider { display: flex; align-items: center; gap: 16px; max-width: 600px; }
+	.m-divider span { flex: 1; height: 1px; background: var(--color-green-300); }
+	.m-divider :global(.m-mark) { width: 36px; }
+	.m-frame { position: relative; width: 280px; height: 200px; overflow: hidden; border: 1px solid var(--color-green-300); }
+	.m-photo { position: absolute; inset: 0; background: var(--color-green-100); }
+	.m-frame :global(.m-corner) { position: absolute; left: -28px; bottom: -28px; width: 120px; color: var(--color-green-500); opacity: 0.55; }
+	.m-empty { display: grid; justify-items: center; gap: 12px; width: 320px; padding: 32px; border: 1px dashed var(--color-green-300); }
+	.m-empty :global(.m-empty-mark) { width: 96px; }
+	.m-empty p { margin: 0; color: var(--color-placeholder); }
 </style>

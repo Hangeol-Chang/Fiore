@@ -1,6 +1,6 @@
+// 운영 결정: OS의 모션 줄이기 설정과 무관하게 애니메이션을 항상 재생한다 (NFR1과 다름)
 export function prefersReducedMotion() {
-	if (typeof window === 'undefined' || !window.matchMedia) return false;
-	return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+	return false;
 }
 
 // :root의 시간 토큰(예: --loader-delay)을 ms로. SSR/실패 시 fallback

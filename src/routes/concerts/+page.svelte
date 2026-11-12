@@ -1,4 +1,5 @@
 <script>
+    import StatusMessage from '$lib/components/ui/StatusMessage.svelte';
     import { PIANOLIFE_BACKEND_URL } from "$env/static/public";
     import concertHeroFallback from "@/assets/images/white.png";
     import ConcertCard from "@/components/concerts/ConcertCard.svelte";
@@ -183,7 +184,7 @@
                     <div class="card-skeleton"></div>
                 {/each}
             {:else if upcomingConcerts.length === 0}
-                <p class="empty-message">예정된 공연이 없습니다.</p>
+                <StatusMessage kind="empty" message="예정된 공연이 없습니다." />
             {:else}
                 {#each upcomingConcerts as concert (concert.id)}
                     <ConcertCard {concert} />

@@ -1,10 +1,13 @@
 <script>
+	import LogoLine from '$lib/components/logo/LogoLine.svelte';
 	let { kind = 'empty', message = '', class: className = '' } = $props();
 	const k = $derived(['success', 'warning', 'error'].includes(kind) ? kind : 'empty');
 </script>
 
 <div class="status {k} {className}" role={k === 'error' ? 'alert' : 'status'}>
-	{#if k !== 'empty'}
+	{#if k === 'empty'}
+		<LogoLine class="empty-mark" aria-hidden="true" />
+	{:else}
 		<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 			{#if k === 'success'}
 				<path d="M4 10.5l4 4 8-9" />
@@ -34,5 +37,6 @@
 	.success { background: var(--color-green-100); }
 	.warning { border: 3px solid var(--color-green-500); }
 	.error { border: 6px double var(--color-green-700); }
-	.empty { color: var(--color-green-700); }
+	.empty { flex-direction: column; align-items: center; text-align: center; color: var(--color-green-700); }
+	.empty :global(.empty-mark) { width: 72px; color: var(--color-green-500); }
 </style>

@@ -1,14 +1,14 @@
 <script>
     import { PIANOLIFE_BACKEND_URL } from '$env/static/public';
     import MoreButton from '@/components/common/moreButton.svelte';
-    import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
+    import ArtistCard from '@/components/artists/ArtistCard.svelte';
 
     const API = PIANOLIFE_BACKEND_URL || 'http://localhost:8000';
 
     let artists = $state([]);
 
     $effect(() => {
-        fetch(`${API}/api/artists?active_only=true&role_id=1&limit=10`)
+        fetch(`${API}/api/artists/summary?active_only=true&role_id=1&limit=10`)
             .then(res => res.json())
             .then(data => { artists = data; })
             .catch(e => console.error('Failed to load artists:', e));
@@ -21,20 +21,8 @@
         <MoreButton href="/artists" />
         
         <div class="artists-grid">
-            {#each artists as artist}
-                <a class="artist-card" href="/artists/{artist.id}">
-                    <div class="profile-image" class:no-image={!artist.image_url}>
-                        {#if artist.thumb_url || artist.mid_url || artist.image_url}
-                            <ResponsiveImage src={artist.image_url} thumb={artist.thumb_url} mid={artist.mid_url} large={artist.large_url} width={artist.width} height={artist.height}
-                                sizes="(max-width: 768px) 42vw, 20vw" alt={artist.name_en ?? artist.name}
-                                onerror={(e) => { e.currentTarget.style.display='none'; e.currentTarget.parentNode.classList.add('no-image'); }}/>
-                        {/if}
-                    </div>
-                    <div class="artist-info">
-                        <div class="name-en">{artist.name_en ?? ''}</div>
-                        <div class="name-ko">{artist.name}</div>
-                    </div>
-                </a>
+            {#each artists as artist (artist.id)}
+                <div class="card-slot"><ArtistCard {artist} /></div>
             {/each}
         </div>
     </div>
@@ -72,13 +60,7 @@
         }
     }
 
-    .artist-card {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-decoration: none;
-        color: inherit;
-        
+    .card-slot {
         flex: 0 0 40%;
 
         @media (--mobile) {
@@ -86,50 +68,7 @@
         }
 
         @media (min-width: 769px) {
-            align-items: flex-start;
             flex: 0 0 20%;
-        }
-
-        .profile-image {
-            width: 100%;
-            margin-bottom: 1rem;
-            border-radius: var(--radius);
-            position: relative;
-            background-color: var(--color-green-100);
-            overflow: hidden;
-            transition: all 0.3s ease; 
-            cursor: pointer;
-
-            :global(img) { 
-                width: 100%;
-                height: 100%;
-                aspect-ratio: 3/4;
-                object-fit: cover; 
-            }
-            &:hover { 
-                transform: scale(1.05); 
-            }
-        }
-
-        .artist-info {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            width: 100%;
-
-            .name-en { 
-                font-size: 1rem; 
-                font-weight: 200; 
-                color: var(--color-green-700);
-                margin-bottom: 0.1rem; 
-                text-transform: uppercase;
-                letter-spacing: 0.05em;
-            }
-            .name-ko { 
-                font-size: 1.2rem; 
-                font-weight: 400; 
-                color: var(--color-on-surface);
-            }
         }
     }
 </style>

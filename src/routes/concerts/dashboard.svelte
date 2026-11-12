@@ -1,4 +1,5 @@
 <script>
+    import StatusMessage from '$lib/components/ui/StatusMessage.svelte';
     import { flip } from 'svelte/animate';
     import { onMount, onDestroy } from 'svelte';
     import { PIANOLIFE_BACKEND_URL } from '$env/static/public';
@@ -122,7 +123,7 @@
                 {/each}
             </div>
         {:else if concerts.length === 0}
-            <p class="empty-message">예정된 공연이 없습니다.</p>
+            <StatusMessage kind="empty" message="예정된 공연이 없습니다." />
         {:else}
         <div class="concerts-grid-container" 
             role="region" aria-label="Concert Carousel"

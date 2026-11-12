@@ -1,5 +1,6 @@
 <script>
     import Hero from '@/components/ui/Hero.svelte';
+    import LogoDivider from '$lib/components/ui/LogoDivider.svelte';
     import { reveal } from '$lib/actions/reveal.js';
     import Vision from '@/components/about/Vision.svelte';
     import ArtistsDashboard from '$routes/artists/dashboard.svelte';
@@ -10,9 +11,9 @@
 <div class="home-page">
     <Hero />
     <div use:reveal><ArtistsDashboard /></div>
-    <div use:reveal><Vision /></div>
-    <div use:reveal><ConcertsDashboard /></div>
-    <div use:reveal><GalleryDashboard /></div>
+    <div use:reveal><LogoDivider /><Vision /></div>
+    <div use:reveal><LogoDivider /><ConcertsDashboard /></div>
+    <div use:reveal><LogoDivider /><GalleryDashboard /></div>
 </div>
 
 <style lang="scss">

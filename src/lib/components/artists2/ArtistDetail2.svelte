@@ -1,5 +1,6 @@
 <script>
     import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
+    import LogoCorner from '$lib/components/ui/LogoCorner.svelte';
     import ArtistCard from "$lib/components/artists/ArtistCard.svelte";
     import ArtistInlineDetail from "$lib/components/artists/ArtistInlineDetail.svelte";
     import MoreButton from "@/components/common/moreButton.svelte";
@@ -487,6 +488,7 @@
                                 <div class="photo-slide">
                                     <div class="photo-wrap">
                                         <ResponsiveImage src={img.image_url ?? img.url} thumb={img.thumb_url} mid={img.mid_url} large={img.large_url} width={img.width} height={img.height} sizes="(max-width: 768px) 80vw, 900px" alt="{artist.name} 사진" onerror={hideBrokenImage} />
+                                        <LogoCorner />
                                     </div>
                                 </div>
                             {/each}
