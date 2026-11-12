@@ -2,6 +2,7 @@
     import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
     import { onMount } from 'svelte';
     import { page } from '$app/stores';
+    import { hasTopHero } from '$lib/utils/heroPage.js';
     import { fade, fly } from 'svelte/transition';
     
     // 로고 이미지 import
@@ -95,7 +96,7 @@
     });
 </script>
 
-<div class="header-container" class:on-hero={$page.url.pathname === '/'} class:scrolled={isScrolled} class:nav-hovered={isNavHovered}>
+<div class="header-container" class:on-hero={hasTopHero($page.url.pathname)} class:scrolled={isScrolled} class:nav-hovered={isNavHovered}>
     <div class="progress-container">
         <div class="progress-bar" style="width: {scrollProgress}%"></div>
     </div>

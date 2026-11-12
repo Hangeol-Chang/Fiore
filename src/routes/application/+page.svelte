@@ -51,21 +51,33 @@
         onFilter={(f) => { activeFilter = f; }}
     />
 
-    <section class="auditions-section">
-        {#if loading}
+    {#if loading}
+
+        <section class="auditions-section">
             {#each { length: 2 } as _}
                 <div class="card-skeleton"></div>
             {/each}
-        {:else if error}
-            <StatusMessage kind="error" message="오류가 발생했습니다: {error}" />
-        {:else if activeAuditions.length === 0}
-            <StatusMessage kind="empty" message="현재 모집 중인 오디션이 없습니다." />
-        {:else}
+
+        </section>
+
+    {:else if error}
+
+        <div class="state-box"><StatusMessage kind="error" message="오류가 발생했습니다: {error}" /></div>
+
+    {:else if activeAuditions.length === 0}
+
+        <div class="state-box"><StatusMessage kind="empty" message="현재 모집 중인 오디션이 없습니다." /></div>
+
+    {:else}
+
+        <section class="auditions-section">
             {#each activeAuditions as audition (audition.id)}
                 <AuditionCard {audition} />
             {/each}
-        {/if}
-    </section>
+
+        </section>
+
+    {/if}
 </div>
 
 <style lang="scss">
@@ -98,11 +110,11 @@
         50% { opacity: 0.5; }
     }
 
-    .empty-message {
-        color: var(--color-green-600);
-        font-size: 0.9rem;
-        font-weight: 300;
-        padding: 3rem 0;
-        text-align: center;
+    .state-box {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        min-height: 60vh;
     }
 </style>

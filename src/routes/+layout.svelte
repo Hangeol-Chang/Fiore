@@ -13,6 +13,7 @@
 	import Header from '@/components/layout/header.svelte';
 	import Footer from '@/components/layout/footer.svelte';
 	import { page } from '$app/stores';
+	import { hasTopHero } from '$lib/utils/heroPage.js';
 	import favicon from '$lib/assets/favicon.svg';
 
 	let { children } = $props();
@@ -27,7 +28,7 @@
 
 <Loader active={!!navigating.to} overlay />
 <Header />
-<div class="content" class:home={$page.url.pathname === '/'}>
+<div class="content" class:home={hasTopHero($page.url.pathname)}>
 	{@render children()}
 </div>
 <Footer />
