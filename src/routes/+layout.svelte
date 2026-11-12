@@ -6,6 +6,7 @@
 	inject({ mode: dev ? 'development' : 'production' });
 	injectSpeedInsights();
 
+	import '@/styles/tokens.css';
 	import '@/styles/globals.scss';
 	import Header from '@/components/layout/header.svelte';
 	import Footer from '@/components/layout/footer.svelte';
@@ -16,7 +17,7 @@
 
 <svelte:head>
 	<title>Fiore</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<link rel="icon" type="image/x-icon" href={favicon}>
 	<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
 </svelte:head>
