@@ -45,6 +45,7 @@
 <div>
     <NavSection
         title="Artists"
+        bg
         subtitle="오늘의 신예, 내일의 거장"
     />
 
@@ -86,7 +87,7 @@
 <style lang="scss">
     .artists-section {
         display: grid;
-        grid-template-columns: minmax(200px, 1fr) 3fr;
+        grid-template-columns: 320px minmax(0, 1fr); /* 설명 폭 고정 */
         gap: 3rem;
         padding: 4rem 2rem 4rem 0;
 
@@ -104,8 +105,7 @@
     }
 
     .description-wrapper {
-        position: sticky;
-        top: 100px;
+        align-self: start;
 
         h2 {
             font-size: 1.8rem;

@@ -42,6 +42,7 @@
 <div>
     <NavSection
         title="Contents"
+        bg
         {filters}
         {activeFilter}
         onFilter={(f) => { activeFilter = f; }}
@@ -86,7 +87,7 @@
 <style lang="scss">
     .contents-section {
         display: grid;
-        grid-template-columns: minmax(200px, 1fr) 3fr;
+        grid-template-columns: 320px minmax(0, 1fr); /* 설명 폭 고정 */
         gap: 3rem;
         padding: 4rem 2rem 4rem 0;
 
@@ -99,14 +100,7 @@
     }
 
     .description-wrapper {
-        position: sticky;
-        top: 100px;
         align-self: start;
-
-        @media(--tablet) {
-            position: static;
-            top: auto;
-        }
 
         .section-title {
             font-size: 1.8rem;

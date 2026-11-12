@@ -1,5 +1,6 @@
 <script>
     import HeroSection from './HeroSection.svelte';
+    import bgImage from '$lib/assets/images/home/main_bg.png';
     import LogoDivider from '$lib/components/ui/LogoDivider.svelte';
 
     let {
@@ -11,6 +12,8 @@
         onFilter = () => {},
         /** @type {string|null} 배경 이미지 경로 (없으면 compact 모드) */
         image = null,
+        /** main_bg.png 배경 + 흰 글자·음각 효과 (이미지 없는 모드에서만) */
+        bg = false,
         maxHeight = '700px',
         imageMaxWidth = '1400px',
         aspectRatio = '16/9',
@@ -26,11 +29,35 @@
     } = $props();
 </script>
 
-<section class="nav-section" class:has-image={image}>
+{#if bg && !image}
+    <!-- 음각: 위·왼쪽 안쪽 가장자리를 회색으로 번지게 (홈 Hero와 같은 방식). 글자는 1px, 56px 마크는 1px ≈ 6.6 단위 -->
+    <svg width="0" height="0" aria-hidden="true" style="position:absolute">
+        <filter id="nav-engrave" x="-5%" y="-5%" width="110%" height="110%">
+            <feOffset in="SourceAlpha" dx="1" dy="1" result="shifted" />
+            <feComposite in="SourceAlpha" in2="shifted" operator="out" result="edge" />
+            <feGaussianBlur in="edge" stdDeviation="0.8" result="soft" />
+            <feFlood flood-color="#8a8a8a" result="gray" />
+            <feComposite in="gray" in2="soft" operator="in" result="blurred" />
+            <feComposite in="blurred" in2="SourceAlpha" operator="in" result="band" />
+            <feMerge><feMergeNode in="SourceGraphic" /><feMergeNode in="band" /></feMerge>
+        </filter>
+        <filter id="nav-engrave-mark" x="-5%" y="-5%" width="110%" height="110%">
+            <feOffset in="SourceAlpha" dx="7" dy="7" result="shifted" />
+            <feComposite in="SourceAlpha" in2="shifted" operator="out" result="edge" />
+            <feGaussianBlur in="edge" stdDeviation="5" result="soft" />
+            <feFlood flood-color="#8a8a8a" result="gray" />
+            <feComposite in="gray" in2="soft" operator="in" result="blurred" />
+            <feComposite in="blurred" in2="SourceAlpha" operator="in" result="band" />
+            <feMerge><feMergeNode in="SourceGraphic" /><feMergeNode in="band" /></feMerge>
+        </filter>
+    </svg>
+{/if}
+
+<section class="nav-section" class:has-image={image} class:bg={bg && !image} style:background-image={bg && !image ? `url(${bgImage})` : null}>
     <h1>{title}</h1>
     <h3>{subtitle}</h3>
     {#if !image}
-        <LogoDivider />
+        <LogoDivider light={bg} />
     {/if}
 
     {#if filters.length > 0}
@@ -66,6 +93,25 @@
         min-height: 560px;
         padding-top: 9rem;
         padding-bottom: 3rem;
+    }
+
+    .nav-section.bg {
+        background-size: cover;
+        background-position: center;
+        background-color: var(--color-green-500);
+        color: #fff;
+
+        h1, h3 {
+            color: #fff;
+            opacity: 0.9;
+            filter: url(#nav-engrave);
+        }
+
+        /* 초록 배경 위라 필터 메뉴도 흰색, 활성은 굵기+밑줄로 구분 */
+        .filter-nav { border-bottom: 0; margin-top: var(--space-5); }
+        .filter-btn,
+        .filter-btn:hover,
+        .filter-btn.active { color: #fff; }
     }
 
     .nav-section {

@@ -114,6 +114,7 @@
 <div>   
     <NavSection
         title="Concerts"
+        bg
     />
 
     <section class="description-section">

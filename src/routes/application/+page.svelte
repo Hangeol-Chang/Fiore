@@ -43,7 +43,8 @@
 
 <div>
     <NavSection 
-        title="Application" 
+        title="Application"
+        bg
         description="Apply to be a part of Fiore's team!" 
         {filters}
         {activeFilter}

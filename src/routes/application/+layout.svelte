@@ -14,6 +14,7 @@
 
 <NavSection
     title="Application"
+    bg
     {filters}
     {activeFilter}
     onFilter={(f) => goto(`/application/${f}`)}
