@@ -1,4 +1,5 @@
 <script>
+    import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
     import { onMount } from 'svelte';
     import fioreum_wallpaper from '$lib/assets/images/fioreum/fioreum_wallpaper.jpg';
     import FlowerLine from '@/components/fioreum/Flower.svelte';
@@ -100,22 +101,14 @@
         <div class="scroll-blocker"></div>
     {/if}
     <div class="hero-container">
-        <img src={fioreum_wallpaper} alt="Fioreum Wallpaper" class="hero-image"/>
+        <ResponsiveImage src={fioreum_wallpaper} sizes="100vw" alt="Fioreum Wallpaper" class="hero-image" />
         <div class="hero-overlay"></div>
         <h1 class="hero-title">FIOREUM</h1>
     </div>
 
     <div class="line-container">
         <svg class="line" width="100px" height="1200px">
-            <defs>
-                <linearGradient id="gradient" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="1200">
-                    <stop offset="0%"   stop-color="#FFF"/>
-                    <stop offset="20%" stop-color="#000" />
-                    <stop offset="80%" stop-color="#000" />
-                    <stop offset="95%" stop-color="#EEE"/>
-                </linearGradient>
-            </defs>
-            <path d="M50 0 L50 1200" stroke="url(#gradient)" stroke-width="2" fill="none"/>
+            <path d="M50 0 L50 1200" style="stroke: var(--color-green-700)" stroke-width="2" fill="none"/>
         </svg>
         <div class="flower">
             <div class="flower-inner">
@@ -171,7 +164,7 @@
 
     .address-text {
         font-size: 0.95rem;
-        color: #555;
+        color: var(--color-on-surface);
         letter-spacing: 0.02em;
     }
 
@@ -189,7 +182,7 @@
 
         &:hover {
             background: #03c75a;
-            color: #fff;
+            color: var(--color-on-primary);
         }
     }
 
@@ -200,7 +193,7 @@
         overflow: hidden;
     }
     
-    .hero-image {
+    :global(.hero-image) {
         width: 100%;
         height: 100%;
         object-fit: cover;
@@ -213,11 +206,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: linear-gradient(to bottom, 
-            rgba(0, 0, 0, 0.5) 50%, 
-            rgba(0, 0, 0, 0.8) 90%,
-            rgba(0, 0, 0, 1) 95%
-        );
+        background: rgba(0, 0, 0, 0.5);
     }
 
     .hero-title {
@@ -225,7 +214,7 @@
         top: 30%;
         left: 50%;
         transform: translateX(-50%);
-        color: white;
+        color: var(--color-on-primary);
         text-align: center;
         margin: auto;
         

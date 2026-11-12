@@ -19,7 +19,7 @@
         a, button {
             font-size: 0.85rem;
             font-weight: 300;
-            color: #333;
+            color: var(--color-on-surface);
             text-decoration: none;
             background: none;
             border: none;

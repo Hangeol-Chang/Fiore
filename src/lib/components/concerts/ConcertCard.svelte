@@ -98,18 +98,18 @@
 .concert-card {
     display: flex;
     flex-direction: row;
-    border: 0.5px solid rgba(0, 0, 0, 0.15);
-    background: #fff;
+    border: 0.5px solid var(--color-green-200);
+    background: var(--color-surface);
     transition: background-color 0.2s;
 
     height: 250px;
 
     &:last-child {
-        border-bottom: 0.5px solid rgba(0, 0, 0, 0.15);
+        border-bottom: 0.5px solid var(--color-green-200);
     }
 
     &:hover {
-        background-color: #f2f2f2;
+        background-color: var(--color-green-100);
     }
 }
 
@@ -121,7 +121,7 @@ a {
 .card-poster {
     flex: 0 0 160px;
     overflow: hidden;
-    background: #f0f0f0;
+    background: var(--color-green-100);
 
     .poster-shell {
         position: relative;
@@ -134,8 +134,7 @@ a {
             width: 100%;
             height: 100%;
             min-height: 160px;
-            background: linear-gradient(90deg, #f4f4f4 25%, #e9e9e9 50%, #f4f4f4 75%);
-            background-size: 200% 100%;
+            background: var(--color-green-100);
             animation: posterShimmer 1.4s infinite;
             opacity: 1;
             transition: opacity 0.25s ease;
@@ -171,13 +170,12 @@ a {
         width: 100%;
         height: 100%;
         min-height: 160px;
-        background: linear-gradient(135deg, #e8e8e8, #d0d0d0);
+        background: var(--color-green-100);
     }
 }
 
 @keyframes posterShimmer {
-    0%   { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
+        50% { opacity: 0.5; }
 }
 
 .card-body {
@@ -198,7 +196,7 @@ a {
 
     .more-link {
         font-size: 0.78rem;
-        color: #888;
+        color: var(--color-green-700);
         text-decoration: none;
         flex-shrink: 0;
         margin-left: 1rem;
@@ -211,7 +209,7 @@ a {
 .card-title {
     font-size: 1.45rem;
     font-weight: 300;
-    color: #111;
+    color: var(--color-on-surface);
     margin: 0 0 0.85rem;
     line-height: 1.3;
 
@@ -225,14 +223,14 @@ a {
     gap: 0.35rem;
     font-size: 0.85rem;
     font-weight: 300;
-    color: #666;
+    color: var(--color-green-700);
     text-decoration: none;
     line-height: 1;
 
     &--link {
         cursor: pointer;
         transition: color 0.15s;
-        &:hover { color: #1a73e8; }
+        &:hover { color: var(--color-green-500); }
     }
 }
 
@@ -251,7 +249,7 @@ a {
     font-size: 0.85rem;
     font-weight: 300;
     line-height: 1.7;
-    color: #888;
+    color: var(--color-green-700);
     display: -webkit-box;
     line-clamp: 2;
     -webkit-line-clamp: 2;

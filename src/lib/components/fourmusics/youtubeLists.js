@@ -28,7 +28,6 @@ export default function YoutubeList({videoIds, imageWidth}) {
         transition: all 0.7s ease-in-out;
         // overflow: hidden;
         border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         margin: 6px;
 
         justify-content: center;

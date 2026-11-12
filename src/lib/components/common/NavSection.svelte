@@ -14,9 +14,8 @@
         imageMaxWidth = '1400px',
         aspectRatio = '16/9',
         /** bgAnchor: 이미지를 제목보다 아래 Y 위치에 노출 */
-        bgAnchor = 'center bottom',
+        bgAnchor = 'center',
 
-        gradientOverlay = 'linear-gradient(to bottom, #000 10%, #fff 90%)',
 
         scrollAction = true, // 스크롤 시 배경 이미지 위치 조정 여부
 
@@ -27,8 +26,6 @@
 </script>
 
 <section class="nav-section" class:has-image={image}>
-    <div class="gradient-overlay" style="--gradient-overlay: {gradientOverlay};"></div>
-    
     <h1>{title}</h1>
     <h3>{subtitle}</h3>
 
@@ -54,8 +51,6 @@
             {bgAnchor}
             title={heroTitle}
             subtitle={heroSubtitle}
-            gradientOverlay='transparent'
-            blurImageOutline={true}
             {scrollAction}
         >
         </HeroSection>
@@ -63,30 +58,20 @@
 </section>
 
 <style lang="scss">
-    .gradient-overlay {
-        position: absolute;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background: var(--gradient-overlay, linear-gradient(to bottom, rgba(0, 0, 0, 0.3) 40%, rgba(0, 0, 0, 0.9) 70%));
-    }
-
     .nav-section {
-        * {
-            z-index: 11;
-        }
         position: relative;
         width: 100%;
         min-height: 500px;
-        background-color: black;
+        background-color: var(--color-surface);
+        color: var(--color-on-surface);
 
         display: flex;
         flex-direction: column;
         padding: 4rem 0 0;
-        
+
         h1 {
-            font-family: 'GounBatang', serif;
-            font-weight: 300;
-            color: white;
-            z-index: 12;
+            font-family: Pretendard, sans-serif;
+            font-weight: 100;
             margin: 2rem 0 1.5rem;
             text-align: center;
 
@@ -96,10 +81,8 @@
             @media (max-width: 600px)  { letter-spacing: 1rem; padding-left: 1rem; }
         }
         h3 {
-            font-family: 'GounBatang', serif;
-            font-weight: 300;
-            color: white;
-            z-index: 12;
+            font-family: Pretendard, sans-serif;
+            font-weight: 200;
             margin: 0 0 2rem;
             text-align: center;
 
@@ -111,12 +94,13 @@
         display: flex;
         justify-content: center;
         gap: clamp(1.5rem, 5vw, 5rem);
-        padding: 0 5vw;
+        padding: 0 5vw 1rem;
         width: 100%;
+        border-bottom: 1px solid var(--color-border);
     }
 
     .filter-btn {
-        font-family: 'GounBatang', serif;
+        font-family: Pretendard, sans-serif;
         font-size: clamp(0.9rem, 1.5vw, 1.1rem);
         font-weight: 300;
         letter-spacing: 0.08em;
@@ -124,9 +108,9 @@
         border: none;
         cursor: pointer;
         padding: 0.5rem 0;
-        color: #000;
+        color: var(--color-on-surface);
         position: relative;
-        transition: color 0.25s;
+        transition: color var(--dur-fast);
 
         &::after {
             content: '';
@@ -134,16 +118,16 @@
             bottom: 0; left: 0;
             width: 0; height: 1px;
             background: currentColor;
-            transition: width 0.25s ease;
+            transition: width var(--dur-fast) ease;
         }
 
         &:hover {
-            color: #333;
+            color: var(--color-green-500);
             &::after { width: 100%; }
         }
         &.active {
-            color: #fff;
-            font-weight: 700;
+            color: var(--color-green-500);
+            font-weight: 600;
             &::after { width: 100%; }
         }
     }

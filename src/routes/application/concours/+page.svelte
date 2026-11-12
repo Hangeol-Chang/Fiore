@@ -1,4 +1,7 @@
 <script>
+    import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
+    import Button from '$lib/components/ui/Button.svelte';
+    import StatusMessage from '$lib/components/ui/StatusMessage.svelte';
     import { PIANOLIFE_BACKEND_URL } from "$env/static/public";
     import HeroSection from "@/components/common/HeroSection.svelte";
 
@@ -101,11 +104,11 @@
     </div>
 {:else if error}
     <div class="state-box centered">
-        <p class="state-msg">{error}</p>
+        <StatusMessage kind="error" message={error} />
     </div>
 {:else if !concours}
     <div class="state-box centered">
-        <p class="state-msg">현재 진행 중인 콩쿠르가 없습니다.</p>
+        <StatusMessage kind="empty" message="현재 진행 중인 콩쿠르가 없습니다." />
     </div>
 {:else}
     <div class="concours-detail-page">
@@ -122,12 +125,14 @@
             <!-- 포스터 (sticky left) -->
             <div class="main-poster">
                 {#if concours.poster_url}
-                    <img
-                        class="main-poster-image"
-                        src={concours.poster_url}
-                        alt={concours.title}
-                        use:inView
-                    />
+                    <div class="main-poster-image" use:inView>
+                        <ResponsiveImage
+                            src={concours.poster_url}
+                            thumb={concours.poster_thumb_url} mid={concours.poster_mid_url} large={concours.poster_large_url}
+                            sizes="(max-width: 1024px) 100vw, 400px"
+                            alt={concours.title}
+                        />
+                    </div>
                 {:else}
                     <div class="poster-placeholder"></div>
                 {/if}
@@ -140,13 +145,13 @@
                         <h1 class="concours-title">{concours.title}</h1>
                         {#if concours.register_link}
                             <span class="register-wrap" class:disabled={!isRegistrationOpen} data-tooltip="접수 기간이 아닙니다">
-                                <a
+                                <Button
                                     class="register-btn"
                                     href={isRegistrationOpen ? concours.register_link : undefined}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     aria-disabled={!isRegistrationOpen}
-                                >Register</a>
+                                >Register</Button>
                             </span>
                         {/if}
                     </div>
@@ -246,13 +251,13 @@
                 {#if concours.register_link}
                     <div class="register-bottom">
                         <span class="register-wrap" class:disabled={!isRegistrationOpen} data-tooltip="접수 기간이 아닙니다">
-                            <a
-                                class="register-btn large"
-                                href={isRegistrationOpen ? concours.register_link : undefined}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                aria-disabled={!isRegistrationOpen}
-                            >Register</a>
+                            <Button
+                                    class="register-btn"
+                                    href={isRegistrationOpen ? concours.register_link : undefined}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    aria-disabled={!isRegistrationOpen}
+                                >Register</Button>
                         </span>
                     </div>
                 {/if}
@@ -276,17 +281,15 @@
         }
     }
     .state-msg {
-        color: #999;
+        color: var(--color-green-700);
         font-weight: 300;
     }
     .skeleton-hero {
         width: 100%;
         aspect-ratio: 16/9;
         max-height: 700px;
-        background: #e8e8e8;
+        background: var(--color-green-100);
         animation: shimmer 1.4s infinite;
-        background: linear-gradient(90deg, #f0f0f0 25%, #e4e4e4 50%, #f0f0f0 75%);
-        background-size: 200% 100%;
     }
     .skeleton-body {
         display: grid;
@@ -297,23 +300,20 @@
         margin: 0 auto;
     }
     .skeleton-block {
-        background: linear-gradient(90deg, #f0f0f0 25%, #e4e4e4 50%, #f0f0f0 75%);
-        background-size: 200% 100%;
+        background: var(--color-green-100);
         animation: shimmer 1.4s infinite;
-        border-radius: 4px;
+        border-radius: var(--radius);
         &.tall { aspect-ratio: 3/4; }
     }
     .skeleton-lines { display: flex; flex-direction: column; gap: 0.75rem; padding-top: 1rem; }
     .skeleton-line {
         height: 1rem; border-radius: 4px;
-        background: linear-gradient(90deg, #f0f0f0 25%, #e4e4e4 50%, #f0f0f0 75%);
-        background-size: 200% 100%;
+        background: var(--color-green-100);
         animation: shimmer 1.4s infinite;
         &:nth-child(odd) { width: 80%; }
     }
     @keyframes shimmer {
-        0%   { background-position: 200% 0; }
-        100% { background-position: -200% 0; }
+        50% { opacity: 0.5; }
     }
 
     /* ── 페이지 ──────────────────────────── */
@@ -365,6 +365,7 @@
 
         .main-poster-image {
             width: 100%;
+            :global(img) { width: 100%; height: auto; display: block; }
             max-width: 800px;
             height: auto;
             opacity: 0;
@@ -380,7 +381,7 @@
         .poster-placeholder {
             width: 100%;
             aspect-ratio: 3/4;
-            background: linear-gradient(135deg, #e8e4f0, #d8d0e8);
+            background: var(--color-green-100);
         }
     }
 
@@ -403,7 +404,7 @@
 
     .concours-title {
         font-weight: 300;
-        color: #111;
+        color: var(--color-on-surface);
         margin: 0;
         line-height: 1.3;
         letter-spacing: 0.01em;
@@ -416,10 +417,9 @@
         &.disabled {
             cursor: not-allowed;
 
-            .register-btn {
+            :global(.register-btn) {
                 pointer-events: none;
-                border-color: #ccc;
-                color: #bbb;
+                opacity: 0.5;
             }
 
             &::after {
@@ -429,13 +429,13 @@
                 left: 50%;
                 transform: translateX(-50%);
                 background: rgba(0, 0, 0, 0.75);
-                color: #fff;
+                color: var(--color-on-primary);
                 font-size: 0.75rem;
                 font-weight: 400;
                 letter-spacing: 0.02em;
                 white-space: nowrap;
                 padding: 0.3rem 0.65rem;
-                border-radius: 4px;
+                border-radius: var(--radius);
                 pointer-events: none;
                 opacity: 0;
                 transition: opacity 0.15s;
@@ -444,29 +444,6 @@
             &:hover::after {
                 opacity: 1;
             }
-        }
-    }
-
-    .register-btn {
-        display: inline-block;
-        padding: 0.45rem 1.2rem;
-        border: 1px solid #333;
-        color: #333;
-        font-size: 0.8rem;
-        font-weight: 400;
-        letter-spacing: 0.08em;
-        text-decoration: none;
-        white-space: nowrap;
-        transition: background 0.2s, color 0.2s, border-color 0.2s;
-
-        &:hover {
-            background: #333;
-            color: #fff;
-        }
-
-        &.large {
-            padding: 0.5rem 2rem;
-            font-size: 0.9rem;
         }
     }
 
@@ -480,7 +457,7 @@
         text-align: right;
         font-size: 0.75rem;
         font-weight: 300;
-        color: #ccc;
+        color: var(--color-green-600);
         padding-top: 1rem;
     }
 
@@ -539,7 +516,7 @@
         grid-template-columns: 220px 1fr;
         gap: 1.5rem;
         padding: 0.5rem 0 0.5rem 1rem;
-        border-bottom: 0.5px solid #f0f0f0;
+        border-bottom: 0.5px solid var(--color-green-200);
         align-items: baseline;
 
         @media(--mobile) {
@@ -549,13 +526,13 @@
     }
     .schedule-date {
         font-weight: 400;
-        color: #888;
+        color: var(--color-green-700);
         font-variant-numeric: tabular-nums;
         white-space: nowrap;
     }
     .schedule-desc {
         font-weight: 300;
-        color: #333;
+        color: var(--color-on-surface);
     }
 
     /* ── 불릿 목록 (특전/규정) ───────────── */
@@ -573,7 +550,7 @@
             // border-bottom: 0.5px solid #f0f0f0;
             position: relative;
             font-weight: 300;
-            color: #444;
+            color: var(--color-on-surface);
         }
     }
 </style>

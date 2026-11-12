@@ -34,25 +34,25 @@
         align-items: baseline;
         gap: 1rem;
         padding: 0 0 1rem;
-        border-bottom: 1px solid #eee;
+        border-bottom: 1px solid var(--color-green-200);
         margin-bottom: 1rem;
 
         .label {
             font-size: 0.68rem;
             letter-spacing: 0.3em;
             text-transform: uppercase;
-            color: #bbb;
+            color: var(--color-green-600);
             white-space: nowrap;
         }
         .name {
             font-size: clamp(1.2rem, 2vw, 1.8rem);
             font-weight: 300;
-            color: #111;
+            color: var(--color-on-surface);
             margin: 0;
         }
         .date {
             font-size: 0.82rem;
-            color: #aaa;
+            color: var(--color-green-600);
             margin-left: auto;
             white-space: nowrap;
         }
@@ -77,7 +77,7 @@
     .thumb-item {
         aspect-ratio: 3 / 2;
         overflow: hidden;
-        background: #e8e8e8;
+        background: var(--color-green-100);
 
         :global(img) {
             width: 100%;

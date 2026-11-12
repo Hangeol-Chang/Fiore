@@ -1,4 +1,5 @@
 <script>
+    import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
     import { onMount } from 'svelte';
     import { page } from '$app/stores';
     import { fade, fly } from 'svelte/transition';
@@ -103,11 +104,11 @@
         <div class="logo">
             <a href="/">
                 <div class="logo-mobile">
-                    <img src={fioreLogoText} alt="Fiore" class="logo-combined" />
+                    <ResponsiveImage src={fioreLogoText} alt="Fiore" class="logo-combined" sizes="200px" loading="eager" />
                 </div>
                 <div class="logo-desktop">
-                    <img src={fioreText} alt="Fiore" class="logo-text" />
-                    <img src={artnentText} alt="Fiore Logo" class="logo-text-small" />
+                    <ResponsiveImage src={fioreText} alt="Fiore" class="logo-text" sizes="200px" loading="eager" />
+                    <ResponsiveImage src={artnentText} alt="Fiore Logo" class="logo-text-small" sizes="200px" loading="eager" />
                 </div>
             </a>
         </div>
@@ -131,7 +132,7 @@
         <!-- 왼쪽: 큰 로고 -->
         <div class="logo-expand">
             <a href="/">
-                <img src={fioreLogoText} alt="Fiore" class="logo-expand-img" />
+                <ResponsiveImage src={fioreLogoText} alt="Fiore" class="logo-expand-img" sizes="200px" loading="eager" />
             </a>
         </div>
 
@@ -181,15 +182,15 @@
         z-index: 100;
         height: 60px;
         background-color: rgba(255, 255, 255, 0.95);
-        color: black;
-        transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+        color: var(--color-on-surface);
+        transition: background-color 0.3s ease, color 0.3s ease;
 
         /* 스크롤 시 검은 배경 */
         &.scrolled {
             position: fixed;
             top: 0;
             background-color: rgba(0, 0, 0, 0.95);
-            color: white;
+            color: var(--color-on-primary);
             backdrop-filter: blur(5px);
             animation: slideDown 0.5s ease forwards;
             
@@ -200,10 +201,10 @@
             }
 
             .line {
-                background-color: white;
+                background-color: var(--color-surface);
             }
 
-            .logo-icon, .logo-text, .logo-combined {
+            :global(.logo-icon), :global(.logo-text), :global(.logo-combined) {
                 filter: brightness(0) invert(1);
             }
         }
@@ -214,7 +215,7 @@
                 position: fixed;
                 top: 0;
                 background-color: rgba(0, 0, 0, 0.95);
-                color: white;
+                color: var(--color-on-primary);
                 backdrop-filter: blur(5px);
                 
                 .header {
@@ -224,10 +225,10 @@
                 }
 
                 .line {
-                    background-color: white;
+                    background-color: var(--color-surface);
                 }
 
-                .logo-icon, .logo-text, .logo-combined {
+                :global(.logo-icon), :global(.logo-text), :global(.logo-combined) {
                     filter: brightness(0) invert(1);
                 }
 
@@ -297,25 +298,25 @@
         }
     }
 
-    .logo-icon {
+    :global(.logo-icon) {
         height: 32px;
         width: auto;
         transition: filter 0.3s ease;
     }
 
-    .logo-text {
+    :global(.logo-text) {
         height: 20px;
         width: auto;
         transition: filter 0.3s ease;
     }
 
-    .logo-text-small {
+    :global(.logo-text-small) {
         height: 12px;
         width: auto;
         transition: filter 0.3s ease;
     }
 
-    .logo-combined {
+    :global(.logo-combined) {
         height: 44px;
         width: auto;
         transition: filter 0.3s ease;
@@ -349,7 +350,7 @@
         font-weight: 200;
 
         &:hover {
-            color: #66b3ff;
+            color: var(--color-green-300);
         }
     }
     .sub-menu-item {
@@ -360,7 +361,7 @@
         transition: all 0.2s ease;
 
         &:hover {
-            color: #66b3ff;
+            color: var(--color-green-300);
             scale: 1.05;
         }
     }
@@ -371,14 +372,14 @@
         top: 60px;
         left: 0;
         width: 100%;
-        background-color: black;
+        background-color: var(--color-on-surface);
         backdrop-filter: blur(10px);
         overflow: hidden;
         max-height: 0;
         min-height: 0px;
         opacity: 0;
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        border-top: 1px solid rgba(255, 255, 255, 0.4);
+        border-top: 1px solid var(--color-green-200);
 
         z-index: 99;
 
@@ -410,7 +411,7 @@
         }
     }
 
-    .logo-expand-img {
+    :global(.logo-expand-img) {
         height: 80px;
         width: auto;
         filter: brightness(0) invert(1);
@@ -421,7 +422,7 @@
         flex-direction: column;
         align-items: center;
 
-        color: white;
+        color: var(--color-on-primary);
         font-size: 1rem;
         font-weight: 100;
     }
@@ -446,8 +447,8 @@
     .line {
         width: 100%;
         height: 3px;
-        background-color: black;
-        border-radius: 12px;
+        background-color: var(--color-on-surface);
+        border-radius: var(--radius);
         transition: background-color 0.3s;
     }
 
@@ -464,7 +465,7 @@
         height: 100%;
         background-color: rgba(0, 0, 0, 0.95);
         backdrop-filter: blur(10px);
-        box-shadow: -2px 0 10px rgba(0,0,0,0.3);
+        border-left: 1px solid var(--color-green-500);
         z-index: 101;
         padding-top: 60px;
         overflow-y: auto;
@@ -488,7 +489,7 @@
         border: none;
         font-size: 28px;
         cursor: pointer;
-        color: white;
+        color: var(--color-on-primary);
     }
 
     .menu-vertical {
@@ -501,13 +502,13 @@
     }
 
     .menu-item-mobile {
-        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        border-bottom: 1px solid var(--color-green-200);
 
         a {
             display: block;
             padding: 12px 24px;
             text-decoration: none;
-            color: white;
+            color: var(--color-on-primary);
             font-size: 1.1rem;
             font-weight: 300;
         }
@@ -523,7 +524,7 @@
             display: block;
             padding: 4px 24px 8px 40px;
             text-decoration: none;
-            color: rgba(255, 255, 255, 0.8);
+            color: var(--color-on-primary);
             font-size: 0.95rem;
             font-weight: 100;
         }
@@ -538,7 +539,7 @@
 
     .progress-bar {
         height: 2px;
-        background: linear-gradient(90deg, #0056b3, #66b3ff);
+        background: var(--color-green-300);
         width: 0%;
     }
 </style>

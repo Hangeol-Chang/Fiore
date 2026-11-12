@@ -118,17 +118,17 @@
     }
 
     .notice-board {
-        border-top: 2px solid #333;
+        border-top: 2px solid var(--color-border);
     }
 
     .board-header {
         display: grid;
         grid-template-columns: 80px 1fr 90px 140px;
         padding: 0.9rem 1rem;
-        border-bottom: 1px solid #ddd;
+        border-bottom: 1px solid var(--color-green-200);
         font-size: 0.85rem;
         font-weight: 500;
-        color: #555;
+        color: var(--color-on-surface);
 
         @media (--tablet) {
             grid-template-columns: 50px 1fr 70px 90px;
@@ -139,14 +139,14 @@
         display: grid;
         grid-template-columns: 80px 1fr 90px 140px;
         padding: 0.9rem 1rem;
-        border-bottom: 1px solid #eee;
+        border-bottom: 1px solid var(--color-green-200);
         text-decoration: none;
-        color: #333;
+        color: var(--color-on-surface);
         font-size: 0.9rem;
         transition: background-color 0.2s ease;
 
         &:hover {
-            background-color: #f7f7f7;
+            background-color: var(--color-green-100);
         }
 
         @media (--tablet) {
@@ -158,7 +158,7 @@
     .col-num,
     .col-views,
     .col-date {
-        color: #888;
+        color: var(--color-green-700);
         text-align: center;
     }
 
@@ -177,7 +177,7 @@
     }
 
     .pin-icon {
-        color: #999;
+        color: var(--color-green-700);
         vertical-align: middle;
     }
 
@@ -186,9 +186,9 @@
         display: inline-flex;
         align-items: center;
         padding: 0.05rem 0.4rem;
-        border-radius: 3px;
+        border-radius: var(--radius);
         background: #e53e3e;
-        color: #fff;
+        color: var(--color-on-primary);
         font-size: 0.7rem;
         font-weight: 700;
         letter-spacing: 0.02em;
@@ -198,7 +198,7 @@
     .status-msg {
         padding: 6rem 2rem;
         text-align: center;
-        color: #999;
+        color: var(--color-green-700);
         font-size: 0.95rem;
 
         &.error { color: #c0392b; }
@@ -216,13 +216,13 @@
             background: none;
             cursor: pointer;
             font-size: 0.9rem;
-            color: #555;
+            color: var(--color-on-surface);
             padding: 0.4rem 0.7rem;
-            border-radius: 4px;
+            border-radius: var(--radius);
             transition: background-color 0.2s ease, color 0.2s ease;
 
             &:hover:not(:disabled) {
-                background-color: #f0f0f0;
+                background-color: var(--color-green-100);
             }
 
             &:disabled {
@@ -232,8 +232,8 @@
         }
 
         .page-num.active {
-            background-color: #333;
-            color: #fff;
+            background-color: var(--color-green-800);
+            color: var(--color-on-primary);
         }
     }
 </style>

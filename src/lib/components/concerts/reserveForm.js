@@ -40,7 +40,6 @@ export default function ReserveForm({ concertInfo }) {
         padding: 10px ${getPageSize().width * 0.03}px;
         background-color: #f9f9f9;
         border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     `;
     
     const input_style = css`
@@ -58,11 +57,9 @@ export default function ReserveForm({ concertInfo }) {
             color: #999;
         }
         &:-webkit-autofill {
-            -webkit-box-shadow: 0 0 0 30px #fff inset;
             -webkit-text-fill-color: #000;
         }
         &:-webkit-autofill:hover, &:-webkit-autofill:focus {
-            -webkit-box-shadow: 0 0 0 30px #fff inset;
             -webkit-text-fill-color: #000;
         }
     `;
@@ -129,8 +126,7 @@ export default function ReserveForm({ concertInfo }) {
             color: white;
         }
         &:focus {
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(50, 50, 50, 0.5);
+            outline: 2px solid var(--color-green-500);
         }
     }`
 

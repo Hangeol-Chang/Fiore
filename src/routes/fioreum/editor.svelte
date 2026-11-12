@@ -1,4 +1,5 @@
 <script>
+    import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
     import { onMount } from 'svelte';
     import fioreum_wallpaper from '$lib/assets/images/fioreum/fioreum_wallpaper.png';
     import FlowerLine from '@/components/fioreum/Flower.svelte';
@@ -42,7 +43,7 @@
 
 
 <div>
-    <img src={fioreum_wallpaper} alt="Fioreum Wallpaper" class="hero-image"/>
+    <ResponsiveImage src={fioreum_wallpaper} sizes="100vw" alt="Fioreum Wallpaper" class="hero-image" />
 
     <div class="flower-container">
         <!-- Canvas for Reference Image -->
@@ -72,8 +73,8 @@
 <style>
     .tools-container {
         padding: 20px;
-        background: #f5f5f5;
-        border-bottom: 1px solid #ddd;
+        background: var(--color-green-100);
+        border-bottom: 1px solid var(--color-green-200);
         text-align: center;
         position: absolute;
         bottom: 0px;
@@ -89,21 +90,21 @@
     }
     .btn-clear, .btn-copy {
         padding: 8px 16px;
-        background-color: #333;
-        color: white;
+        background-color: var(--color-green-800);
+        color: var(--color-on-primary);
         border: none;
         cursor: pointer;
     }
     .btn-copy {
-        background-color: #007bff;
+        background-color: var(--color-green-500);
     }
     .points-output {
         text-align: left;
         max-width: 800px;
         margin: 0 auto;
-        background: #fff;
+        background: var(--color-surface);
         padding: 10px;
-        border: 1px solid #ccc;
+        border: 1px solid var(--color-green-200);
         max-height: 100px;
         overflow-y: auto;
         white-space: pre-wrap; /* 긴 줄바꿈 처리 */
@@ -111,7 +112,7 @@
     }
 
 
-    .hero-image {
+    :global(.hero-image) {
         width: 100%;
         height: auto;
         object-fit: cover;
@@ -123,7 +124,7 @@
         width: 100%;
         height: 1000px;
         margin: auto;
-        background-color: #EEE;
+        background-color: var(--color-green-100);
     }
     
     .flower-ref-canvas {
@@ -141,7 +142,7 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        border: 1px dotted #ccc;
+        border: 1px dotted var(--color-green-200);
         pointer-events: none; 
     }
 </style>

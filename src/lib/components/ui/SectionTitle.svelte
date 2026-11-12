@@ -21,7 +21,7 @@
     .underline {
         width: 50px;
         height: 3px;
-        background-color: #333;
-        border-radius: 2px;
+        background-color: var(--color-green-800);
+        border-radius: var(--radius);
     }
 </style>

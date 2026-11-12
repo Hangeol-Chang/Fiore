@@ -58,12 +58,12 @@
         justify-content: center;
         min-height: 60vh;
         gap: 1rem;
-        color: #999;
+        color: var(--color-green-700);
         font-weight: 300;
     }
 
     .error-state a {
-        color: #666;
+        color: var(--color-green-700);
         text-decoration: none;
         font-size: 0.9rem;
     }

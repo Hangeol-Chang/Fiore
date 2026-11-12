@@ -1,4 +1,5 @@
 <script>
+    import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
     import { onMount } from 'svelte';
     import { fly, fade } from 'svelte/transition';
     import { ChevronLeft, ChevronRight, Users, Heart, TrendingUp, Sparkles, Theater } from 'lucide-svelte';
@@ -65,12 +66,9 @@
 <section>
     <div bind:this={sectionRef} class="section-content-wrapper">
         <div class="image-area {isVisible ? 'animate' : ''}">
-            <img 
-                src={aboutImage} 
-                alt="Vision" 
-                in:fade={{ duration: 1000 }}
-                out:fade={{ duration: 1000 }}
-            />
+            <div class="vision-img" in:fade={{ duration: 1000 }} out:fade={{ duration: 1000 }}>
+                <ResponsiveImage src={aboutImage} sizes="(max-width: 768px) 100vw, 50vw" alt="Vision" />
+            </div>
         </div>
         
         <div class="text-area {isVisible ? 'animate' : ''}">
@@ -151,7 +149,8 @@
             transform: translateY(0);
         }
 
-        img {
+        .vision-img { width: 100%; height: 100%; }
+        .vision-img :global(img) {
             width: 100%;
             height: 100%;
             aspect-ratio: 1 / 5;
@@ -199,13 +198,13 @@
     .title {
         font-weight: 300;
         letter-spacing: 0.05em;
-        color: #000;
+        color: var(--color-on-surface);
     }
 
     .desc {
         line-height: 1.8;
         font-weight: 300;
-        color: #555;
+        color: var(--color-on-surface);
         margin-bottom: 3rem;
         word-break: keep-all;
     }
@@ -238,12 +237,12 @@
                 margin-top: 4px;
                 font-weight: 500;
                 margin-bottom: 1rem;
-                color: #333;
+                color: var(--color-on-surface);
             }
 
             p {
                 line-height: 1.6;
-                color: #666;
+                color: var(--color-green-700);
             }
 
             @media(--tablet) {

@@ -188,7 +188,7 @@
     .status-msg {
         padding: 6rem 2rem;
         text-align: center;
-        color: #999;
+        color: var(--color-green-700);
         font-size: 1rem;
 
         &.error { color: #c0392b; }

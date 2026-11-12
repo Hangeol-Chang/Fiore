@@ -1,8 +1,10 @@
 <script>
+    import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
+    import bg from '$lib/assets/images/home/main_bg.png';
     import fioreLogoText from '$lib/assets/icons/fiore_logo_text_full.png';
 </script>
 
-<footer class="footer">
+<footer class="footer" style="--footer-bg: url({bg})">
     <div class="footer-container">
         
         <!-- left part -->
@@ -10,7 +12,7 @@
             <!-- Logo -->
             <div class="footer-logo">
                 <a href="/">
-                    <img src={fioreLogoText} alt="Fiore" class="footer-logo-img" />
+                    <ResponsiveImage src={fioreLogoText} alt="Fiore" class="footer-logo-img" sizes="200px" />
                 </a>
             </div>
 
@@ -56,12 +58,23 @@
 
 <style lang="scss">
     .footer {
-        background-color: #000000;
-        color: white;
+        position: relative;
+        background: var(--color-green-500) var(--footer-bg) center / cover no-repeat;
+        color: var(--color-on-primary);
         padding: 0;
+
+        /* 밝은 이미지 위 글자 대비 4.5:1 확보용 단색 반투명 오버레이 */
+        &::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(36, 45, 32, 0.72);
+            pointer-events: none;
+        }
     }
 
     .footer-container {
+        position: relative;
         display: flex;
         justify-content: space-between;
         align-items: stretch;
@@ -78,7 +91,7 @@
         margin-bottom: 20px;
     }
 
-    .footer-logo-img {
+    :global(.footer-logo-img) {
         height: 120px;
         width: auto;
         filter: brightness(0) invert(1);
@@ -93,7 +106,7 @@
     .company-info {
         text-align: start;
         margin: 0;
-        color: rgba(255, 255, 255, 0.7);
+        color: var(--color-on-primary);
         line-height: 1.8;
     }
 
@@ -111,13 +124,13 @@
         gap: 10px; 
 
         a {
-            color: rgba(255, 255, 255, 0.7);
+            color: var(--color-on-primary);
             transition: color 0.3s ease;
             display: flex;
             align-items: center;
             
             &:hover {
-                color: #66b3ff;
+                text-decoration: underline;
             }
         }
     }

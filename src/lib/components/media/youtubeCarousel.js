@@ -46,7 +46,6 @@ export default function YoutubeCarousel({ videoInfos }) {
         width: ${youtubeWidth}px;
         height: ${youtubeWidth * 0.5625 + 40}px;
         padding: 4px;
-        box-shadow: 0px 2px 3px rgba(100, 100, 100, 0.1);
         opacity: 0;
     `;
 

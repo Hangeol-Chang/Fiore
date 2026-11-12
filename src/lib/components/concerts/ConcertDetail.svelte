@@ -98,8 +98,9 @@
 
 <div class="concert-detail-page">
     <HeroSection 
-        image={concert.poster_url}
+        image={concert.banner_image_url || concert.poster_mid_url || concert.poster_url}
         maxHeight="700px"
+        aspectRatio="16/9"
     />
     
     <section class="main-content-section">
@@ -298,7 +299,7 @@
     }
     .underbar {
         padding-bottom: 0.5rem;
-        border-bottom: 0.5px solid #eee;
+        border-bottom: 0.5px solid var(--color-green-200);
         margin-bottom: 1rem;
     }
 
@@ -307,7 +308,7 @@
         display: flex;
         align-items: center;
         gap: 0.3rem;
-        color: #999;
+        color: var(--color-green-700);
 
         .label {
             font-size: 0.85rem;
@@ -340,7 +341,7 @@
         padding: 0 0 2rem;
         font-size: 0.75rem;
         font-weight: 300;
-        color: #ccc;
+        color: var(--color-green-600);
 
         @media(--tablet) {
             grid-column: 1 / -1;
@@ -361,12 +362,12 @@
 
             .value {
                 font-weight: 300;
-                color: #333;
+                color: var(--color-on-surface);
 
                 &--link {
                     text-decoration: none;
                     transition: color 0.15s;
-                    &:hover { color: #1a73e8; }
+                    &:hover { color: var(--color-green-500); }
                 }
             }
         }
@@ -383,13 +384,13 @@
             text-decoration: none;
             text-align: center;
             background-color: transparent;
-            color: black;
+            color: var(--color-on-surface);
             padding: 0.6rem 2rem;
             font-size: 1rem;
             border: none;
             cursor: pointer;
             transition: opacity 0.2s;
-            border: 1px solid #333;
+            border: 1px solid var(--color-border);
 
             &:disabled {
                 opacity: 0.35;
@@ -437,7 +438,7 @@
             .section-label {
                 font-size: 1rem;
                 font-weight: 600;
-                color: #111;
+                color: var(--color-on-surface);
                 letter-spacing: 0.02em;
             }
         }
@@ -456,12 +457,12 @@
             font-size: 1.0rem;
             line-height: 1.5;
             font-weight: 300;
-            color: #555;
+            color: var(--color-on-surface);
             margin: 0;
 
             .piece-composer {
                 font-weight: 400;
-                color: #333;
+                color: var(--color-on-surface);
                 margin-left: 2rem;
 
                 @media(--tablet) {
@@ -478,7 +479,7 @@
 
             .piece-performer {
                 font-size: 0.82rem;
-                color: #999;
+                color: var(--color-green-700);
                 &::before {
                     content: '— ';
                 }
@@ -496,7 +497,7 @@
         font-size: 0.85rem;
         line-height: 1.7;
         font-weight: 300;
-        color: #888;
+        color: var(--color-green-700);
         white-space: pre-line;
         margin: 0;
     }
@@ -505,7 +506,7 @@
         text-align: center;
         font-size: 0.78rem;
         letter-spacing: 0.2em;
-        color: #bbb;
+        color: var(--color-green-600);
         text-transform: uppercase;
         margin: 1.5rem 0 0.5rem 1rem;
     }

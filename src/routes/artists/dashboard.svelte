@@ -64,7 +64,7 @@
         }
         &::-webkit-scrollbar-thumb {
             background-color: rgba(0, 0, 0, 0.2);
-            border-radius: 3px;
+            border-radius: var(--radius);
         }
         
         @media (--tablet) {
@@ -93,9 +93,9 @@
         .profile-image {
             width: 100%;
             margin-bottom: 1rem;
-            border-radius: 4px;
+            border-radius: var(--radius);
             position: relative;
-            background-color: #e0e0e0;
+            background-color: var(--color-green-100);
             overflow: hidden;
             transition: all 0.3s ease; 
             cursor: pointer;
@@ -120,7 +120,7 @@
             .name-en { 
                 font-size: 1rem; 
                 font-weight: 200; 
-                color: #666;
+                color: var(--color-green-700);
                 margin-bottom: 0.1rem; 
                 text-transform: uppercase;
                 letter-spacing: 0.05em;
@@ -128,7 +128,7 @@
             .name-ko { 
                 font-size: 1.2rem; 
                 font-weight: 400; 
-                color: #222;
+                color: var(--color-on-surface);
             }
         }
     }

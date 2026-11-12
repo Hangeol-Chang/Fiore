@@ -81,7 +81,6 @@ const TimelineSlider = ({length, currentTime}) => {
             height: 2px;
             background: #AAAAAA;
             border-radius: 3px;
-            // box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
             margin: 0px 10px;
         }
         &::-webkit-slider-thumb {
@@ -92,11 +91,9 @@ const TimelineSlider = ({length, currentTime}) => {
             margin-top: -7px;
             background: #FFFFFF;
             border: 2px solid #AAAAAA;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
         &::-webkit-slider-thumb:active {
             // background: #AAAAAA;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
         }
 
         &::-moz-range-thumb {
@@ -104,7 +101,6 @@ const TimelineSlider = ({length, currentTime}) => {
             width: 20px;
             border-radius: 50%;
             // background: #777777;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         &::-moz-range-track {

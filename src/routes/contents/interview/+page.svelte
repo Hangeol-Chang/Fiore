@@ -17,6 +17,6 @@
         padding: 0 5vw;
         text-align: center;
         margin-top: 50px;
-        color: #666;
+        color: var(--color-green-700);
     }
 </style>

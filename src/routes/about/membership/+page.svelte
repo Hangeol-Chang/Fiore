@@ -63,7 +63,7 @@
 
                 li {
                     font-weight: 300;
-                    color: #333;
+                    color: var(--color-on-surface);
                     line-height: 1.6;
                 }
             }
@@ -85,15 +85,15 @@
             }
 
             .donate-btn {
-                color: #333;
-                border: 1px solid #333;
+                color: var(--color-on-surface);
+                border: 1px solid var(--color-border);
                 padding: 0.5rem 1.5rem;
                 font-weight: 500;
                 transition: background-color 0.3s ease;
 
                 &:hover {
-                    background-color: #333;
-                    color: #fff;
+                    background-color: var(--color-green-800);
+                    color: var(--color-on-primary);
                 }
             }
         }

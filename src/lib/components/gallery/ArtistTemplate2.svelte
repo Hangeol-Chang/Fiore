@@ -74,7 +74,7 @@
 
     .text-block {
         padding: 1.5rem;
-        background: #f5f5f5;
+        background: var(--color-green-100);
         flex: 0 0 auto;
 
         .label {
@@ -82,15 +82,15 @@
             font-size: 0.7rem;
             letter-spacing: 0.3em;
             text-transform: uppercase;
-            color: #bbb;
+            color: var(--color-green-600);
             margin-bottom: 0.6rem;
         }
 
         .name {
-            font-family: 'GounBatang', serif;
+            font-family: Pretendard, sans-serif;
             font-size: clamp(1.4rem, 2.5vw, 2rem);
             font-weight: 300;
-            color: #111;
+            color: var(--color-on-surface);
             margin: 0 0 0.4rem;
             line-height: 1.3;
         }
@@ -98,7 +98,7 @@
         .sub {
             display: block;
             font-size: 0.9rem;
-            color: #999;
+            color: var(--color-green-700);
             margin-bottom: 1.5rem;
         }
 
@@ -120,7 +120,7 @@
         flex: 1;
         min-height: 0;
         overflow: hidden;
-        background: #e0e0e0;
+        background: var(--color-green-100);
 
         @media (max-width: 600px) {
             flex: 0 0 calc(33.33% - 6px);
@@ -141,7 +141,7 @@
     .main-image {
         flex: 1;
         overflow: hidden;
-        background: #e0e0e0;
+        background: var(--color-green-100);
         aspect-ratio: 2 / 3;
 
         @media (max-width: 600px) {

@@ -1,4 +1,5 @@
 <script>
+    import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
     /** @type {string} - 히어로 이미지 경로 */
     export let image;
 
@@ -31,20 +32,14 @@
         return (mh * w / h) + 'px';
     })();
 
-    /** @type {string} - 그라데이션 오버레이 CSS (선택, 기본값: linear-gradient(to bottom, rgba(0, 0, 0, 0.3) 40%, rgba(0, 0, 0, 0.9) 70%)) */
-    export let gradientOverlay = "linear-gradient(to bottom, rgba(0, 0, 0, 0.3) 40%, rgba(0, 0, 0, 0.9) 70%)";
-
     /** @type {string} bg imge anchor*/
-    export let bgAnchor = "top center";
+    export let bgAnchor = "center";
 
     /** @type {boolean} 스크롤 시 배경 이미지 위치 조정 여부 */
     export let scrollAction = true;
 
     /** @type {number} */
     export let scrollYOffset = 0;
-
-    /** @type {boolean} */
-    export let blurImageOutline = false;
 
     /** @type {string} */
     export let backgroundColor = "black";
@@ -59,41 +54,16 @@
         --max-height: {maxHeight}; 
         --image-max-width: {imageMaxWidth}; 
         --aspect-ratio: {aspectRatio};
-        --gradient-overlay: {gradientOverlay};
         --bg-anchor: {bgAnchor};    
         --background-color: {backgroundColor};
     "
 >
     <div class="hero-image-container">
-        <img src={image} alt="{alt} Background" class="hero-image-background"
-            style="transform: translateY(calc({scrollAction ? ( scrollY - scrollYOffset) : 0} * 0.7px));
-                {blurImageOutline
-                    ? `mask-image:
-                            linear-gradient(to bottom, transparent 5%, black 10%, black 100%);
-                       -webkit-mask-image: 
-                            linear-gradient(to bottom, transparent 5%, black 10%, black 100%);
-                       mask-composite: intersect;
-                       -webkit-mask-composite: source-in;`
-                    : ''}
-            "
-        />
-        <!-- <div class="hero-image-background-overlay"></div> -->
-        <img src={image} alt={alt} class="hero-image"
-            style="
-                --scroll-y: {scrollAction ? (scrollY - scrollYOffset) : 0};
-                {blurImageOutline
-                    ? `mask-image:
-                            linear-gradient(to right, transparent 0%, black 14%, black 86%, transparent 100%), 
-                            linear-gradient(to bottom, transparent 10%, black 20%, black 100%);
-                       -webkit-mask-image: 
-                            linear-gradient(to right, transparent 0%, black 14%, black 86%, transparent 100%), 
-                            linear-gradient(to bottom, transparent 10%, black 20%, black 100%);
-                       mask-composite: intersect;
-                       -webkit-mask-composite: source-in;`
-                    : ''}
-            "
-        />
-        <!-- <div class="hero-image-overlay"></div> -->
+        <ResponsiveImage src={image} sizes="100vw" alt="" class="hero-image-background"
+            style="transform: translateY(calc({scrollAction ? ( scrollY - scrollYOffset) : 0} * 0.7px));" />
+        <ResponsiveImage src={image} sizes="(max-width: 1400px) 100vw, 1400px" {alt} class="hero-image"
+            style="--scroll-y: {scrollAction ? (scrollY - scrollYOffset) : 0};" />
+        <div class="hero-image-overlay"></div>
     </div>
 
     <div class="hero-content">
@@ -116,14 +86,14 @@
     position: absolute;
     display: flex;
     justify-content: center;
-    background-color: var(--background-color, black);
+    background-color: var(--background-color, var(--color-on-surface));
 
     * {
         height: 100vh;
         max-height: var(--max-height, 1400px);
     }
 
-    .hero-image {
+    :global(.hero-image) {
         position: absolute;
         
         width: 100vw;
@@ -138,7 +108,7 @@
         transform: translateY(calc(var(--scroll-y) * 0.7px));
     }
 
-    .hero-image-background {
+    :global(.hero-image-background) {
         height: 100vh;
         object-fit: cover;
         z-index: 1;
@@ -146,19 +116,11 @@
         filter: blur(24px);
     }
 
-    .hero-image-background-overlay {
-        position: absolute;
-        top: 0; left: 0;
-        width: 100%; height: 100vh;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 2;
-    }
-
     .hero-image-overlay {
         position: absolute;
         top: 0; left: 0;
         width: 100%; height: 100vh;
-        background: var(--gradient-overlay, linear-gradient(to bottom, rgba(0, 0, 0, 0.3) 40%, rgba(0, 0, 0, 0.9) 70%));
+        background: rgba(0, 0, 0, 0.35);
         z-index: 4;
     }
 }
@@ -174,7 +136,7 @@
     width: 100%;
 
     h1 {
-        color: white;
+        color: var(--color-on-primary);
         font-weight: 100;
         margin-top: 10rem;
         letter-spacing: 0.3em;
@@ -191,7 +153,7 @@
         }
     }
     h2 {
-        color: white;
+        color: var(--color-on-primary);
         font-weight: 100;
         letter-spacing: 0.1em;
     }

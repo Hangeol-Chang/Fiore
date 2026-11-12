@@ -72,7 +72,7 @@
 
     .line {
         height: 1px;
-        background-color: #222;
+        background-color: var(--color-on-surface);
         margin: 8px 0;
         border: 0;
     }
@@ -88,7 +88,7 @@
     .subtitle {
         margin-top: 10px;
         font-weight: normal;
-        color: #666;
+        color: var(--color-green-700);
         font-size: 1rem;
     }
 </style>

@@ -58,7 +58,7 @@
         flex: 0 0 52%;
         aspect-ratio: 2 / 3;
         overflow: hidden;
-        background: #e8e8e8;
+        background: var(--color-green-100);
 
         :global(img) {
             width: 100%;
@@ -75,7 +75,7 @@
         flex-direction: column;
         justify-content: center;
         padding: 2rem 2.5rem;
-        background: #fafafa;
+        background: var(--color-green-50);
 
         @media (max-width: 600px) {
             padding: 1.25rem;
@@ -85,22 +85,22 @@
             font-size: 0.7rem;
             letter-spacing: 0.3em;
             text-transform: uppercase;
-            color: #bbb;
+            color: var(--color-green-600);
             margin-bottom: 0.8rem;
         }
 
         .name {
-            font-family: 'GounBatang', serif;
+            font-family: Pretendard, sans-serif;
             font-size: clamp(1.6rem, 3vw, 2.8rem);
             font-weight: 300;
             line-height: 1.2;
-            color: #111;
+            color: var(--color-on-surface);
             margin: 0 0 0.6rem;
         }
 
         .sub {
             font-size: 0.95rem;
-            color: #999;
+            color: var(--color-green-700);
             font-weight: 300;
             letter-spacing: 0.08em;
         }
@@ -119,7 +119,7 @@
         flex: 0 0 calc(33.33% - 3px);
         aspect-ratio: 4 / 3;
         overflow: hidden;
-        background: #e8e8e8;
+        background: var(--color-green-100);
 
         @media (max-width: 768px) {
             flex: 0 0 55vw;

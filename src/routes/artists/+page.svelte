@@ -47,7 +47,6 @@
         title="Artists"
         subtitle="오늘의 신예, 내일의 거장"
         image={artistImage}
-        gradientOverlay='linear-gradient(to bottom, rgba(0, 0, 0, 1.0) 20%, rgba(255, 255, 255, 0.3) 70%)'
     />
 
     <section class="artists-section">
@@ -95,7 +94,7 @@
         @media(--desktop) {
             gap: 2rem;
         }
-        @media(--tablet) {
+        @media(max-width: 1024px) {
             grid-template-columns: 1fr;
             padding: 4rem 2rem;
             gap: 1.5rem;
@@ -131,23 +130,18 @@
 
     .card-skeleton {
         aspect-ratio: 3 / 4;
-        background: linear-gradient(to bottom, 
-            rgba(0, 0, 0, 0.0) 50%,
-            rgba(0, 0, 0, 0.3) 70%,
-            rgba(0, 0, 0, 0.8) 100%
-        );
-        background-size: 200% 100%;
-        animation: shimmer 1.4s infinite;
+        background: var(--color-green-100);
+        border: 1px solid var(--color-border);
+        animation: pulse 1.4s infinite;
     }
 
-    @keyframes shimmer {
-        0%   { background-position: 200% 0; }
-        100% { background-position: -200% 0; }
+    @keyframes pulse {
+        50% { opacity: 0.5; }
     }
 
     .error-message,
     .empty-message {
-        color: rgba(255, 255, 255, 0.5);
+        color: var(--color-green-700);
         font-size: 0.9rem;
         grid-column: 1 / -1;
     }

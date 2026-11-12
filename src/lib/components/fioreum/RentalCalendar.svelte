@@ -208,12 +208,12 @@
     .month-label {
         font-size: 1.2rem;
         font-weight: 600;
-        color: #4a3f3f;
+        color: var(--color-on-surface);
         background: transparent;
         border: none;
         cursor: pointer;
         padding: 4px 12px;
-        border-radius: 4px;
+        border-radius: var(--radius);
         transition: background 0.15s;
         min-width: 140px;
         text-align: center;
@@ -236,7 +236,7 @@
         text-align: center;
         font-size: 0.85rem;
         font-weight: 600;
-        color: #999;
+        color: var(--color-green-700);
         padding: 8px 0;
     }
 
@@ -256,7 +256,7 @@
         align-items: flex-start;
         padding: 8px 6px;
         font-size: 0.9rem;
-        color: #444;
+        color: var(--color-on-surface);
         border-top: 1px solid #ece3d8;
 
         @media (--mobile) {
@@ -266,7 +266,7 @@
     }
 
     .day-cell.outside {
-        color: #ccc;
+        color: var(--color-green-600);
     }
 
     .day-cell.sun .day-num {
@@ -290,7 +290,7 @@
         height: 24px;
         border-radius: 50%;
         background: #7b6c6c;
-        color: #fff;
+        color: var(--color-on-primary);
         font-weight: 600;
         font-size: 0.8rem;
     }
@@ -307,7 +307,7 @@
         flex-direction: column;
         line-height: 1.2;
         padding: 3px 6px;
-        border-radius: 4px;
+        border-radius: var(--radius);
         font-size: 0.72rem;
     }
 
@@ -341,7 +341,7 @@
         align-items: center;
         gap: 6px;
         font-size: 0.8rem;
-        color: #666;
+        color: var(--color-green-700);
     }
 
     .legend-dot {

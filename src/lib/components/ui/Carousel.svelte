@@ -100,8 +100,7 @@
         :global(img) {
             width: 100%;
             height: auto;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: var(--radius);
         }
     }
 
@@ -126,13 +125,13 @@
         width: 10px;
         height: 10px;
         border-radius: 50%;
-        background: #ccc;
+        background: var(--color-green-100);
         border: none;
         cursor: pointer;
         padding: 0;
 
         &.active {
-            background: #333;
+            background: var(--color-green-800);
         }
     }
 </style>

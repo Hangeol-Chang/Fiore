@@ -1,4 +1,5 @@
 <script>
+    import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
     import rentalImage from '$lib/assets/images/fioreum/rental_info.png';
     import { PIANOLIFE_BACKEND_URL } from '$env/static/public';
     import { Phone, Mail, CheckCircle, XCircle } from 'lucide-svelte';
@@ -81,7 +82,7 @@
 
 <div>
     <section class="rental-info">
-        <img src="{rentalImage}" alt="Rental Information" class="rental-image" />
+        <ResponsiveImage src={rentalImage} sizes="(max-width: 1000px) 100vw, 1000px" alt="Rental Information" class="rental-image" />
 
         <div class="contact-box">
             <div class="contact-item">
@@ -164,11 +165,10 @@
         flex-direction: column;
     }
 
-    .rental-image {
+    :global(.rental-image) {
         max-width: 1000px;
         height: auto;
-        border-radius: 4px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: var(--radius);
         margin: 0 auto 20px;
     }
 
@@ -193,13 +193,13 @@
 
     .contact-text {
         font-size: 1rem;
-        color: #444;
+        color: var(--color-on-surface);
         letter-spacing: 0.02em;
     }
 
     .contact-divider {
         height: 1px;
-        background: #e0e0e0;
+        background: var(--color-green-100);
     }
 
     /* ── 대관 신청 폼 ─────────────────────────────────────── */
@@ -259,17 +259,17 @@
         }
         label {
             font-size: 0.9rem;
-            color: #555;
+            color: var(--color-on-surface);
             font-weight: 500;
         }
         input,
         select {
             padding: 10px 14px;
             border: 1px solid #d6ccc2;
-            border-radius: 2px;
+            border-radius: var(--radius);
             font-size: 0.95rem;
-            color: #333;
-            background: #fdfaf7;
+            color: var(--color-on-surface);
+            background: var(--color-green-50);
             transition: border-color 0.2s;
             width: 100%;
         }
@@ -277,7 +277,7 @@
          select:focus {
             outline: none;
             border-color: #a08878;
-            background: #fff;
+            background: var(--color-surface);
         }
     }
 
@@ -293,7 +293,7 @@
     }
 
     .time-sep {
-        color: #999;
+        color: var(--color-green-700);
         flex-shrink: 0;
     }
 
@@ -305,9 +305,9 @@
         margin-top: 8px;
         padding: 12px;
         background: #7b6c6c;
-        color: #fff;
+        color: var(--color-on-primary);
         border: none;
-        border-radius: 2px;
+        border-radius: var(--radius);
         font-size: 1rem;
         font-weight: 600;
         cursor: pointer;
@@ -324,7 +324,7 @@
     }
 
     .submit-btn:hover:not(:disabled) {
-        background: #5a4e4e;
+        background: var(--color-green-800);
     }
 
     .submit-btn:disabled {
@@ -334,7 +334,7 @@
 
     .result-msg {
         padding: 12px 16px;
-        border-radius: 2px;
+        border-radius: var(--radius);
         font-size: 0.9rem;
         text-align: center;
     }
@@ -358,10 +358,10 @@
         left: 50%;
         transform: translate(-50%, -50%);
         padding: 18px 36px;
-        border-radius: 4px;
+        border-radius: var(--radius);
         font-size: 0.95rem;
         font-weight: 500;
-        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+        border: 1px solid var(--color-border);
         z-index: 9999;
         opacity: 1;
         transition: opacity 0.6s ease;
@@ -377,13 +377,13 @@
     }
 
     .toast.success {
-        background: #f5f2f0;
-        color: #5a4e4e;
+        background: var(--color-green-100);
+        color: var(--color-on-surface);
         border: 1px solid #c9b8a8;
     }
 
     .toast.error {
-        background: #f5f0f0;
+        background: var(--color-green-100);
         color: #7b5050;
         border: 1px solid #c9a8a8;
     }

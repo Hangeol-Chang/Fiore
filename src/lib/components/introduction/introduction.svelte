@@ -1,4 +1,5 @@
 <script>
+    import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
     import { onMount } from 'svelte';
     import introImage from '$lib/assets/images/about/about_2.jpg';
 
@@ -55,7 +56,7 @@
 <div>
     <div class="intro-top-container">
         <div class="top-image-wrapper" bind:this={imageContainer}>
-            <img src={introImage} class="top-image" alt="img" />
+            <ResponsiveImage src={introImage} sizes="100vw" alt="" class="top-image" />
         </div>
         <ul class="intro-top-text" bind:this={listContainer}>
             <li class="visible"></li>
@@ -107,7 +108,7 @@
         }
     }
 
-    .top-image {
+    :global(.top-image) {
         width: 100%;
         min-width: 400px;
         max-width: 1000px;
@@ -147,7 +148,7 @@
         font-weight: 200;
         opacity: 0;
         transform: translateY(10px);
-        color: black;
+        color: var(--color-on-surface);
         
         @media (--tablet) {
             font-size: 1.4rem;
@@ -160,7 +161,7 @@
     }
 
     .intro-top-text span {
-        color: #aaa;
+        color: var(--color-green-600);
         font-size: 0.6em;
         font-weight: 300;
         vertical-align: middle;

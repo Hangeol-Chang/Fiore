@@ -220,7 +220,6 @@
             height: auto;
             transition: all 0.5s ease;
             cursor: pointer;
-            box-shadow: none; 
             transform-origin: top center;
 
         }
@@ -249,16 +248,16 @@
     .progress-bar-container {
         width: 100%;
         height: 2px;
-        background-color: #eee;
+        background-color: var(--color-green-100);
         margin-top: 1rem;
         margin-bottom: 1rem;
-        border-radius: 1px;
+        border-radius: var(--radius);
         overflow: hidden;
     }
 
     .progress-bar {
         height: 100%;
-        background-color: #333;
+        background-color: var(--color-green-800);
         width: 0%;
         transition: width 0.05s linear;
     }
@@ -276,7 +275,7 @@
     .poster-placeholder {
         width: 100%;
         aspect-ratio: 2/3;
-        background: linear-gradient(135deg, #e0e0e0, #c8c8c8);
+        background: var(--color-green-100);
     }
 
     .skeleton-row {
@@ -289,19 +288,17 @@
     .card-skeleton {
         flex: 0 0 220px;
         aspect-ratio: 2/3;
-        background: linear-gradient(90deg, #f0f0f0 25%, #e4e4e4 50%, #f0f0f0 75%);
-        background-size: 200% 100%;
+        background: var(--color-green-100);
         animation: shimmer 1.4s infinite;
     }
 
     @keyframes shimmer {
-        0%   { background-position: 200% 0; }
-        100% { background-position: -200% 0; }
+        50% { opacity: 0.5; }
     }
 
     .empty-message {
         text-align: center;
-        color: #aaa;
+        color: var(--color-green-600);
         font-size: 0.9rem;
         font-weight: 300;
         padding: 4rem 0;
@@ -315,8 +312,7 @@
 
     .concert-image {
         width: 100%;
-        background-color: #e5e5e5;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        background-color: var(--color-green-100);
         overflow: hidden;
         position: relative;
         
@@ -332,7 +328,7 @@
 
     .concert-info {
         h3 {
-            color: #333;
+            color: var(--color-on-surface);
             margin: 0;
             line-height: 1.4;
             text-align: left;

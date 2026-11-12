@@ -1,4 +1,5 @@
 <script>
+    import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
     import { page } from '$app/stores';
     import { renderMarkdown } from '$lib/utils/markdown.js';
     import { PIANOLIFE_BACKEND_URL } from '$env/static/public';
@@ -55,9 +56,11 @@
 
         {#if notice.image_mid_url || notice.image_url}
             <div class="notice-image-wrap">
-                <img
+                <ResponsiveImage
                     class="notice-image"
-                    src={notice.image_mid_url || notice.image_url}
+                    src={notice.image_url}
+                    mid={notice.image_mid_url}
+                    sizes="(max-width: 1280px) 100vw, 1280px"
                     alt={notice.title}
                     style="max-width: {notice.image_width || 1280}px;"
                 />
@@ -99,7 +102,7 @@
     .back-link {
         display: inline-block;
         margin-bottom: 1.5rem;
-        color: #888;
+        color: var(--color-green-700);
         text-decoration: none;
         font-size: 0.9rem;
 
@@ -113,7 +116,7 @@
         gap: 1rem;
         margin: 0 0 2rem;
         padding-bottom: 1.5rem;
-        border-bottom: 1px solid #eee;
+        border-bottom: 1px solid var(--color-green-200);
 
         @media (--tablet) {
             flex-direction: column;
@@ -137,7 +140,7 @@
 
     .notice-views,
     .notice-date {
-        color: #999;
+        color: var(--color-green-700);
         font-size: 0.85rem;
         margin: 0;
     }
@@ -148,13 +151,13 @@
         margin-bottom: 2rem;
     }
 
-    .notice-image {
+    :global(.notice-image) {
         display: block;
         width: 100%;
         max-width: 1280px;
         height: auto;
         object-fit: contain;
-        border-radius: 8px;
+        border-radius: var(--radius);
     }
 
     .notice-content {
@@ -168,7 +171,7 @@
         }
         :global(th),
         :global(td) {
-            border: 1px solid #ddd;
+            border: 1px solid var(--color-green-200);
             padding: 0.3rem 0.6rem;
             text-align: center;
         }
@@ -186,10 +189,10 @@
     .notice-cta-btn {
         display: inline-block;
         padding: 0.9rem 2.5rem;
-        background: #222;
-        color: #fff;
-        border: 1px solid #222;
-        border-radius: 2px;
+        background: var(--color-on-surface);
+        color: var(--color-on-primary);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius);
         text-decoration: none;
         font-size: 0.95rem;
         letter-spacing: 0.02em;
@@ -201,7 +204,7 @@
     .status-msg {
         padding: 6rem 2rem;
         text-align: center;
-        color: #999;
+        color: var(--color-green-700);
         font-size: 0.95rem;
 
         &.error { color: #c0392b; }

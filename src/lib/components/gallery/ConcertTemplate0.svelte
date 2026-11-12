@@ -63,26 +63,26 @@
         top: 5rem;
         margin-top: 2rem;
         padding: 1.5rem;
-        background: #fafafa;
+        background: var(--color-green-50);
 
         .label {
             display: block;
             font-size: 0.68rem;
             letter-spacing: 0.3em;
             text-transform: uppercase;
-            color: #bbb;
+            color: var(--color-green-600);
             margin-bottom: 0.6rem;
         }
         .name {
             font-size: clamp(1.2rem, 2vw, 1.8rem);
             font-weight: 300;
-            color: #111;
+            color: var(--color-on-surface);
             margin: 0 0 0.5rem;
             line-height: 1.3;
         }
         .date {
             font-size: 0.82rem;
-            color: #aaa;
+            color: var(--color-green-600);
             letter-spacing: 0.05em;
         }
 
@@ -111,8 +111,8 @@
         width: 100%;
         aspect-ratio: 3 / 2;
         overflow: hidden;
-        background: #e8e8e8;
-        box-shadow: 0 -3px 12px rgba(0, 0, 0, 0.12);
+        background: var(--color-green-100);
+        border: 1px solid var(--color-border);
 
         :global(img) {
             width: 100%;
@@ -126,7 +126,6 @@
 
         @media (max-width: 640px) {
             position: static;
-            box-shadow: none;
             margin-bottom: 4px;
         }
     }

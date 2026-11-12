@@ -19,7 +19,7 @@
     .home-page {
         // 직계 자식 요소 선택 (Hero 다음부터 번갈아 배경)
         & > :global(*:nth-child(2n)) {
-            background-color: #f9f9f9;
+            background-color: var(--color-green-50);
         }
     }
 </style>

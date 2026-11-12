@@ -52,11 +52,9 @@ export default function DiskCarousel({ mediaInfos, nowIndex, changeIndexEvent })
 
         object-fit: cover;
         position : absolute;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
     `;
 
     const disk_hole = css`
-        box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.3);
         width: 20%;
         height: 20%;
         border-radius: 50%;

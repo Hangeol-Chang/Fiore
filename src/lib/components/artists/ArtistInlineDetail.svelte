@@ -113,9 +113,9 @@
 <style lang="scss">
 	/* globals.scss 의 h1~h6/p 전역 margin(clamp 들여쓰기) 차단 → 좌측 정렬 균일화 */
 	.inline-detail-wrap {
-		border: 1px solid rgba(255, 255, 255, 0.2);
+		border: 1px solid var(--color-green-200);
 		padding: 1.4rem;
-		color: rgba(255, 255, 255, 0.92);
+		color: var(--color-on-primary);
 
 		h1, h2, h3, h4, h5, h6, p {
 			margin-left: 0;
@@ -138,7 +138,7 @@
 		width: 100%;
 		aspect-ratio: 3/4;
 		overflow: hidden;
-		background: #111;
+		background: var(--color-on-surface);
 	}
 
 	.inline-image-wrap :global(.inline-image) {
@@ -163,7 +163,7 @@
 		}
 
 		.inline-headline {
-			color: rgba(255, 255, 255, 0.8);
+			color: var(--color-on-primary);
 			font-size: 0.88rem;
 			line-height: 1.6;
 			white-space: pre-wrap;
@@ -212,14 +212,14 @@
 		.career-date {
 			font-size: 0.78rem;
 			line-height: 1.6;
-			color: rgba(255, 255, 255, 0.55);
+			color: var(--color-on-primary);
 			white-space: nowrap;
 		}
 
 		.career-content {
 			font-size: 0.88rem;
 			line-height: 1.6;
-			color: rgba(255, 255, 255, 0.92);
+			color: var(--color-on-primary);
 		}
 	}
 
@@ -244,7 +244,7 @@
 		p {
 			margin-top: 0.35rem;
 			font-size: 0.8rem;
-			color: rgba(255, 255, 255, 0.72);
+			color: var(--color-on-primary);
 		}
 	}
 
@@ -260,12 +260,12 @@
 			align-items: baseline;
 
 			span {
-				color: rgba(0, 0, 0, 0.55);
+				color: var(--color-green-700);
 				font-size: 0.78rem;
 			}
 
 			strong {
-				color: rgba(0, 0, 0, 0.88);
+				color: var(--color-on-surface);
 				font-size: 0.86rem;
 				font-weight: 400;
 			}

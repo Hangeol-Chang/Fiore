@@ -1,4 +1,5 @@
 <script>
+    import StatusMessage from '$lib/components/ui/StatusMessage.svelte';
     import { PIANOLIFE_BACKEND_URL } from "$env/static/public";
     import AuditionCard from "@/components/auditions/AuditionCard.svelte";
 
@@ -43,9 +44,9 @@
                 <div class="card-skeleton"></div>
             {/each}
         {:else if error}
-            <p class="empty-message">오류가 발생했습니다: {error}</p>
+            <StatusMessage kind="error" message="오류가 발생했습니다: {error}" />
         {:else if activeAuditions.length === 0}
-            <p class="empty-message">현재 모집 중인 오디션이 없습니다.</p>
+            <StatusMessage kind="empty" message="현재 모집 중인 오디션이 없습니다." />
         {:else}
             {#each activeAuditions as audition (audition.id)}
                 <AuditionCard {audition} />
@@ -74,20 +75,18 @@
 
     .card-skeleton {
         height: 250px;
-        border: 0.5px solid #eee;
+        border: 0.5px solid var(--color-green-200);
         margin-bottom: -0.5px;
-        background: linear-gradient(90deg, #f5f5f5 25%, #ececec 50%, #f5f5f5 75%);
-        background-size: 200% 100%;
+        background: var(--color-green-100);
         animation: shimmer 1.4s infinite;
     }
 
     @keyframes shimmer {
-        0%   { background-position: 200% 0; }
-        100% { background-position: -200% 0; }
+        50% { opacity: 0.5; }
     }
 
     .empty-message {
-        color: #aaa;
+        color: var(--color-green-600);
         font-size: 0.9rem;
         font-weight: 300;
         padding: 3rem 0;

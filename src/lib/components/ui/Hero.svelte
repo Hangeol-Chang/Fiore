@@ -37,6 +37,7 @@
 		width: min(60vw, 480px);
 		aspect-ratio: 369.87 / 323.06;
 		margin: 0;
+		color: #fff; /* 전역 h1 색이 상속을 덮어씀 */
 	}
 	.logo :global(svg) {
 		position: absolute;

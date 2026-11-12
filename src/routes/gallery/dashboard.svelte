@@ -162,7 +162,7 @@
         font-size: 0.9rem;
         font-weight: 300;
         text-align: center;
-        color: #666;
+        color: var(--color-green-700);
         margin-bottom: 3rem;
     }
 
@@ -199,7 +199,7 @@
         display: block;
         position: relative;
         overflow: hidden;
-        background-color: #e8e8e8;
+        background-color: var(--color-green-100);
         min-height: 200px;
         text-decoration: none;
         cursor: pointer;
@@ -221,8 +221,8 @@
             left: 0;
             width: 100%;
             padding: 0.6rem 0.8rem;
-            background: linear-gradient(to top, rgba(0,0,0,0.65), transparent);
-            color: #fff;
+            background: rgba(0, 0, 0, 0.55);
+            color: var(--color-on-primary);
             font-size: 0.8rem;
             font-weight: 300;
             opacity: 0;
@@ -239,16 +239,14 @@
         }
 
         &.skeleton {
-            background: linear-gradient(90deg, #e8e8e8 25%, #f0f0f0 50%, #e8e8e8 75%);
-            background-size: 200% 100%;
+            background: var(--color-green-100);
             animation: shimmer 1.4s infinite;
             cursor: default;
         }
     }
 
     @keyframes shimmer {
-        0%   { background-position: 200% 0; }
-        100% { background-position: -200% 0; }
+        50% { opacity: 0.5; }
     }
 
     /* ── 네비게이션 ── */
@@ -262,7 +260,7 @@
         line-height: 1;
         padding: 0.3rem 0.7rem;
         cursor: pointer;
-        color: #333;
+        color: var(--color-on-surface);
         transition: background 0.2s;
         z-index: 4;
 
@@ -291,7 +289,7 @@
             transition: background 0.3s, transform 0.2s;
 
             &.active {
-                background: #333;
+                background: var(--color-green-800);
                 transform: scale(1.25);
             }
         }
@@ -305,7 +303,7 @@
         a {
             font-size: 0.85rem;
             font-weight: 300;
-            color: #333;
+            color: var(--color-on-surface);
             text-decoration: none;
             transition: opacity 0.2s;
             &:hover { opacity: 0.7; }

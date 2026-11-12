@@ -114,7 +114,6 @@
     <NavSection
         title="Concerts"
         image={heroImage}
-        gradientOverlay='linear-gradient(to bottom, rgba(0, 0, 0, 1) 20%, rgba(100, 100, 100, 0) 90%)'
         bgAnchor="center center"
         aspectRatio="16/9"
         scrollAction={true}
@@ -230,7 +229,7 @@
     /* ── 섹션 헤딩 ──────────────────────── */
     .section-heading {
         padding: 0 2rem 1.5rem;
-        border-bottom: 1px solid #eee;
+        border-bottom: 1px solid var(--color-green-200);
 
         &--prev {
             margin-top: 5rem;
@@ -246,7 +245,7 @@
         .heading-sub {
             font-size: 0.85rem;
             font-weight: 300;
-            color: #999;
+            color: var(--color-green-700);
             margin: 0;
         }
     }
@@ -292,7 +291,7 @@
     .calendar-view {
         position: sticky;
         top: 100px;
-        border: 1px solid #e8e8e8;
+        border: 1px solid var(--color-green-200);
         padding: 1.25rem;
         margin: 0 auto;
         min-width: 280px;
@@ -329,7 +328,7 @@
             border: none;
             cursor: pointer;
             font-size: 1rem;
-            color: #555;
+            color: var(--color-on-surface);
             padding: 0.25rem 0.5rem;
             line-height: 1;
             transition: color 0.15s;
@@ -352,7 +351,7 @@
         text-align: center;
         font-size: 0.6rem;
         font-weight: 500;
-        color: #bbb;
+        color: var(--color-green-600);
         letter-spacing: 0.02em;
         padding-bottom: 0.4rem;
     }
@@ -364,19 +363,19 @@
         justify-content: center;
         font-size: 0.72rem;
         font-weight: 300;
-        color: #444;
-        border-radius: 2px;
+        color: var(--color-on-surface);
+        border-radius: var(--radius);
 
         &.has-concert {
-            background: #111;
-            color: #fff;
+            background: var(--color-on-surface);
+            color: var(--color-on-primary);
             font-weight: 400;
         }
 
         &.is-today:not(.has-concert) {
-            background: #f0f0f0;
+            background: var(--color-green-100);
             font-weight: 500;
-            color: #000;
+            color: var(--color-on-surface);
         }
     }
 
@@ -393,20 +392,18 @@
     /* ── 스켈레톤 ───────────────────────── */
     .card-skeleton {
         height: 150px;
-        border: 0.5px solid #eee;
+        border: 0.5px solid var(--color-green-200);
         margin-bottom: -0.5px;
-        background: linear-gradient(90deg, #f5f5f5 25%, #ececec 50%, #f5f5f5 75%);
-        background-size: 200% 100%;
+        background: var(--color-green-100);
         animation: shimmer 1.4s infinite;
     }
 
     @keyframes shimmer {
-        0%   { background-position: 200% 0; }
-        100% { background-position: -200% 0; }
+        50% { opacity: 0.5; }
     }
 
     .empty-message {
-        color: #aaa;
+        color: var(--color-green-600);
         font-size: 0.9rem;
         font-weight: 300;
         padding: 3rem 0;

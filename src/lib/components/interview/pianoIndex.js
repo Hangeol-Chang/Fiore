@@ -11,14 +11,9 @@ const WhiteKey = ({left, size, index, nowIndex, setNowIndex}) => {
         width: ${size}px;
         left: ${left}px;
         height: ${size*4}px;
-        background: linear-gradient(
-            to bottom,
-            #FFFFFF 0%,
-            #FFFFFF 50%,
-            #CEEFF2 100%);
+        background: #FFFFFF;
         background-position: top;
         background-size: 100% 200%;
-        box-shadow: 0 2px 3px rgba(0, 0, 0, 0.3);
 
         // border: 1px solid #EEEEEE;
         z-index: 3;
@@ -30,21 +25,13 @@ const WhiteKey = ({left, size, index, nowIndex, setNowIndex}) => {
             background-position: bottom;
         }
         &:active {
-            background: linear-gradient(
-            to bottom,
-            #FFFFFF 0%,
-            #FFFFFF 50%,
-            #91C4D9 100%);
+            background: #FFFFFF;
         }
     `;
 
     const key_underblock_style = css`
         position: absolute;
-        background: linear-gradient(
-            to bottom,
-            #FFFFFF 0%,
-            #5897A6 75%,
-            #FFFFFF 100%);
+        background: #FFFFFF;
 
         width: ${size}px;
         height: ${size*4 + 20}px;
@@ -58,11 +45,7 @@ const WhiteKey = ({left, size, index, nowIndex, setNowIndex}) => {
         ${now && css`
             // top: ${size/2}px;
             background-position: bottom;
-            // background: linear-gradient(
-            //     to bottom,
-            //     #EEEEFF 0%,
-            //     #EEEEFF 50%,
-            //     #CCCCEE 100%);
+            // background: #EEEEFF;
         `}
     `;
 
@@ -88,14 +71,9 @@ const BlackKey = ({left, size}) => {
         top: 0;
         left: ${left}px;
         background-color: black;
-        background: linear-gradient(
-            to bottom,
-            #000000 0%,
-            #000000 50%,
-            #555555 100%);
+        background: #000000;
         background-position: top;
         background-size: 100% 200%;
-        box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
 
         // border : 1px solid #EEEEEE;
         z-index: 4;

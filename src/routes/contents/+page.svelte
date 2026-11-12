@@ -1,4 +1,5 @@
 <script>
+    import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
     import NavSection from "@/components/common/NavSection.svelte";
     import interviewImage from '$lib/assets/images/background/amatuer_meet_thumbnail.png';
     import podcastImage from '$lib/assets/images/background/podcast_wallpaper.png';
@@ -45,7 +46,6 @@
         {filters}
         {activeFilter}
         onFilter={(f) => { activeFilter = f; }}
-        gradientOverlay='linear-gradient(to bottom, rgba(0, 0, 0, 1.0) 20%, rgba(100, 100, 100, 0.3) 70%)'
         heroTitle={subData[activeFilter].title}
         heroSubtitle={subData[activeFilter].subtitle}
         scrollAction={false}
@@ -71,7 +71,7 @@
                         rel="noopener noreferrer"
                     >
                         <div class="thumbnail">
-                            <img src={video.thumbnail} alt={video.title} loading="lazy" />
+                            <ResponsiveImage src={video.thumbnail} sizes="(max-width: 768px) 100vw, 33vw" alt={video.title} />
                             <div class="play-icon">▶</div>
                         </div>
 
@@ -95,7 +95,7 @@
         padding: 4rem 2rem 4rem 0;
 
         @media (--desktop) { gap: 2rem; }
-        @media (--tablet) {
+        @media (max-width: 1024px) {
             grid-template-columns: 1fr;
             padding: 4rem 2rem;
             gap: 1.5rem;
@@ -122,7 +122,7 @@
         p {
             font-size: 0.9rem;
             line-height: 1.8;
-            color: #555;
+            color: var(--color-on-surface);
             margin-bottom: 1rem;
         }
     }
@@ -155,9 +155,9 @@
         width: 100%;
         aspect-ratio: 16/9;
         overflow: hidden;
-        background: #111;
+        background: var(--color-on-surface);
 
-        img {
+        :global(img) {
             width: 100%;
             height: 100%;
             object-fit: cover;
@@ -171,7 +171,7 @@
             align-items: center;
             justify-content: center;
             font-size: 2rem;
-            color: white;
+            color: var(--color-on-primary);
             background: rgba(0, 0, 0, 0.3);
             opacity: 0;
             transition: opacity 0.2s;
@@ -186,7 +186,7 @@
             font-size: 1rem;
             font-weight: 400;
             line-height: 1.5;
-            color: #111;
+            color: var(--color-on-surface);
             overflow: hidden;
             text-wrap: none;
         }
@@ -194,12 +194,12 @@
         .video-desc {
             font-size: 0.85rem;
             font-weight: 300;
-            color: #888;
+            color: var(--color-green-700);
             line-height: 1.5;
         }
         
         .empty-message {
-            color: #aaa;
+            color: var(--color-green-600);
             grid-column: 1 / -1;
         }
     }

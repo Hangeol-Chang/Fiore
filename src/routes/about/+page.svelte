@@ -1,4 +1,5 @@
 <script>
+    import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
     import { onMount } from 'svelte';
     import visionImage from '$lib/assets/images/about/about_1.jpg';
     import heroImage from '$lib/assets/images/about/about_wallpaper.png';
@@ -42,9 +43,7 @@
 <div>
     <section class="hero-section">
         <div class="hero-image-container">
-            <img src={heroImage} alt="Hero Background" class="hero-image-background" />
-            <div class="hero-image-background-overlay"></div>
-            <img src={heroImage} alt="Hero" class="hero-image" />
+            <ResponsiveImage src={heroImage} sizes="100vw" alt="" class="hero-image" loading="eager" />
             <div class="hero-image-overlay"></div>
         </div>
         
@@ -76,45 +75,20 @@
 
     .hero-image-container {
         position: absolute;
-        display: flex;
-        justify-content: center;
+        inset: 0;
 
-        * {
-            min-height: 100vh;
-            height: 100vh;
-            max-height: 1400px;
-        }
-
-        .hero-image-background {
-            height: 100vh;
+        :global(.hero-image) {
+            width: 100%;
+            height: 100%;
             object-fit: cover;
-            z-index: 1;
-            width: 100vw;
-            filter: blur(8px);
-        }
-        
-        .hero-image-background-overlay {
-            position: absolute; 
-            top:0; left:0; 
-            width:100%; height:100vh;
-            background: rgba(0,0,0,0.5);
-            z-index: 2;
-        }
-        
-        .hero-image {
-            position: absolute;
-            height: 100vh;
-            z-index: 3;
+            object-position: center;
         }
 
         .hero-image-overlay {
-            position: absolute; 
-            top:0; left:0;
-            width:100%; height:100vh;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.3) 40%, rgba(0,0,0, 0.9) 70%);
-            z-index: 4;
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
         }
-
     }
 
     .hero-content {
@@ -133,7 +107,7 @@
         width: 100%;
 
         .main-title {
-            color: white;
+            color: var(--color-on-primary);
             font-weight: 100;
 
             font-size: 5rem;
@@ -159,7 +133,7 @@
             padding-left: 0.3em;
             font-weight: 100;
             opacity: 0.7;
-            color: white;
+            color: var(--color-on-primary);
         }
 
         .hero-description {

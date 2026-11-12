@@ -46,7 +46,7 @@
     display: block;
     position: relative;
     overflow: hidden;
-    border-radius: 2px;
+    border-radius: var(--radius);
     aspect-ratio: 3 / 4;
     cursor: pointer;
 
@@ -75,7 +75,7 @@
 .card-image-placeholder {
     width: 100%;
     height: 100%;
-    background: #1a1a1a;
+    background: var(--color-on-surface);
 }
 
 .card-info {
@@ -95,7 +95,7 @@
         font-weight: 100;
         letter-spacing: 0.08em;
         margin: 0 0 0.15rem;
-        color: white;
+        color: var(--color-on-primary);
 
         @media (--tablet) {
             font-size: 1.05rem;
@@ -106,7 +106,7 @@
     .name-kr {
         font-size: 1.2rem;
         font-weight: 300;
-        color: white;
+        color: var(--color-on-primary);
         margin: 0 0 0.5rem;
 
         @media (--tablet) {
@@ -119,7 +119,7 @@
         font-size: 0.85rem;
         font-weight: 300;
         letter-spacing: 0.1em;
-        color: white;
+        color: var(--color-on-primary);
         text-transform: lowercase;
 
         @media (--tablet) {

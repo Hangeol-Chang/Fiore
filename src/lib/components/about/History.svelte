@@ -108,7 +108,7 @@
             top: 0;
             bottom: 0;
             width: 1px;
-            background: $gray1;
+            background: var(--color-green-200);
             transform: translateX(-50%);
             z-index: 0;
         }
@@ -129,14 +129,14 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: white;
+        background: var(--color-surface);
         padding: 0.25rem 0;
     }
 
     .year {
         font-size: 3.8rem;
         font-weight: 700;
-        color: #CCC;
+        color: var(--color-green-600);
         line-height: 1;
         letter-spacing: -0.02em;
     }
@@ -159,13 +159,13 @@
         font-size: 0.68rem;
         font-weight: 700;
         letter-spacing: 0.18em;
-        color: $black1;
+        color: var(--color-on-surface);
         margin-bottom: 0.5rem;
     }
 
     .desc-item {
         font-size: 0.88rem;
-        color: $gray3;
+        color: var(--color-green-700);
         line-height: 1.75;
         margin: 0;
     }
@@ -176,14 +176,14 @@
         z-index: 1;
         text-align: center;
         padding: 1rem 0 2rem;
-        background: white;
+        background: var(--color-surface);
         width: fit-content;
         margin: 0 auto;
         padding: 0 1.5rem;
 
         p {
             font-size: 0.9rem;
-            color: $gray2;
+            color: var(--color-green-600);
             letter-spacing: 0.08em;
             font-style: italic;
         }
@@ -216,8 +216,8 @@
                 width: 8px;
                 height: 8px;
                 border-radius: 50%;
-                background: white;
-                border: 1.5px solid $gray1;
+                background: var(--color-surface);
+                border: 1.5px solid var(--color-green-200);
                 z-index: 2;
             }
         }
