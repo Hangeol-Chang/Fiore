@@ -2,8 +2,6 @@
 	import '$lib/components/logo/logo.css';
 	import LogoLine from '$lib/components/logo/LogoLine.svelte';
 	import LogoArea from '$lib/components/logo/LogoArea.svelte';
-	import LogoAreaRise from '$lib/components/logo/LogoAreaRise.svelte';
-	import LogoAreaRipple from '$lib/components/logo/LogoAreaRipple.svelte';
 	import LogoText from '$lib/components/logo/LogoText.svelte';
 	import LetterF from '$lib/components/logo/LetterF.svelte';
 	import LetterI from '$lib/components/logo/LetterI.svelte';
@@ -35,20 +33,6 @@
 			<div class="stack">
 				<LogoArea />
 				<LogoLine />
-			</div>
-		</section>
-		<section>
-			<h2>물이 차오름</h2>
-			<div class="stack">
-				<LogoAreaRise />
-				<LogoLine />
-			</div>
-		</section>
-		<section>
-			<h2>물방울 파형 (마우스를 올려보세요)</h2>
-			<div class="stack">
-				<LogoAreaRipple />
-				<LogoLine style="pointer-events: none" />
 			</div>
 		</section>
 		<section>

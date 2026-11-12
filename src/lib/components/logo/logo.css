@@ -1,3 +1,4 @@
+/* 시간은 --dur-slow 기준이라 모션 줄이기(0s)에서는 완성된 모양이 바로 보임 */
 /* 라인아트 드로잉: svg(또는 부모)에 class="draw" 를 주면 재생. 윤곽선이 그려진 뒤 채움이 차오름 */
 .draw .letter {
 	fill-opacity: 0;
@@ -7,13 +8,13 @@
 	stroke-dasharray: 1;
 	stroke-dashoffset: 1;
 	animation:
-		logo-draw 2.2s ease-in-out var(--d, 0s) forwards,
-		logo-fill 0.8s ease calc(var(--d, 0s) + 2s) forwards;
+		logo-draw calc(var(--dur-slow) * 3) ease-in-out var(--d, 0s) forwards,
+		logo-fill var(--dur-slow) ease calc(var(--d, 0s) + var(--dur-slow) * 2.5) forwards;
 }
-.draw > svg:nth-child(2) { --d: 0.3s; }
-.draw > svg:nth-child(3) { --d: 0.6s; }
-.draw > svg:nth-child(4) { --d: 0.9s; }
-.draw > svg:nth-child(5) { --d: 1.2s; }
+.draw > svg:nth-child(2) { --d: calc(var(--dur-slow) * 0.4); }
+.draw > svg:nth-child(3) { --d: calc(var(--dur-slow) * 0.8); }
+.draw > svg:nth-child(4) { --d: calc(var(--dur-slow) * 1.2); }
+.draw > svg:nth-child(5) { --d: calc(var(--dur-slow) * 1.6); }
 
 @keyframes logo-draw { to { stroke-dashoffset: 0; } }
 @keyframes logo-fill { to { fill-opacity: 1; stroke-opacity: 0; } }
@@ -22,5 +23,5 @@
 .draw .reveal {
 	stroke-dasharray: 1;
 	stroke-dashoffset: 1;
-	animation: logo-draw 2.4s ease-in-out forwards;
+	animation: logo-draw calc(var(--dur-slow) * 3) ease-in-out forwards;
 }

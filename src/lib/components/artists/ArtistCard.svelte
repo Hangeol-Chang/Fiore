@@ -1,17 +1,21 @@
 <script>
     import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
+    import LogoAreaWave from '$lib/components/logo/LogoAreaWave.svelte';
     let { artist } = $props();
+    let wave = $state();
 </script>
 
 {#if artist.role_name === "artist" || artist.role_name === "group"}
-<a href="/artists/{artist.id}" class="artist-card">
+<a href="/artists/{artist.id}" class="artist-card"
+    onpointerenter={() => wave.start()} onpointerleave={() => wave.stop()}
+    onfocus={(e) => e.currentTarget.matches(':focus-visible') && wave.start()} onblur={() => wave.stop()}>
     <div class="card-image-wrapper">
         {#if artist.thumb_url || artist.mid_url || artist.image_url}
             <ResponsiveImage src={artist.image_url} thumb={artist.thumb_url} mid={artist.mid_url} large={artist.large_url} width={artist.width} height={artist.height} sizes="(max-width: 768px) 50vw, 25vw" alt={artist.name} class="card-image" />
         {:else}
             <div class="card-image-placeholder"></div>
         {/if}
-        <div class="card-overlay"></div>
+        <LogoAreaWave bind:this={wave} />
     </div>
 
     <div class="card-info">
@@ -28,7 +32,6 @@
         {:else}
             <div class="card-image-placeholder"></div>
         {/if}
-        <div class="card-overlay"></div>
     </div>
 
     <div class="card-info">
@@ -47,26 +50,15 @@
     aspect-ratio: 3 / 4;
     cursor: pointer;
 
+    &:focus-visible {
+        outline: 2px solid var(--color-green-500);
+        outline-offset: -2px;
+    }
+
     &.no-link {
         cursor: default;
     }
 
-    &:not(.no-link):hover {
-        :global(.card-image) {
-            transform: scale(1.05);
-        }
-        .card-overlay {
-            background: linear-gradient(to bottom, 
-                rgba(0, 0, 0, 0.0) 50%,
-                rgba(0, 0, 0, 0.5) 70%,
-                rgba(0, 0, 0, 0.8) 100%
-            );
-        }
-
-        .card-info {
-            transform: scale(1.05);
-        }
-    }
 }
 
 .card-image-wrapper {
@@ -78,24 +70,12 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.4s ease;
 }
 
 .card-image-placeholder {
     width: 100%;
     height: 100%;
     background: #1a1a1a;
-}
-
-.card-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to bottom, 
-        rgba(0, 0, 0, 0.0) 50%,
-        rgba(0, 0, 0, 0.5) 70%,
-        rgba(0, 0, 0, 0.8) 100%
-    );
-    transition: background 0.3s ease;
 }
 
 .card-info {
@@ -105,8 +85,6 @@
     right: 0;
     padding: 1.5rem 1.2rem;
     z-index: 2;
-    transform-origin: bottom left;
-    transition: transform 0.4s ease;
 
     @media (--tablet) {
         padding: 0.9rem 0.8rem;
@@ -128,7 +106,7 @@
     .name-kr {
         font-size: 1.2rem;
         font-weight: 300;
-        color: rgba(255, 255, 255, 0.4);
+        color: white;
         margin: 0 0 0.5rem;
 
         @media (--tablet) {
@@ -141,7 +119,7 @@
         font-size: 0.85rem;
         font-weight: 300;
         letter-spacing: 0.1em;
-        color: rgba(255, 255, 255, 0.6);
+        color: white;
         text-transform: lowercase;
 
         @media (--tablet) {

@@ -1,4 +1,6 @@
 <script>
+	import { navigating } from '$app/state';
+	import Loader from '@/components/ui/Loader.svelte';
 	import { dev } from '$app/environment';
 	import { inject } from '@vercel/analytics';
 	import { injectSpeedInsights } from '@vercel/speed-insights';
@@ -22,6 +24,7 @@
 	<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
 </svelte:head>
 
+<Loader active={!!navigating.to} overlay />
 <Header />
 <div class="content">
 	{@render children()}
