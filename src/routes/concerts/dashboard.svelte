@@ -158,7 +158,7 @@
         transition: transform var(--dur-slow) ease;
     }
 
-    .slide { flex: 0 0 100%; min-width: 0; }
+    .slide { flex: 0 0 100%; min-width: 0; box-sizing: border-box; padding: 0 var(--space-3); } /* 좌우 여백: 다음 슬라이드 가장자리가 비쳐 보이지 않게 */
 
     .concert-show {
         display: grid;
