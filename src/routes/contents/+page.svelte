@@ -1,7 +1,7 @@
 <script>
     import NavSection from "@/components/common/NavSection.svelte";
-    import interviewImage from '$lib/assets/images/background/amatuer_meet_thumbnail.png';
-    import podcastImage from '$lib/assets/images/background/podcast_wallpaper.png';
+    import interviewImage from '$lib/assets/images/background/amatuer_meet_thumbnail.webp';
+    import podcastImage from '$lib/assets/images/background/podcast_wallpaper.webp';
 
     let { data } = $props();
 

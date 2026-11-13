@@ -1,7 +1,7 @@
 <script>
     import { onMount } from 'svelte';
-    import visionImage from '$lib/assets/images/about/about_1.jpg';
-    import heroImage from '$lib/assets/images/about/about_wallpaper.png';
+    import visionImage from '$lib/assets/images/about/about_1.webp';
+    import heroImage from '$lib/assets/images/about/about_wallpaper.webp';
     import Vision from '@/components/about/Vision.svelte';
     import MembershipHero from '@/components/about/MembershipHero.svelte';
     import History from '@/components/about/History.svelte';
