@@ -2,7 +2,7 @@
 	import '$lib/components/logo/logo.css';
 	import LogoLine from '$lib/components/logo/LogoLine.svelte';
 	import LogoText from '$lib/components/logo/LogoText.svelte';
-	import bg from '$lib/assets/images/home/main_bg.png';
+	import bg from '$lib/assets/images/home/main_bg.webp';
 
 	let scrolled = $state(false);
 	const next = () => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });

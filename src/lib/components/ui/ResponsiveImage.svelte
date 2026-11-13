@@ -16,8 +16,8 @@
 		...rest
 	} = $props();
 
-	const srcset = $derived(buildSrcset({ thumb, mid, large, src, width }));
-	// srcset을 못 쓰는 브라우저용 기본 주소: 너무 크지 않은 변형부터
+	const srcset = $derived(buildSrcset({ thumb, mid, large }));
+	// 기본 주소: 리사이즈본 우선. src(원본)는 변형이 하나도 없는 레거시 행의 안전망일 뿐이다
 	const fallback = $derived(mid || large || thumb || src);
 </script>
 

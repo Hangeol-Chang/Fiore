@@ -179,6 +179,7 @@
         .poster-placeholder {
             display: block;
             width: 100%;
+            height: auto; /* img height 속성(힌트)이 aspect-ratio를 덮어쓰는 것 방지 */
             aspect-ratio: 3 / 4;
             object-fit: cover;
             background: var(--color-green-100);

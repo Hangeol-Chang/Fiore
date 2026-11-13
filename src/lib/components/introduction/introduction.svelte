@@ -1,7 +1,7 @@
 <script>
     import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
     import { onMount } from 'svelte';
-    import introImage from '$lib/assets/images/about/about_2.jpg';
+    import introImage from '$lib/assets/images/about/about_2.webp';
 
     let listContainer;
     let imageContainer;

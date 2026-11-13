@@ -1,6 +1,6 @@
 <script>
     import HeroSection from './HeroSection.svelte';
-    import bgImage from '$lib/assets/images/home/main_bg.png';
+    import bgImage from '$lib/assets/images/home/main_bg.webp';
     import LogoDivider from '$lib/components/ui/LogoDivider.svelte';
 
     let {
@@ -12,8 +12,14 @@
         onFilter = () => {},
         /** @type {string|null} 배경 이미지 경로 (없으면 compact 모드) */
         image = null,
-        /** main_bg.png 배경 + 흰 글자·음각 효과 (이미지 없는 모드에서만) */
+        /** main_bg.webp 배경 + 흰 글자·음각 효과 (이미지 없는 모드에서만) */
         bg = false,
+        /** @type {string|null} bg 모드에서 아래쪽에 그라데이션으로 전환될 이미지 */
+        bgBottom = null,
+        /** bg 이미지 채도 (1 = 원본, 0 = 흑백) */
+        bgSaturate = 1,
+        /** 0~1: main_bg 위에 덮는 어두운 초록 오버레이 투명도 (채도 있는 짙은 초록) */
+        bgDim = 0,
         maxHeight = '700px',
         imageMaxWidth = '1400px',
         aspectRatio = '16/9',
@@ -27,7 +33,12 @@
         heroSubtitle = "",
 
     } = $props();
+
+    // bgBottom 패럴랙스: 스크롤의 50%만큼 이미지가 따라 내려와 천천히 뒤로 들어가는 느낌
+    let scrollY = $state(0);
 </script>
+
+<svelte:window bind:scrollY />
 
 {#if bg && !image}
     <!-- 음각: 위·왼쪽 안쪽 가장자리를 회색으로 번지게 (홈 Hero와 같은 방식). 글자는 1px, 56px 마크는 1px ≈ 6.6 단위 -->
@@ -53,7 +64,10 @@
     </svg>
 {/if}
 
-<section class="nav-section" class:has-image={image} class:bg={bg && !image} style:background-image={bg && !image ? `url(${bgImage})` : null}>
+<section class="nav-section" class:has-image={image} class:bg={bg && !image} class:has-bottom={bg && !image && bgBottom} style:--bg-bottom={bgBottom ? `url(${bgBottom})` : null} style:--py={scrollY * 0.5}>
+    {#if bg && !image}
+        <div class="bg-img" style:background-image="url({bgImage})" style:filter={bgSaturate === 1 ? null : `saturate(${bgSaturate})`} style:--dim={bgDim}></div>
+    {/if}
     <h1>{title}</h1>
     <h3>{subtitle}</h3>
     {#if !image}
@@ -96,10 +110,24 @@
     }
 
     .nav-section.bg {
-        background-size: cover;
-        background-position: center;
         background-color: var(--color-green-500);
         color: #fff;
+        isolation: isolate;
+
+        .bg-img {
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            background-size: cover;
+            background-position: center;
+
+            &::after {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: rgba(36, 45, 32, var(--dim, 0));
+            }
+        }
 
         h1, h3 {
             color: #fff;
@@ -112,6 +140,22 @@
         .filter-btn,
         .filter-btn:hover,
         .filter-btn.active { color: #fff; }
+    }
+
+    /* 위: main_bg 유지, 아래: bgBottom 이미지로 마스크 그라데이션 전환 */
+    .nav-section.has-bottom {
+        overflow: hidden;
+        &::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--bg-bottom) center / cover;
+            transform: translateY(min(calc(var(--py, 0) * 1px), 30%));
+            will-change: transform;
+            filter: brightness(0.25);
+            mask-image: linear-gradient(to bottom, transparent 25%, rgba(0, 0, 0, 1) 100%);
+        }
+        > :global(*) { position: relative; }
     }
 
     .nav-section {

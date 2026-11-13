@@ -1,6 +1,6 @@
 <script>
     import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
-    import bg from '$lib/assets/images/home/main_bg.png';
+    import bg from '$lib/assets/images/home/main_bg.webp';
     import fioreLogoText from '$lib/assets/icons/fiore_logo_text_full.png';
 </script>
 

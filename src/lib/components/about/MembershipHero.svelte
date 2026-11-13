@@ -1,6 +1,6 @@
 <script>
     import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
-    import membershipWallpaper from '$lib/assets/images/about/membership_wallpaper.jpg'
+    import membershipWallpaper from '$lib/assets/images/about/membership_wallpaper.webp'
     import { MoveRight } from 'lucide-svelte';
 
     export let canClick = true;

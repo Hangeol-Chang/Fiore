@@ -1,7 +1,7 @@
 <script>
     import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
     import { onMount } from 'svelte';
-    import fioreum_wallpaper from '$lib/assets/images/fioreum/fioreum_wallpaper.png';
+    import fioreum_wallpaper from '$lib/assets/images/fioreum/fioreum_wallpaper.webp';
     import FlowerLine from '@/components/fioreum/Flower.svelte';
     import flower_ref_image from '$lib/assets/images/fioreum/flower.jpg';
 

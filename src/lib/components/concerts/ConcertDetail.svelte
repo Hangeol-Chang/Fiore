@@ -98,7 +98,7 @@
 
 <div class="concert-detail-page">
     <HeroSection 
-        image={concert.banner_image_url || concert.poster_mid_url || concert.poster_url}
+        image={concert.banner_large_url || concert.banner_mid_url || concert.poster_large_url || concert.poster_mid_url}
         maxHeight="700px"
         aspectRatio="16/9"
     />

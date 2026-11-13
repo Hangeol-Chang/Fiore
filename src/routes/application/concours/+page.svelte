@@ -114,7 +114,7 @@
     <div class="concours-detail-page">
         <div class="large-desktop-poster">
             <HeroSection
-                image={concours.poster_url}
+                image={concours.poster_large_url || concours.poster_mid_url}
                 scrollYOffset={200}
                 aspectRatio="1/2"
                 backgroundColor="transparent"
