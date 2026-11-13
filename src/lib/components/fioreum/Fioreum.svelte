@@ -19,34 +19,51 @@
         return -c / 2 * (t * (t - 2) - 1) + b;
     }
 
-    function smoothScrollTo(target, duration) {
+    let rafId = 0;
+    let cancelled = false;
+
+    // 목표 위치는 매 프레임 다시 계산 (이미지 로딩으로 레이아웃이 바뀌어도 어긋나지 않게)
+    function smoothScrollTo(getTarget, duration) {
         const start = window.scrollY;
-        const change = target - start;
         const startTime = performance.now();
 
         function animateScroll(currentTime) {
-            const timeElapsed = currentTime - startTime;
-            if (timeElapsed < duration) {
-                const progress = easeInOutQuad(timeElapsed, start, change, duration);
-                window.scrollTo(0, progress);
-                requestAnimationFrame(animateScroll);
+            if (cancelled) return;
+            const target = getTarget();
+            const elapsed = currentTime - startTime;
+            if (elapsed < duration) {
+                window.scrollTo(0, easeInOutQuad(elapsed, start, target - start, duration));
+                rafId = requestAnimationFrame(animateScroll);
             } else {
                 window.scrollTo(0, target);
                 isAutoScrolling = false;
             }
         }
-        requestAnimationFrame(animateScroll);
+        rafId = requestAnimationFrame(animateScroll);
+    }
+
+    function waitForImages(root, timeout) {
+        const imgs = [...root.querySelectorAll('img')].filter((i) => !i.complete);
+        return Promise.race([
+            Promise.all(imgs.map((i) => new Promise((r) => {
+                i.addEventListener('load', r, { once: true });
+                i.addEventListener('error', r, { once: true });
+            }))),
+            new Promise((r) => setTimeout(r, timeout))
+        ]);
     }
 
     onMount(() => {
-        // Auto scroll
-        setTimeout(() => {
+        // SvelteKit의 네비게이션 후 scroll reset과 이미지 레이아웃이 끝난 뒤에 시작
+        (async () => {
+            const hero = document.querySelector('.hero-container');
+            if (hero) await waitForImages(hero, 1500);
+            await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+            if (cancelled) return;
             const flower = document.querySelector('.flower');
-            if (flower) {
-                const target = flower.getBoundingClientRect().top + window.scrollY;
-                smoothScrollTo(target, 2000);
-            }
-        }, 100);
+            if (!flower) { isAutoScrolling = false; return; }
+            smoothScrollTo(() => flower.getBoundingClientRect().top + window.scrollY, 2000);
+        })();
 
         if (canvas) {
             const ctx = canvas.getContext('2d');
@@ -76,6 +93,8 @@
             observer.observe(mapSectionRef);
         }
         return () => {
+            cancelled = true;
+            cancelAnimationFrame(rafId);
             if (mapSectionRef) observer.unobserve(mapSectionRef);
         };
     });
