@@ -2,10 +2,10 @@
     import { onMount } from 'svelte';
     import { fly, fade } from 'svelte/transition';
     import { ChevronLeft, ChevronRight, Users, Heart, TrendingUp, Sparkles, Theater } from 'lucide-svelte';
-    import aboutImage from '$lib/assets/images/about/about_1.jpg';
-    import aboutImage2 from '$lib/assets/images/about/about_2.jpg';
-    import aboutImage3 from '$lib/assets/images/about/about_wallpaper.png';
-    import aboutImage4 from '$lib/assets/images/about/membership_wallpaper.jpg';
+    import aboutImage from '$lib/assets/images/about/about_1.webp';
+    import aboutImage2 from '$lib/assets/images/about/about_2.webp';
+    import aboutImage3 from '$lib/assets/images/about/about_wallpaper.webp';
+    import aboutImage4 from '$lib/assets/images/about/membership_wallpaper.webp';
 
     let isVisible = false;
     let sectionRef;

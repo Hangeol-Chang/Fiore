@@ -1,5 +1,5 @@
 <script>
-    import rentalImage from '$lib/assets/images/fioreum/rental_info.png';
+    import rentalImage from '$lib/assets/images/fioreum/rental_info.webp';
     import { PIANOLIFE_BACKEND_URL } from '$env/static/public';
     import { Phone, Mail, CheckCircle, XCircle } from 'lucide-svelte';
     import RentalCalendar from './RentalCalendar.svelte';
