@@ -1,9 +1,10 @@
 import { redirect, fail } from '@sveltejs/kit';
-import { ADMIN_EMAILS, ADMIN_API_KEY } from '$env/static/private';
+import { ADMIN_EMAILS } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import { PIANOLIFE_BACKEND_URL } from '$env/static/public';
 
 const API = `${PIANOLIFE_BACKEND_URL || 'http://localhost:8000'}/api/results/admin/recruitments`;
-const headers = { 'X-Admin-Key': ADMIN_API_KEY, 'Content-Type': 'application/json' };
+const headers = { 'X-Admin-Key': env.ADMIN_API_KEY, 'Content-Type': 'application/json' };
 
 async function guard(locals) {
   const session = await locals.auth();
