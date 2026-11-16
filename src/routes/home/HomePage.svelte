@@ -4,7 +4,7 @@
 
     // Asset Imports
     // import bgImage from '$lib/assets/images/home/home_wallpaper.png';
-    import bgImage from '$lib/assets/images/about/membership_wallpaper.jpg';
+    import bgImage from '$lib/assets/images/about/membership_wallpaper.webp';
     import Vision from '@/components/about/Vision.svelte';
     import ArtistsDashboard from '$routes/artists/dashboard.svelte';
     import ConcertsDashboard from '$routes/concerts/dashboard.svelte';
