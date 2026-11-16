@@ -55,6 +55,11 @@
                     <h3>공지사항 관리</h3>
                     <p>공지사항 추가/수정/삭제</p>
                 </a>
+                <a href="/admin/results" class="admin-card">
+                    <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8" /><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9" /></svg>
+                    <h3>모집 공고 / 결과 관리</h3>
+                    <p>모집 공고 등록, 지원 결과 CSV 가져오기/공개</p>
+                </a>
                 <a href="/admin/banners" class="admin-card">
                     <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="19" height="16" rx="1.5" /><line x1="7.5" y1="4" x2="7.5" y2="20" /><line x1="16.5" y1="4" x2="16.5" y2="20" /><line x1="2.5" y1="9" x2="7.5" y2="9" /><line x1="2.5" y1="15" x2="7.5" y2="15" /><line x1="16.5" y1="9" x2="21.5" y2="9" /><line x1="16.5" y1="15" x2="21.5" y2="15" /></svg>
                     <h3>배너 관리</h3>
