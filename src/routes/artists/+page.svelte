@@ -3,6 +3,7 @@
     import { PIANOLIFE_BACKEND_URL } from "$env/static/public";
     import ArtistCard from "@/components/artists/ArtistCard.svelte";
     import NavSection from "@/components/common/NavSection.svelte";
+    import artistBg from "@/assets/images/background/artist_bg.webp";
 
     const API = PIANOLIFE_BACKEND_URL || "http://localhost:8000";
     const PAGE_SIZE = 12;
@@ -46,6 +47,8 @@
     <NavSection
         title="Artists"
         bg
+        bgDim={0.6}
+        bgBottom={artistBg}
         subtitle="오늘의 신예, 내일의 거장"
     />
 
